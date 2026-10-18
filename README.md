@@ -20,7 +20,15 @@ Settings → Updates provides a weekly-check toggle, manual check, installation 
 
 Starting with 1.6.1, settings always show the installed version and build number. Every manual check shows a dialog: the installed and available versions with an installation button, confirmation that the installed version is current, or a connection error. Weekly update notifications also identify the installed and available versions. Manual-check dialogs do not require macOS notification permission.
 
-## Version 1.11.0 (build 29)
+## Version 1.11.1 (build 30)
+
+- Complete German localization, including VPN, Liquid Glass, update dialogs and permission descriptions. Select **Deutsch** in Settings → General → Language, or use a German system language.
+- Thanks to [CTeipen](https://github.com/CTeipen) for the translation in [PR #1](https://github.com/squazaryu/T-DuoBar/pull/1).
+- All 232 English keys are covered; format arguments and regional German language selection are tested. No breaking changes or migration steps.
+
+The localization checks and native German renders passed 16 tests. The attempted full suite was interrupted while waiting in the existing Bluetooth API initialization test; see [1.11.1 validation](release/1.11.1/VALIDATION.md).
+
+### Previous improvements (1.11.0, build 29)
 
 - A separate VPN card shows the status and profile name reported by macOS, with optional interface details and a link to VPN settings. It can be hidden or reordered independently.
 - Choose Classic or native Liquid Glass in Appearance. Glass requires macOS 26+, has a background-transparency slider, and keeps text and controls at normal opacity. Classic is the default; older systems and Reduce Transparency use the opaque presentation.
@@ -64,7 +72,7 @@ No breaking changes or preference migration. Existing settings are retained.
 
 ## Experimental DMG
 
-[Download T-DuoBar 1.11.0](https://github.com/squazaryu/T-DuoBar/releases/download/v1.11.0/T-DuoBar-1.11.0.dmg) · [Release notes and SHA-256](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.11.0)
+[Download T-DuoBar 1.11.1](https://github.com/squazaryu/T-DuoBar/releases/download/v1.11.1/T-DuoBar-1.11.1.dmg) · [Release notes and SHA-256](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.11.1)
 
 **The DMG is an experimental ad-hoc signed build, not Developer ID signed or Apple notarized.** Quit DuoBar, back up the installed copy, mount the DMG, and drag `DuoBar.app` to Applications. Launch it from Applications. macOS may block a downloaded copy; use [Apple's documented individual-app procedure](https://support.apple.com/en-us/102445) only if you trust the release. Do not disable system protections globally.
 
