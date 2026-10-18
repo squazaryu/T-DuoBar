@@ -1,7 +1,7 @@
 import Foundation
 
 enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
-    case system, english = "en", russian = "ru", ukrainian = "uk"
+    case system, english = "en", german = "de", russian = "ru", ukrainian = "uk"
     case simplifiedChinese = "zh-Hans", traditionalChinese = "zh-Hant"
 
     var id: String { rawValue }
@@ -10,6 +10,7 @@ enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .system: localized("System language")
         case .english: "English"
+        case .german: "Deutsch"
         case .russian: "Русский"
         case .ukrainian: "Українська"
         case .simplifiedChinese: "简体中文"

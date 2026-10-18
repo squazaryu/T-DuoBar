@@ -5,13 +5,14 @@ import XCTest
 final class ConvenienceSettingsTests: XCTestCase {
     func testLanguageResourcesResolveIndependentlyOfSystemLanguage() {
         XCTAssertEqual(AppLocalization.string("Settings", language: .english), "Settings")
+        XCTAssertEqual(AppLocalization.string("Settings", language: .german), "Einstellungen")
         XCTAssertEqual(AppLocalization.string("Settings", language: .russian), "Настройки")
         XCTAssertEqual(AppLocalization.string("Settings", language: .ukrainian), "Параметри")
         XCTAssertNotEqual(AppLocalization.string("Settings", language: .simplifiedChinese), "Settings")
         XCTAssertNotEqual(AppLocalization.string("Settings", language: .traditionalChinese), "Settings")
         XCTAssertEqual(AppLocalization.string("Unknown translation key", language: .russian), "Unknown translation key")
         XCTAssertNil(AppLanguage(rawValue: "../../unsupported"))
-        XCTAssertEqual(AppLanguage.allCases.map(\.rawValue).count, 6)
+        XCTAssertEqual(AppLanguage.allCases.map(\.rawValue).count, 7)
     }
 
     func testAutoHideOnlyHidesEmptySuccessfulResultsAndKeepsRecoveryVisible() {

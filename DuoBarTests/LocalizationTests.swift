@@ -182,13 +182,13 @@ final class LocalizationTests: XCTestCase {
     ]
 
     func testAllSupportedLocalizationResourcesExist() {
-        for language in ["en", "ru", "uk", "zh-Hans", "zh-Hant"] {
+        for language in AppLanguage.allCases.filter({ $0 != .system }).map(\.rawValue) {
             XCTAssertNotNil(localizationBundle(for: language), "Missing \(language).lproj")
         }
     }
 
     func testRequiredProductionKeysArePresentAndNonEmptyInEverySupportedLanguage() {
-        for language in ["en", "ru", "uk", "zh-Hans", "zh-Hant"] {
+        for language in AppLanguage.allCases.filter({ $0 != .system }).map(\.rawValue) {
             guard let bundle = localizationBundle(for: language) else {
                 return XCTFail("Missing \(language).lproj")
             }
@@ -206,7 +206,7 @@ final class LocalizationTests: XCTestCase {
     }
 
     func testFormatPlaceholdersRemainCompatible() {
-        for language in ["en", "ru", "uk", "zh-Hans", "zh-Hant"] {
+        for language in AppLanguage.allCases.filter({ $0 != .system }).map(\.rawValue) {
             guard let bundle = localizationBundle(for: language) else {
                 return XCTFail("Missing \(language).lproj")
             }
@@ -215,6 +215,34 @@ final class LocalizationTests: XCTestCase {
             XCTAssertTrue(NSLocalizedString("volume %d percent", bundle: bundle, comment: "").contains("%d"))
             XCTAssertTrue(NSLocalizedString("battery %d percent", bundle: bundle, comment: "").contains("%d"))
         }
+    }
+
+    func testGermanCoversEveryEnglishKeyAndPreservesFormatArguments() throws {
+        let englishBundle = try XCTUnwrap(localizationBundle(for: "en"))
+        let germanBundle = try XCTUnwrap(localizationBundle(for: "de"))
+        let english = try XCTUnwrap(localizationStrings(in: englishBundle) as? [String: String])
+        let german = try XCTUnwrap(localizationStrings(in: germanBundle) as? [String: String])
+        XCTAssertEqual(Set(german.keys), Set(english.keys))
+        let format = try NSRegularExpression(pattern: #"%(?:\d+\$)?[@diuf%]"#)
+        func arguments(in value: String) -> [String] {
+            format.matches(in: value, range: NSRange(value.startIndex..., in: value)).map {
+                (value as NSString).substring(with: $0.range)
+            }
+        }
+        for (key, source) in english {
+            let translated = try XCTUnwrap(german[key], "Missing German key: \(key)")
+            XCTAssertFalse(translated.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, key)
+            XCTAssertEqual(arguments(in: source), arguments(in: translated), key)
+        }
+    }
+
+    func testGermanRegionalSystemLanguagesResolveToGermanResources() {
+        for region in ["de-DE", "de-AT", "de-CH"] {
+            XCTAssertEqual(Bundle.preferredLocalizations(from: Bundle.main.localizations,
+                forPreferences: [region]).first, "de")
+        }
+        XCTAssertEqual(AppLanguage.german.name, "Deutsch")
+        XCTAssertEqual(AppLanguage.german.locale.language.languageCode?.identifier, "de")
     }
 
     func testPreferencePersistenceIdentifiersRemainStable() {

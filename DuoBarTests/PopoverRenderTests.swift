@@ -207,6 +207,34 @@ final class PopoverRenderTests: XCTestCase {
     }
 
     @MainActor
+    func testRenderGermanPopoverAndAppearanceSettings() throws {
+        let defaults = UserDefaults.standard
+        let previousLanguage = defaults.object(forKey: PreferenceKeys.language)
+        defer {
+            if let previousLanguage { defaults.set(previousLanguage, forKey: PreferenceKeys.language) }
+            else { defaults.removeObject(forKey: PreferenceKeys.language) }
+        }
+        defaults.set("de", forKey: PreferenceKeys.language)
+        let store = SystemStatusStore(startServices: false)
+        store.applyDebugBatteryStatus(BatteryStatus(percentage: 72, isCharging: false,
+            isPluggedIn: false, isFullyCharged: false, isAvailable: true, timeToEmptyMinutes: 108))
+        for (label, scheme, appearance) in [
+            ("Light", ColorScheme.light, NSAppearance.Name.aqua),
+            ("Dark", ColorScheme.dark, NSAppearance.Name.darkAqua)
+        ] {
+            try writePNG(StatusPopoverView(statusStore: store, onClose: {}).content
+                .background(Color(nsColor: .windowBackgroundColor))
+                .environment(\.colorScheme, scheme),
+                named: "T-DuoBar-German-Popover-\(label).png", appearance: appearance)
+            try writePNG(GeneralSettingsView(onPreviewPopover: {})
+                .frame(width: 560, height: 590)
+                .background(Color(nsColor: .windowBackgroundColor))
+                .environment(\.colorScheme, scheme),
+                named: "T-DuoBar-German-Settings-\(label).png", appearance: appearance)
+        }
+    }
+
+    @MainActor
     private func writePNG<Content: View>(_ content: Content, named name: String,
                                        appearance: NSAppearance.Name = .darkAqua) throws {
         let hostingView = NSHostingView(rootView: content)
