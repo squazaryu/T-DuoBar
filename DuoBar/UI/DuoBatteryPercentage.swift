@@ -14,8 +14,9 @@ struct DuoBatteryPercentage: Equatable {
     }
 
     var topGapDegrees: Double {
-        if value == 100 { return showsPower ? 144 : 116 }
-        return showsPower ? 116 : 96
+        // Reserve room for the widest reading (100) at every charge level.
+        // A fixed gap also prevents the arc ends jumping as the digits change.
+        showsPower ? 156 : 144
     }
 }
 
@@ -25,10 +26,9 @@ struct DuoBatteryPercentageLabel: View {
 
     var body: some View {
         let scale = metrics.ringDiameter / DuoGlyphMetrics.standard.ringDiameter
-        HStack(alignment: .firstTextBaseline, spacing: 0.5 * scale) {
+        HStack(alignment: .center, spacing: 1 * scale) {
             Text(verbatim: String(percentage.value))
-                .font(.system(size: (percentage.value == 100 ? 11 : 12) * scale,
-                              weight: .bold, design: .rounded))
+                .font(.system(size: 11 * scale, weight: .semibold, design: .rounded))
                 .monospacedDigit()
             if percentage.showsPower {
                 Image(systemName: "bolt.fill")
@@ -37,13 +37,13 @@ struct DuoBatteryPercentageLabel: View {
         }
         .fixedSize()
         .foregroundStyle(.primary)
-        .offset(y: metrics.ringYOffset - metrics.ringDiameter * 0.38)
+        .offset(y: metrics.ringYOffset - metrics.ringDiameter * 0.40)
         .transaction { $0.animation = nil }
     }
 }
 
 /// Progress is measured along the two visible arcs, excluding the number gap.
-/// Thus 50% always fills one side, even when 100 needs a wider label.
+/// Thus 50% always fills one side, including the wider gap used with a power bolt.
 struct DuoPercentageArcShape: Shape {
     let startDegrees: Double
     let endDegrees: Double

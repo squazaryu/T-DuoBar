@@ -28,9 +28,68 @@ final class MenuBarBatteryPercentageTests: XCTestCase {
             battery: self.battery(16), ringMode: .battery)).showsPower)
     }
 
+    func testNumberChangesKeepArcEndsStable() {
+        for powered in [false, true] {
+            let gaps = (0...100).map { DuoBatteryPercentage(value: $0, showsPower: powered).topGapDegrees }
+            XCTAssertEqual(Set(gaps).count, 1, "Changing digits must not move the ring endpoints")
+        }
+    }
+
+    @MainActor
+    func testEveryReadingHasClearanceFromTheStrokedRing() throws {
+        let metrics = DuoGlyphMetrics.standard
+        for powered in [false, true] {
+            let gap = DuoBatteryPercentage(value: 100, showsPower: powered).topGapDegrees
+            let ring = DuoPercentageArcShape(startDegrees: metrics.arcStartDegrees,
+                endDegrees: metrics.arcEndDegrees, topGapDegrees: gap, progress: 1)
+                .stroke(.white, style: StrokeStyle(lineWidth: metrics.arcLineWidth, lineCap: .round))
+                .frame(width: metrics.ringPathDiameter, height: metrics.ringPathDiameter)
+                .offset(y: metrics.ringYOffset)
+                .frame(width: 32, height: 32)
+            let ringMask = try alphaMask(ring)
+            XCTAssertTrue(ringMask.contains { $0 > 32 }, "Ring must render before checking clearance")
+            for value in 0...100 {
+                let label = DuoBatteryPercentageLabel(
+                    percentage: DuoBatteryPercentage(value: value, showsPower: powered), metrics: metrics)
+                    .frame(width: 32, height: 32)
+                let labelMask = try alphaMask(label)
+                XCTAssertTrue(labelMask.contains { $0 > 32 }, "Digits must render before checking clearance")
+                // Four pixels per canvas point; require a half-point safety gap.
+                let collision = ringMask.indices.first { index in
+                    guard ringMask[index] > 32 else { return false }
+                    let x = index % 128, y = index / 128
+                    for dy in -2...2 {
+                        for dx in -2...2 where (0..<128).contains(x + dx) && (0..<128).contains(y + dy) {
+                            if labelMask[(y + dy) * 128 + x + dx] > 32 { return true }
+                        }
+                    }
+                    return false
+                }
+                XCTAssertNil(collision, "Reading \(value), powered=\(powered) touches the ring")
+            }
+        }
+    }
+
+    @MainActor
+    private func alphaMask<Content: View>(_ content: Content) throws -> [UInt8] {
+        let renderer = ImageRenderer(content: content.environment(\.colorScheme, .light))
+        renderer.scale = 4
+        let image = try XCTUnwrap(renderer.cgImage)
+        XCTAssertEqual(image.width, 128)
+        XCTAssertEqual(image.height, 128)
+        var pixels = [UInt8](repeating: 0, count: 128 * 128 * 4)
+        try pixels.withUnsafeMutableBytes { buffer in
+            let context = try XCTUnwrap(CGContext(data: buffer.baseAddress, width: 128, height: 128,
+                bitsPerComponent: 8, bytesPerRow: 128 * 4, space: CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue))
+            context.draw(image, in: CGRect(x: 0, y: 0, width: 128, height: 128))
+        }
+        return stride(from: 3, to: pixels.count, by: 4).map { pixels[$0] }
+    }
+
     func testPercentageProgressExcludesTheLabelGap() {
         let metrics = DuoGlyphMetrics.standard
-        for gap in [96.0, 116.0, 144.0] {
+        for gap in [144.0, 156.0] {
             for progress in [0.0, 0.01, 0.16, 0.5, 0.99, 1.0] {
                 let arc = DuoPercentageArcShape(startDegrees: metrics.arcStartDegrees,
                     endDegrees: metrics.arcEndDegrees, topGapDegrees: gap, progress: progress)
@@ -90,9 +149,14 @@ final class MenuBarBatteryPercentageTests: XCTestCase {
                     }
                     HStack(spacing: 20) {
                         ForEach(values, id: \.self) { value in
-                            DuoGlyphView(status: self.status(value), metrics: .standard.sized(88),
-                                animationsEnabled: false, batteryColorCodingEnabled: true,
-                                showsBatteryPercentage: true)
+                            VStack(spacing: 8) {
+                                DuoGlyphView(status: self.status(value), metrics: .standard.sized(88),
+                                    animationsEnabled: false, batteryColorCodingEnabled: true,
+                                    showsBatteryPercentage: true)
+                                DuoGlyphView(status: self.status(value, plugged: true), metrics: .standard.sized(88),
+                                    animationsEnabled: false, batteryColorCodingEnabled: true,
+                                    showsBatteryPercentage: true)
+                            }
                         }
                     }
                 }
