@@ -172,7 +172,7 @@ struct DuoGlyphView: View {
             .scaleEffect(1 + (BatteryChargingAnimationProfile.poweredCenterScale - 1) * clampedBoltProgress)
             .offset(y: metrics.wifiYOffset
                 + metrics.ringDiameter * BatteryChargingAnimationProfile.poweredCenterOffsetRatio * clampedBoltProgress)
-            .scaleEffect(batteryPercentage == nil ? 1 : 0.85)
+            .scaleEffect(batteryPercentage == nil ? 1 : 1.05)
             .offset(y: batteryPercentage == nil ? 0 : metrics.ringDiameter * 0.045)
 
             DuoDotRow(
@@ -180,9 +180,11 @@ struct DuoGlyphView: View {
                 diameter: metrics.dotDiameter,
                 ringDiameter: metrics.ringDiameter,
                 rowCenterYOffset: metrics.dotYOffset,
-                animationsEnabled: motionAllowed
+                animationsEnabled: motionAllowed,
+                ringCenterYOffset: batteryPercentage == nil ? nil : metrics.ringYOffset
             )
         }
+        .offset(y: batteryPercentage == nil ? 0 : -0.6 * metrics.ringDiameter / DuoGlyphMetrics.standard.ringDiameter)
         .frame(width: DuoGlyphMetrics.canvasSize, height: DuoGlyphMetrics.canvasSize)
         .scaleEffect(metrics.overallSize / DuoGlyphMetrics.canvasSize)
         .frame(width: metrics.overallSize, height: metrics.overallSize)
@@ -249,7 +251,7 @@ struct DuoGlyphView: View {
 
     private var batteryPercentage: DuoBatteryPercentage? {
         DuoBatteryPercentage.resolve(enabled: showsBatteryPercentage, battery: status.battery,
-            ringMode: glyphState.ringPresentation.mode)
+            ringMode: glyphState.ringPresentation.mode, colorCodingEnabled: batteryColorCodingEnabled)
     }
 
     private var arcColor: Color {
@@ -829,6 +831,7 @@ struct DuoDotRow: View {
     let ringDiameter: CGFloat
     let rowCenterYOffset: CGFloat
     let animationsEnabled: Bool
+    var ringCenterYOffset: CGFloat? = nil
 
     var body: some View {
         ZStack {
@@ -838,8 +841,7 @@ struct DuoDotRow: View {
                     .opacity(opacity(for: index))
                     .offset(
                         x: ringDiameter * DuoVolumeIndicatorGeometry.centerXOffsets[index],
-                        y: rowCenterYOffset
-                            + ringDiameter * DuoVolumeIndicatorGeometry.centerYOffsets[index]
+                        y: centerY(for: index)
                     )
             }
         }
@@ -854,9 +856,25 @@ struct DuoDotRow: View {
             ? DuoVolumeIndicatorGeometry.activeOpacity
             : DuoVolumeIndicatorGeometry.inactiveOpacity
     }
+
+    private func centerY(for index: Int) -> CGFloat {
+        guard let ringCenterYOffset else {
+            return rowCenterYOffset + ringDiameter * DuoVolumeIndicatorGeometry.centerYOffsets[index]
+        }
+        return DuoVolumeIndicatorGeometry.circularCenter(index: index, ringDiameter: ringDiameter,
+            dotDiameter: diameter, ringCenterY: ringCenterYOffset).y
+    }
 }
 
 enum DuoVolumeIndicatorGeometry {
+    /// The dots' outer edges follow the same circle as the ring's outer edge.
+    static func circularCenter(index: Int, ringDiameter: CGFloat,
+                               dotDiameter: CGFloat, ringCenterY: CGFloat) -> CGPoint {
+        let x = ringDiameter * centerXOffsets[index]
+        let radius = max(0, (ringDiameter - dotDiameter) / 2)
+        return CGPoint(x: x, y: ringCenterY + sqrt(max(0, radius * radius - x * x)))
+    }
+
     // Measurements from the stable all-active frame at 27.00 seconds,
     // normalized to the 230 px reference outer-ring diameter.
     static let referenceRingDiameter: CGFloat = 230

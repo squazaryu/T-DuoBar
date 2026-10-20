@@ -21,17 +21,46 @@ final class MenuBarBatteryPercentageTests: XCTestCase {
         var battery = self.battery(80, plugged: true)
         let paused = try XCTUnwrap(DuoBatteryPercentage.resolve(enabled: true, battery: battery, ringMode: .battery))
         XCTAssertEqual(paused.value, 80)
-        XCTAssertTrue(paused.showsPower)
+        XCTAssertTrue(paused.showsBolt)
         battery.isFullyCharged = true
         XCTAssertEqual(DuoBatteryPercentage.resolve(enabled: true, battery: battery, ringMode: .battery)?.value, 100)
         XCTAssertFalse(try XCTUnwrap(DuoBatteryPercentage.resolve(enabled: true,
-            battery: self.battery(16), ringMode: .battery)).showsPower)
+            battery: self.battery(16), ringMode: .battery)).showsBolt)
     }
 
-    func testNumberChangesKeepArcEndsStable() {
-        for powered in [false, true] {
-            let gaps = (0...100).map { DuoBatteryPercentage(value: $0, showsPower: powered).topGapDegrees }
-            XCTAssertEqual(Set(gaps).count, 1, "Changing digits must not move the ring endpoints")
+    func testGapAdaptsToDigitCountAndBoltWidth() {
+        for bolt in [false, true] {
+            let small = DuoBatteryPercentage(value: 8, showsBolt: bolt).topGapDegrees
+            let medium = DuoBatteryPercentage(value: 80, showsBolt: bolt).topGapDegrees
+            let large = DuoBatteryPercentage(value: 100, showsBolt: bolt).topGapDegrees
+            XCTAssertLessThan(small, medium)
+            XCTAssertLessThanOrEqual(medium, large)
+            XCTAssertLessThanOrEqual(large, 156)
+            XCTAssertEqual(DuoBatteryPercentage(value: 16, showsBolt: bolt).topGapDegrees, medium)
+        }
+    }
+
+    func testGreenPowerRingDoesNotDuplicateTheBolt() throws {
+        let powered = battery(80, plugged: true)
+        let color = try XCTUnwrap(DuoBatteryPercentage.resolve(enabled: true,
+            battery: powered, ringMode: .battery, colorCodingEnabled: true))
+        let monochrome = try XCTUnwrap(DuoBatteryPercentage.resolve(enabled: true,
+            battery: powered, ringMode: .battery, colorCodingEnabled: false))
+        XCTAssertFalse(color.showsBolt)
+        XCTAssertTrue(monochrome.showsBolt)
+        XCTAssertLessThan(color.topGapDegrees, monochrome.topGapDegrees)
+    }
+
+    func testBottomDotsFollowTheCircularOuterEdge() {
+        for scale in [0.8, 1.0, 1.05] {
+            let metrics = DuoGlyphMetrics.standard.scaled(by: scale)
+            for index in 0..<4 {
+                let point = DuoVolumeIndicatorGeometry.circularCenter(index: index,
+                    ringDiameter: metrics.ringDiameter, dotDiameter: metrics.dotDiameter,
+                    ringCenterY: metrics.ringYOffset)
+                XCTAssertEqual(hypot(point.x, point.y - metrics.ringYOffset) + metrics.dotDiameter / 2,
+                    metrics.ringDiameter / 2, accuracy: 0.0001)
+            }
         }
     }
 
@@ -39,18 +68,18 @@ final class MenuBarBatteryPercentageTests: XCTestCase {
     func testEveryReadingHasClearanceFromTheStrokedRing() throws {
         let metrics = DuoGlyphMetrics.standard
         for powered in [false, true] {
-            let gap = DuoBatteryPercentage(value: 100, showsPower: powered).topGapDegrees
-            let ring = DuoPercentageArcShape(startDegrees: metrics.arcStartDegrees,
-                endDegrees: metrics.arcEndDegrees, topGapDegrees: gap, progress: 1)
-                .stroke(.white, style: StrokeStyle(lineWidth: metrics.arcLineWidth, lineCap: .round))
-                .frame(width: metrics.ringPathDiameter, height: metrics.ringPathDiameter)
-                .offset(y: metrics.ringYOffset)
-                .frame(width: 32, height: 32)
-            let ringMask = try alphaMask(ring)
-            XCTAssertTrue(ringMask.contains { $0 > 32 }, "Ring must render before checking clearance")
             for value in 0...100 {
+                let gap = DuoBatteryPercentage(value: value, showsBolt: powered).topGapDegrees
+                let ring = DuoPercentageArcShape(startDegrees: metrics.arcStartDegrees,
+                    endDegrees: metrics.arcEndDegrees, topGapDegrees: gap, progress: 1)
+                    .stroke(.white, style: StrokeStyle(lineWidth: metrics.arcLineWidth, lineCap: .round))
+                    .frame(width: metrics.ringPathDiameter, height: metrics.ringPathDiameter)
+                    .offset(y: metrics.ringYOffset)
+                    .frame(width: 32, height: 32)
+                let ringMask = try alphaMask(ring)
+                XCTAssertTrue(ringMask.contains { $0 > 32 }, "Ring must render before checking clearance")
                 let label = DuoBatteryPercentageLabel(
-                    percentage: DuoBatteryPercentage(value: value, showsPower: powered), metrics: metrics)
+                    percentage: DuoBatteryPercentage(value: value, showsBolt: powered), metrics: metrics)
                     .frame(width: 32, height: 32)
                 let labelMask = try alphaMask(label)
                 XCTAssertTrue(labelMask.contains { $0 > 32 }, "Digits must render before checking clearance")
@@ -89,7 +118,10 @@ final class MenuBarBatteryPercentageTests: XCTestCase {
 
     func testPercentageProgressExcludesTheLabelGap() {
         let metrics = DuoGlyphMetrics.standard
-        for gap in [144.0, 156.0] {
+        let gaps = Set([1, 50, 100].flatMap { value in
+            [false, true].map { DuoBatteryPercentage(value: value, showsBolt: $0).topGapDegrees }
+        })
+        for gap in gaps {
             for progress in [0.0, 0.01, 0.16, 0.5, 0.99, 1.0] {
                 let arc = DuoPercentageArcShape(startDegrees: metrics.arcStartDegrees,
                     endDegrees: metrics.arcEndDegrees, topGapDegrees: gap, progress: progress)
@@ -138,13 +170,15 @@ final class MenuBarBatteryPercentageTests: XCTestCase {
                             }
                         }
                     }
-                    HStack(spacing: 20) {
-                        ForEach(values, id: \.self) { value in
-                            DuoGlyphView(status: self.status(value, plugged: true),
-                                animationsEnabled: false, batteryColorCodingEnabled: true,
-                                showsBatteryPercentage: true)
-                                .offset(y: DuoGlyphMetrics.menuBarVerticalOffset)
-                                .frame(width: 30, height: 22).clipped()
+                    ForEach([false, true], id: \.self) { colored in
+                        HStack(spacing: 20) {
+                            ForEach(values, id: \.self) { value in
+                                DuoGlyphView(status: self.status(value, plugged: true),
+                                    animationsEnabled: false, batteryColorCodingEnabled: colored,
+                                    showsBatteryPercentage: true)
+                                    .offset(y: DuoGlyphMetrics.menuBarVerticalOffset)
+                                    .frame(width: 30, height: 22).clipped()
+                            }
                         }
                     }
                     HStack(spacing: 20) {
