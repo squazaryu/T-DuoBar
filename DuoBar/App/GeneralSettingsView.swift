@@ -10,6 +10,7 @@ struct GeneralSettingsView: View {
     @AppStorage(PreferenceKeys.showBatteryPercentage) private var showBatteryPercentage = true
     @AppStorage(PreferenceKeys.animationsEnabled) private var animationsEnabled = true
     @AppStorage(PreferenceKeys.menuBarIconScale) private var iconScale = MenuBarIconSize.defaultScale
+    @AppStorage(PreferenceKeys.menuBarBatteryPercentage) private var menuBarBatteryPercentage = false
     @AppStorage(PreferenceKeys.batteryColorCoding) private var batteryColorCoding = false
     @AppStorage(PreferenceKeys.showBatteryTime) private var showBatteryTime = true
     @AppStorage(PreferenceKeys.adaptiveRingPriority) private var adaptiveRingPriorityRaw = PerformancePreference.automatic.rawValue
@@ -58,6 +59,13 @@ struct GeneralSettingsView: View {
                 }
                 if let onPreviewPopover {
                     Button(localized("Preview menu"), action: onPreviewPopover)
+                }
+                if showsBatteryRingSettings {
+                    Toggle(localized("Battery percentage in menu bar"), isOn: $menuBarBatteryPercentage)
+                    if menuBarBatteryPercentage {
+                        Text(localized("For clearer digits, set Icon Size to 100% or 105%."))
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
                 }
                 Toggle(localized("Show battery percentage in popover"), isOn: $showBatteryPercentage)
                 Toggle(localized("Enable animations"), isOn: $animationsEnabled)

@@ -243,3 +243,7 @@
 "Reduce Transparency is enabled in macOS. The menu uses an opaque background." = "In macOS ist „Transparenz reduzieren“ aktiviert. Das Menü verwendet einen undurchsichtigen Hintergrund.";
 "Text and controls stay opaque. macOS manages the glass effect." = "Text und Bedienelemente bleiben undurchsichtig. macOS steuert den Glaseffekt.";
 "Preview menu" = "Menüvorschau";
+
+// Optional menu bar battery digits.
+"Battery percentage in menu bar" = "Batterieprozente in der Menüleiste";
+"For clearer digits, set Icon Size to 100% or 105%." = "Für besser lesbare Ziffern die Symbolgröße auf 100% oder 105% stellen.";

@@ -226,3 +226,10 @@ monitor is removed on controller invalidation/deinit. This fixes the controller
 input path rather than depending on panel focus callbacks to arrive in order.
 StatusItemClickTests exercises that controller path, 30 repeated cycles, late
 focus/up events, control-click, unrelated events and invalidation.
+
+
+## Local menu bar percentage experiment (1.12.0, build 31)
+
+Settings → General → Appearance → Battery percentage in menu bar adds digits in a top gap of the battery ring. It is off by default and independent of percentages inside the pop-up. The center network/audio symbol and volume dots remain. A small bolt accompanies the digits while external power is connected, including paused charging. Missing/invalid battery readings and adaptive rings use the original glyph. The option is hidden on Macs using an adaptive ring.
+
+The opt-in style uses cached battery status only; it adds no polling, timer or network work. Its split-ring progress excludes the number gap, so half charge fills exactly one visible side. All six app languages include the new setting and the readability hint. The 80% icon size is intentionally still available, but its digits are small; 100–105% is recommended for this style. Physical display readability still requires user acceptance. Build 31 is a local experiment, not a published release.

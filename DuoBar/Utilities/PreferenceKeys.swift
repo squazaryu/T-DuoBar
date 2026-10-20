@@ -4,6 +4,7 @@ enum PreferenceKeys {
     static let popoverTransparency = "appearance.popoverTransparency"
     static let hideEmptyAccessories = "menu.hideEmptyAccessories"
     static let scrollToAdjustVolume = "duoBar.scrollToAdjustVolume"
+    static let menuBarBatteryPercentage = "appearance.menuBarBatteryPercentage"
     static let showBatteryPercentage = "showBatteryPercentage"
     static let animationsEnabled = "animationsEnabled"
     static let menuBarIconScale = MenuBarIconSize.preferenceKey

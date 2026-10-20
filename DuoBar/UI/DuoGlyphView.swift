@@ -27,6 +27,7 @@ struct DuoGlyphView: View {
     var usesCustomRingTransition = false
     var ringColorOverride: Color?
     var batteryColorCodingEnabled = false
+    var showsBatteryPercentage = false
     var chargingBoltProgressOverride: CGFloat?
     var chargingTrackProgressOverride: CGFloat?
     var chargingColorMixOverride: CGFloat?
@@ -48,6 +49,7 @@ struct DuoGlyphView: View {
         usesCustomRingTransition: Bool = false,
         ringColorOverride: Color? = nil,
         batteryColorCodingEnabled: Bool = false,
+        showsBatteryPercentage: Bool = false,
         chargingBoltProgressOverride: CGFloat? = nil,
         chargingTrackProgressOverride: CGFloat? = nil,
         chargingColorMixOverride: CGFloat? = nil
@@ -62,6 +64,7 @@ struct DuoGlyphView: View {
         self.usesCustomRingTransition = usesCustomRingTransition
         self.ringColorOverride = ringColorOverride
         self.batteryColorCodingEnabled = batteryColorCodingEnabled
+        self.showsBatteryPercentage = showsBatteryPercentage
         self.chargingBoltProgressOverride = chargingBoltProgressOverride
         self.chargingTrackProgressOverride = chargingTrackProgressOverride
         self.chargingColorMixOverride = chargingColorMixOverride
@@ -91,7 +94,20 @@ struct DuoGlyphView: View {
 
     var body: some View {
         ZStack {
-            if glyphState.ringPresentation.mode == .adaptive {
+            if let batteryPercentage {
+                DuoPercentageArcShape(startDegrees: metrics.arcStartDegrees,
+                    endDegrees: metrics.arcEndDegrees, topGapDegrees: batteryPercentage.topGapDegrees, progress: 1)
+                    .stroke(Color.primary.opacity(DuoNativeVisualConstants.inactiveElementOpacity), style: ringStrokeStyle)
+                    .frame(width: metrics.ringPathDiameter, height: metrics.ringPathDiameter)
+                    .offset(y: metrics.ringYOffset)
+                DuoPercentageArcShape(startDegrees: metrics.arcStartDegrees,
+                    endDegrees: metrics.arcEndDegrees, topGapDegrees: batteryPercentage.topGapDegrees,
+                    progress: CGFloat(glyphState.batteryProgress))
+                    .stroke(arcColor, style: ringStrokeStyle)
+                    .frame(width: metrics.ringPathDiameter, height: metrics.ringPathDiameter)
+                    .offset(y: metrics.ringYOffset)
+                    .animation(arcAnimation, value: glyphState.batteryProgress)
+            } else if glyphState.ringPresentation.mode == .adaptive {
                 DuoArcShape(
                     startDegrees: metrics.arcStartDegrees,
                     endDegrees: metrics.arcEndDegrees,
@@ -131,13 +147,17 @@ struct DuoGlyphView: View {
                 .animation(arcOpacityAnimation, value: glyphState.batteryArcOpacity)
             }
 
-            DuoChargingBolt(
-                progress: effectiveChargingBoltProgress,
-                size: chargingBoltSize,
-                offset: chargingBoltOffset,
-                color: .primary,
-                opacity: chargingBoltOpacity
-            )
+            if let batteryPercentage {
+                DuoBatteryPercentageLabel(percentage: batteryPercentage, metrics: metrics)
+            } else {
+                DuoChargingBolt(
+                    progress: effectiveChargingBoltProgress,
+                    size: chargingBoltSize,
+                    offset: chargingBoltOffset,
+                    color: .primary,
+                    opacity: chargingBoltOpacity
+                )
+            }
 
             DuoCenterTransitionView(
                 targetState: glyphState.centerState,
@@ -152,6 +172,8 @@ struct DuoGlyphView: View {
             .scaleEffect(1 + (BatteryChargingAnimationProfile.poweredCenterScale - 1) * clampedBoltProgress)
             .offset(y: metrics.wifiYOffset
                 + metrics.ringDiameter * BatteryChargingAnimationProfile.poweredCenterOffsetRatio * clampedBoltProgress)
+            .scaleEffect(batteryPercentage == nil ? 1 : 0.85)
+            .offset(y: batteryPercentage == nil ? 0 : metrics.ringDiameter * 0.045)
 
             DuoDotRow(
                 activeCount: glyphState.volumeActiveDotCount,
@@ -223,6 +245,11 @@ struct DuoGlyphView: View {
             lineCap: .round,
             lineJoin: .round
         )
+    }
+
+    private var batteryPercentage: DuoBatteryPercentage? {
+        DuoBatteryPercentage.resolve(enabled: showsBatteryPercentage, battery: status.battery,
+            ringMode: glyphState.ringPresentation.mode)
     }
 
     private var arcColor: Color {

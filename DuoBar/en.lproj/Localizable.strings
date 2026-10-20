@@ -241,3 +241,7 @@
 "Reduce Transparency is enabled in macOS. The menu uses an opaque background." = "Reduce Transparency is enabled in macOS. The menu uses an opaque background.";
 "Text and controls stay opaque. macOS manages the glass effect." = "Text and controls stay opaque. macOS manages the glass effect.";
 "Preview menu" = "Preview menu";
+
+// Optional menu bar battery digits.
+"Battery percentage in menu bar" = "Battery percentage in menu bar";
+"For clearer digits, set Icon Size to 100% or 105%." = "For clearer digits, set Icon Size to 100% or 105%.";
