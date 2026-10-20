@@ -228,12 +228,14 @@ StatusItemClickTests exercises that controller path, 30 repeated cycles, late
 focus/up events, control-click, unrelated events and invalidation.
 
 
-## Local menu bar percentage experiment (1.12.0, build 33)
+## Local menu bar percentage experiment (1.12.0, build 34)
 
 Settings → General → Appearance → Battery percentage in menu bar adds digits in a top gap of the battery ring. It is off by default and independent of percentages inside the pop-up. Missing/invalid battery readings and adaptive rings retain the original glyph. The option is hidden on Macs using an adaptive ring.
 
-The gap adapts to the rounded monospaced text width and an optional bolt; font advance is cached. One- and two-digit readings retain more of the circular arc than 100. The center symbol is 5% larger than the original glyph (about 24% larger than the first percentage prototype). The four volume dots follow the outer circle instead of the previous inset row, with a small vertical alignment adjustment to fit the menu bar. The original non-percentage glyph is unchanged.
+The gap adapts to the rounded monospaced text width and an optional bolt; font advance is cached. One- and two-digit readings retain more of the circular arc than 100. The center symbol is 5% larger than the original glyph (about 24% larger than the first percentage prototype). The four volume dots follow the outer circle instead of the previous inset row, with a small vertical alignment adjustment to fit the menu bar. Both percentage and non-percentage styles now share this circle, center scale and alignment. External power no longer shrinks or shifts the center symbol.
 
-A green power ring omits the redundant bolt. With color coding off, a small centered bolt still identifies external power, including paused charging. Split-ring progress excludes the number gap, so half charge fills one visible side.
+A green power ring omits the redundant bolt in both styles. With color coding off, a small centered bolt still identifies external power, including paused charging. Without digits, that bolt has its own small top cutout to keep the center unobstructed. Split-ring progress excludes the number gap, so half charge fills one visible side.
 
 The style uses cached battery status only and adds no polling, timer or network work. Pixel-mask tests cover every reading from 0 to 100 with and without a bolt, with clearance from the rounded stroke. Geometry checks cover the dots at 80%, 100% and 105% size. All six app languages include the setting and readability hint. The 80% size remains available, but 100–105% is recommended. Physical display readability still requires user acceptance. This is a local experiment, not a published release.
+
+Native pixel comparison verifies the same center in both styles across external-power and color-coding states. Light/dark fixtures cover both styles at actual menu bar size and enlarged.

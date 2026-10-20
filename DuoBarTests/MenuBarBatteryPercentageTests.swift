@@ -100,6 +100,67 @@ final class MenuBarBatteryPercentageTests: XCTestCase {
     }
 
     @MainActor
+    func testCenterMatchesWithAndWithoutPercentageAndExternalPower() throws {
+        let reference = try alphaMask(DuoGlyphView(status: status(80), metrics: .standard.sized(32),
+            animationsEnabled: false).frame(width: 32, height: 32))
+        for plugged in [false, true] {
+            for colored in [false, true] {
+                for digits in [false, true] {
+                    let image = try alphaMask(DuoGlyphView(status: status(80, plugged: plugged),
+                        metrics: .standard.sized(32), animationsEnabled: false,
+                        batteryColorCodingEnabled: colored, showsBatteryPercentage: digits)
+                        .frame(width: 32, height: 32))
+                    var differences = 0
+                    for y in 44..<88 {
+                        for x in 36..<92 {
+                            if reference[y * 128 + x] != image[y * 128 + x] { differences += 1 }
+                        }
+                    }
+                    XCTAssertEqual(differences, 0,
+                        "Center must retain its size and position: plugged=\(plugged), colored=\(colored), digits=\(digits)")
+                }
+            }
+        }
+    }
+
+    @MainActor
+    func testRenderUnifiedGlyphStyles() throws {
+        let gallery = VStack(spacing: 0) {
+            ForEach([false, true], id: \.self) { dark in
+                HStack(spacing: 24) {
+                    ForEach([false, true], id: \.self) { plugged in
+                        ForEach([false, true], id: \.self) { colored in
+                            HStack(spacing: 12) {
+                                ForEach([false, true], id: \.self) { digits in
+                                    VStack(spacing: 12) {
+                                        DuoGlyphView(status: self.status(80, plugged: plugged), metrics: .standard.sized(88),
+                                            animationsEnabled: false, batteryColorCodingEnabled: colored,
+                                            showsBatteryPercentage: digits)
+                                        DuoGlyphView(status: self.status(80, plugged: plugged), animationsEnabled: false,
+                                            batteryColorCodingEnabled: colored, showsBatteryPercentage: digits)
+                                            .offset(y: DuoGlyphMetrics.menuBarVerticalOffset)
+                                            .frame(width: 30, height: 22).clipped()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                .padding(20)
+                .background(dark ? Color.black : Color.white)
+                .environment(\.colorScheme, dark ? .dark : .light)
+            }
+        }
+        let host = NSHostingView(rootView: gallery)
+        host.frame = NSRect(origin: .zero, size: host.fittingSize)
+        host.layoutSubtreeIfNeeded()
+        let bitmap = try XCTUnwrap(host.bitmapImageRepForCachingDisplay(in: host.bounds))
+        host.cacheDisplay(in: host.bounds, to: bitmap)
+        let png = try XCTUnwrap(bitmap.representation(using: .png, properties: [:]))
+        try png.write(to: FileManager.default.temporaryDirectory.appendingPathComponent("T-DuoBar-Unified-Glyphs.png"))
+    }
+
+    @MainActor
     private func alphaMask<Content: View>(_ content: Content) throws -> [UInt8] {
         let renderer = ImageRenderer(content: content.environment(\.colorScheme, .light))
         renderer.scale = 4

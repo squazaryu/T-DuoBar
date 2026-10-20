@@ -94,14 +94,14 @@ struct DuoGlyphView: View {
 
     var body: some View {
         ZStack {
-            if let batteryPercentage {
+            if let topGapDegrees {
                 DuoPercentageArcShape(startDegrees: metrics.arcStartDegrees,
-                    endDegrees: metrics.arcEndDegrees, topGapDegrees: batteryPercentage.topGapDegrees, progress: 1)
+                    endDegrees: metrics.arcEndDegrees, topGapDegrees: topGapDegrees, progress: 1)
                     .stroke(Color.primary.opacity(DuoNativeVisualConstants.inactiveElementOpacity), style: ringStrokeStyle)
                     .frame(width: metrics.ringPathDiameter, height: metrics.ringPathDiameter)
                     .offset(y: metrics.ringYOffset)
                 DuoPercentageArcShape(startDegrees: metrics.arcStartDegrees,
-                    endDegrees: metrics.arcEndDegrees, topGapDegrees: batteryPercentage.topGapDegrees,
+                    endDegrees: metrics.arcEndDegrees, topGapDegrees: topGapDegrees,
                     progress: CGFloat(glyphState.batteryProgress))
                     .stroke(arcColor, style: ringStrokeStyle)
                     .frame(width: metrics.ringPathDiameter, height: metrics.ringPathDiameter)
@@ -149,7 +149,7 @@ struct DuoGlyphView: View {
 
             if let batteryPercentage {
                 DuoBatteryPercentageLabel(percentage: batteryPercentage, metrics: metrics)
-            } else {
+            } else if showsStandaloneBolt {
                 DuoChargingBolt(
                     progress: effectiveChargingBoltProgress,
                     size: chargingBoltSize,
@@ -169,11 +169,8 @@ struct DuoGlyphView: View {
                 animationsEnabled: animationsEnabled,
                 reduceMotion: reduceMotion
             )
-            .scaleEffect(1 + (BatteryChargingAnimationProfile.poweredCenterScale - 1) * clampedBoltProgress)
-            .offset(y: metrics.wifiYOffset
-                + metrics.ringDiameter * BatteryChargingAnimationProfile.poweredCenterOffsetRatio * clampedBoltProgress)
-            .scaleEffect(batteryPercentage == nil ? 1 : 1.05)
-            .offset(y: batteryPercentage == nil ? 0 : metrics.ringDiameter * 0.045)
+            .scaleEffect(1.05)
+            .offset(y: metrics.wifiYOffset + metrics.ringDiameter * 0.045)
 
             DuoDotRow(
                 activeCount: glyphState.volumeActiveDotCount,
@@ -181,10 +178,10 @@ struct DuoGlyphView: View {
                 ringDiameter: metrics.ringDiameter,
                 rowCenterYOffset: metrics.dotYOffset,
                 animationsEnabled: motionAllowed,
-                ringCenterYOffset: batteryPercentage == nil ? nil : metrics.ringYOffset
+                ringCenterYOffset: metrics.ringYOffset
             )
         }
-        .offset(y: batteryPercentage == nil ? 0 : -0.6 * metrics.ringDiameter / DuoGlyphMetrics.standard.ringDiameter)
+        .offset(y: -0.6 * metrics.ringDiameter / DuoGlyphMetrics.standard.ringDiameter)
         .frame(width: DuoGlyphMetrics.canvasSize, height: DuoGlyphMetrics.canvasSize)
         .scaleEffect(metrics.overallSize / DuoGlyphMetrics.canvasSize)
         .frame(width: metrics.overallSize, height: metrics.overallSize)
@@ -254,6 +251,16 @@ struct DuoGlyphView: View {
             ringMode: glyphState.ringPresentation.mode, colorCodingEnabled: batteryColorCodingEnabled)
     }
 
+    private var showsStandaloneBolt: Bool {
+        batteryPercentage == nil && !batteryColorCodingEnabled && status.battery.isAvailable
+            && glyphState.ringPresentation.mode == .battery && effectiveChargingBoltProgress > 0
+    }
+
+    private var topGapDegrees: Double? {
+        if let batteryPercentage { return batteryPercentage.topGapDegrees }
+        return showsStandaloneBolt ? 44 : nil
+    }
+
     private var arcColor: Color {
         if glyphState.ringPresentation.mode == .adaptive {
             return ringColorOverride ?? .primary
@@ -297,21 +304,12 @@ struct DuoGlyphView: View {
     }
 
     private var chargingBoltOffset: CGSize {
-        // Keep the exit animation here instead of jumping into the center icon
-        // as soon as the adapter is disconnected.
-        let point = DuoRingGeometry.chargingBoltPoint(metrics: metrics)
-        return CGSize(
-            width: point.x,
-            height: point.y
-        )
+        CGSize(width: 0, height: metrics.ringYOffset - metrics.ringPathDiameter / 2
+            + metrics.ringDiameter * 0.05)
     }
 
     private var chargingBoltSize: CGFloat {
         metrics.ringDiameter * BatteryChargingAnimationProfile.boltFontSizeRatio
-    }
-
-    private var clampedBoltProgress: CGFloat {
-        min(max(effectiveChargingBoltProgress, 0), 1)
     }
 
     private var chargingBoltOpacity: Double {
