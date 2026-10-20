@@ -170,7 +170,7 @@ struct DuoGlyphView: View {
                 reduceMotion: reduceMotion
             )
             .scaleEffect(1.05)
-            .offset(y: metrics.wifiYOffset + metrics.ringDiameter * 0.045)
+            .offset(y: metrics.wifiYOffset + metrics.ringDiameter * 0.08)
 
             DuoDotRow(
                 activeCount: glyphState.volumeActiveDotCount,

@@ -228,7 +228,7 @@ StatusItemClickTests exercises that controller path, 30 repeated cycles, late
 focus/up events, control-click, unrelated events and invalidation.
 
 
-## Local menu bar percentage experiment (1.12.0, build 34)
+## Local menu bar percentage experiment (1.12.0, build 35)
 
 Settings → General → Appearance → Battery percentage in menu bar adds digits in a top gap of the battery ring. It is off by default and independent of percentages inside the pop-up. Missing/invalid battery readings and adaptive rings retain the original glyph. The option is hidden on Macs using an adaptive ring.
 
