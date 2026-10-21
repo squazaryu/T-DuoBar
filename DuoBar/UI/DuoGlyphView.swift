@@ -33,6 +33,7 @@ struct DuoGlyphView: View {
     var chargingColorMixOverride: CGFloat?
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.displayScale) private var displayScale
     @State private var centerPulseScale: CGFloat = 1
     @State private var chargingBoltProgress: CGFloat
     @State private var chargingTrackProgress: CGFloat
@@ -147,9 +148,7 @@ struct DuoGlyphView: View {
                 .animation(arcOpacityAnimation, value: glyphState.batteryArcOpacity)
             }
 
-            if let batteryPercentage {
-                DuoBatteryPercentageLabel(percentage: batteryPercentage, metrics: metrics)
-            } else if showsStandaloneBolt {
+            if showsStandaloneBolt {
                 DuoChargingBolt(
                     progress: effectiveChargingBoltProgress,
                     size: chargingBoltSize,
@@ -181,10 +180,15 @@ struct DuoGlyphView: View {
                 ringCenterYOffset: metrics.ringYOffset
             )
         }
-        .offset(y: -0.6 * metrics.ringDiameter / DuoGlyphMetrics.standard.ringDiameter)
+        .offset(y: metrics.contentYOffset)
         .frame(width: DuoGlyphMetrics.canvasSize, height: DuoGlyphMetrics.canvasSize)
         .scaleEffect(metrics.overallSize / DuoGlyphMetrics.canvasSize)
         .frame(width: metrics.overallSize, height: metrics.overallSize)
+        .overlay {
+            if let batteryPercentage {
+                DuoBatteryPercentageLabel(percentage: batteryPercentage, metrics: metrics)
+            }
+        }
         .accessibilityHidden(true)
         .task(id: glyphState.audioEventID) {
             centerPulseScale = 1
@@ -257,7 +261,10 @@ struct DuoGlyphView: View {
     }
 
     private var topGapDegrees: Double? {
-        if let batteryPercentage { return batteryPercentage.topGapDegrees }
+        if let batteryPercentage {
+            return DuoBatteryPercentageTypography(percentage: batteryPercentage, metrics: metrics,
+                displayScale: displayScale).gapDegrees(metrics: metrics)
+        }
         return showsStandaloneBolt ? 44 : nil
     }
 

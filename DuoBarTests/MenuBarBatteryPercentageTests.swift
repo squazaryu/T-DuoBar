@@ -66,7 +66,7 @@ final class MenuBarBatteryPercentageTests: XCTestCase {
 
     @MainActor
     func testEveryReadingHasClearanceFromTheStrokedRing() throws {
-        let metrics = DuoGlyphMetrics.standard
+        let metrics = DuoGlyphMetrics.standard.sized(32)
         for powered in [false, true] {
             for value in 0...100 {
                 let gap = DuoBatteryPercentage(value: value, showsBolt: powered).topGapDegrees
@@ -74,7 +74,7 @@ final class MenuBarBatteryPercentageTests: XCTestCase {
                     endDegrees: metrics.arcEndDegrees, topGapDegrees: gap, progress: 1)
                     .stroke(.white, style: StrokeStyle(lineWidth: metrics.arcLineWidth, lineCap: .round))
                     .frame(width: metrics.ringPathDiameter, height: metrics.ringPathDiameter)
-                    .offset(y: metrics.ringYOffset)
+                    .offset(y: metrics.ringYOffset + metrics.contentYOffset)
                     .frame(width: 32, height: 32)
                 let ringMask = try alphaMask(ring)
                 XCTAssertTrue(ringMask.contains { $0 > 32 }, "Ring must render before checking clearance")
@@ -123,6 +123,71 @@ final class MenuBarBatteryPercentageTests: XCTestCase {
         }
     }
 
+    func testNativeFontSizeAndOriginsAlignToBackingPixels() {
+        for backing: CGFloat in [1, 2] {
+            for size in [0.8, 1.0, 1.05] {
+                let type = DuoBatteryPercentageTypography(percentage: DuoBatteryPercentage(value: 80, showsBolt: false),
+                    metrics: .standard.scaled(by: size), displayScale: backing)
+                XCTAssertEqual(type.font.pointSize * backing, (type.font.pointSize * backing).rounded(), accuracy: 0.0001)
+                for origin: CGFloat in [0, 0.25, 1.575] {
+                    let aligned = (type.snap(3.17, origin: origin) + origin) * backing
+                    XCTAssertEqual(aligned, aligned.rounded(), accuracy: 0.0001)
+                }
+            }
+        }
+    }
+
+    @MainActor
+    func testFullGlyphRetainsTheNativeTextRasterWithoutResampling() throws {
+        for scale in [0.8, 1.0, 1.05] {
+            let metrics = DuoGlyphMetrics.standard.scaled(by: scale)
+            for value in [8, 80, 100] {
+                for bolt in [false, true] {
+                    let label = DuoBatteryPercentageLabel(
+                        percentage: DuoBatteryPercentage(value: value, showsBolt: bolt), metrics: metrics)
+                        .frame(width: 32, height: 32)
+                    let glyph = DuoGlyphView(status: status(value, plugged: bolt), metrics: metrics,
+                        animationsEnabled: false, showsBatteryPercentage: true).frame(width: 32, height: 32)
+                    let labelMask = try alphaMask(label)
+                    let glyphMask = try alphaMask(glyph)
+                    XCTAssertTrue(labelMask.contains { $0 > 32 })
+                    var differences = 0
+                    for index in labelMask.indices where labelMask[index] > 32 {
+                        if labelMask[index] != glyphMask[index] { differences += 1 }
+                    }
+                    XCTAssertEqual(differences, 0,
+                        "The native text must stay unchanged inside the glyph: value=\(value), scale=\(scale), bolt=\(bolt)")
+                }
+            }
+        }
+    }
+
+    @MainActor
+    func testRenderNativeTypographyAtOneAndTwoTimesBackingScale() throws {
+        for backing: CGFloat in [1, 2] {
+            let grid = VStack(spacing: 12) {
+                ForEach([0.8, 1.0, 1.05], id: \.self) { size in
+                    HStack(spacing: 18) {
+                        Text("\(Int((size * 100).rounded()))% size").font(.system(size: 11)).frame(width: 70)
+                        ForEach([1, 8, 16, 50, 80, 99, 100], id: \.self) { value in
+                            DuoGlyphView(status: self.status(value), metrics: .standard.scaled(by: size),
+                                animationsEnabled: false, batteryColorCodingEnabled: true, showsBatteryPercentage: true)
+                                .offset(y: DuoGlyphMetrics.menuBarVerticalOffset).frame(width: 30, height: 22).clipped()
+                        }
+                    }
+                }
+            }
+            .padding(16).background(Color.black).environment(\.colorScheme, .dark)
+            .environment(\.displayScale, backing)
+            let renderer = ImageRenderer(content: grid)
+            renderer.scale = backing
+            let bitmap = NSBitmapImageRep(cgImage: try XCTUnwrap(renderer.cgImage))
+            let png = try XCTUnwrap(bitmap.representation(using: .png, properties: [:]))
+            try png.write(to: FileManager.default.temporaryDirectory
+                .appendingPathComponent("T-DuoBar-Native-Percent-\(Int(backing))x.png"))
+        }
+    }
+
     @MainActor
     func testRenderUnifiedGlyphStyles() throws {
         let gallery = VStack(spacing: 0) {
@@ -162,7 +227,7 @@ final class MenuBarBatteryPercentageTests: XCTestCase {
 
     @MainActor
     private func alphaMask<Content: View>(_ content: Content) throws -> [UInt8] {
-        let renderer = ImageRenderer(content: content.environment(\.colorScheme, .light))
+        let renderer = ImageRenderer(content: content.environment(\.colorScheme, .light).environment(\.displayScale, 2))
         renderer.scale = 4
         let image = try XCTUnwrap(renderer.cgImage)
         XCTAssertEqual(image.width, 128)

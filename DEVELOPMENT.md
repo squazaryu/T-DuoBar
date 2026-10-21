@@ -228,7 +228,7 @@ StatusItemClickTests exercises that controller path, 30 repeated cycles, late
 focus/up events, control-click, unrelated events and invalidation.
 
 
-## Local menu bar percentage experiment (1.12.0, build 35)
+## Local menu bar percentage experiment (1.12.0, build 36)
 
 Settings → General → Appearance → Battery percentage in menu bar adds digits in a top gap of the battery ring. It is off by default and independent of percentages inside the pop-up. Missing/invalid battery readings and adaptive rings retain the original glyph. The option is hidden on Macs using an adaptive ring.
 
@@ -239,3 +239,5 @@ A green power ring omits the redundant bolt in both styles. With color coding of
 The style uses cached battery status only and adds no polling, timer or network work. Pixel-mask tests cover every reading from 0 to 100 with and without a bolt, with clearance from the rounded stroke. Geometry checks cover the dots at 80%, 100% and 105% size. All six app languages include the setting and readability hint. The 80% size remains available, but 100–105% is recommended. Physical display readability still requires user acceptance. This is a local experiment, not a published release.
 
 Native pixel comparison verifies the same center in both styles across external-power and color-coding states. Light/dark fixtures cover both styles at actual menu bar size and enlarged.
+
+Battery digits are rendered as a native-size overlay after the ring canvas transform. Their font size and origin align to the current backing pixel grid (1x or 2x). Typography supplies the ring cutout using actual final font metrics and leaves space inside the 22-point menu bar viewport. The normal-size menu font is capped at 8.5 points to avoid reaching the Wi-Fi symbol at 105% icon size; enlarged previews use their own native font size. The text is never resized as a cached 32-point-canvas bitmap. Native raster comparison tests cover 80%, 100% and 105% icons with 8, 80 and 100, with and without a bolt.

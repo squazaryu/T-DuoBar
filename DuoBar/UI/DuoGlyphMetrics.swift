@@ -35,6 +35,7 @@ struct DuoGlyphMetrics: Equatable {
         ringLineWidth * Self.referenceArcStrokeRatio / Self.priorArcStrokeRatio
     }
     var ringPathDiameter: CGFloat { max(0, ringDiameter - arcLineWidth) }
+    var contentYOffset: CGFloat { -0.6 * ringDiameter / Self.standard.ringDiameter }
     var arcStartDegrees: Double { 90 + arcGap / 2 }
     var arcEndDegrees: Double { 450 - arcGap / 2 }
     var statusItemWidth: CGFloat {

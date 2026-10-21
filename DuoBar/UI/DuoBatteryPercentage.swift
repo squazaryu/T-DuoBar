@@ -14,43 +14,42 @@ struct DuoBatteryPercentage: Equatable {
                     showsBolt: (battery.isPluggedIn || battery.isCharging) && !colorCodingEnabled)
     }
 
-    // Measure the monospaced rounded font once. Only the digit count changes
-    // the width; battery readings reuse the cached advance without layout work.
-    private static let digitAdvance: CGFloat = {
-        let font = NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .semibold)
-        let rounded = font.fontDescriptor.withDesign(.rounded).flatMap { NSFont(descriptor: $0, size: 11) } ?? font
-        return ("0" as NSString).size(withAttributes: [.font: rounded]).width
-    }()
-
     var topGapDegrees: Double {
-        let width = CGFloat(String(value).count) * Self.digitAdvance + (showsBolt ? 5 : 0)
-        let radius = DuoGlyphMetrics.standard.ringPathDiameter / 2
-        let fraction = min(1, (width / 2 + (showsBolt ? 3 : 2)) / radius)
-        let angle = 2 * asin(Double(fraction)) * 180 / .pi
-        // Very wide labels clear the arc vertically instead of removing the
-        // entire upper half. Pixel tests cover every reading and bolt state.
-        return max(72, min(showsBolt ? 156 : 144, angle))
+        let metrics = DuoGlyphMetrics.standard.sized(DuoGlyphMetrics.canvasSize)
+        return DuoBatteryPercentageTypography(percentage: self, metrics: metrics,
+            displayScale: 2).gapDegrees(metrics: metrics)
     }
 }
 
 struct DuoBatteryPercentageLabel: View {
     let percentage: DuoBatteryPercentage
     let metrics: DuoGlyphMetrics
+    @Environment(\.displayScale) private var displayScale
 
     var body: some View {
-        let scale = metrics.ringDiameter / DuoGlyphMetrics.standard.ringDiameter
-        HStack(alignment: .center, spacing: 1 * scale) {
-            Text(verbatim: String(percentage.value))
-                .font(.system(size: 11 * scale, weight: .semibold, design: .rounded))
-                .monospacedDigit()
-            if percentage.showsBolt {
-                Image(systemName: "bolt.fill")
-                    .font(.system(size: 6 * scale, weight: .bold))
+        let type = DuoBatteryPercentageTypography(percentage: percentage, metrics: metrics, displayScale: displayScale)
+        GeometryReader { geometry in
+            let origin = geometry.frame(in: .global).origin
+            let left = type.snap((metrics.overallSize - type.width) / 2, origin: origin.x)
+            let textTop = type.snap(type.capTop - (type.font.ascender - type.font.capHeight), origin: origin.y)
+            ZStack(alignment: .topLeading) {
+                Text(verbatim: String(percentage.value))
+                    .font(Font(type.font))
+                    .fixedSize()
+                    .frame(width: type.digitWidth, height: type.textHeight, alignment: .topLeading)
+                    .position(x: left + type.digitWidth / 2, y: textTop + type.textHeight / 2)
+                if percentage.showsBolt {
+                    Image(systemName: "bolt.fill")
+                        .font(.system(size: type.boltSize, weight: .bold))
+                        .fixedSize()
+                        .frame(width: type.boltWidth, height: type.capHeight)
+                        .position(x: left + type.digitWidth + type.spacing + type.boltWidth / 2,
+                                  y: type.capTop + type.capHeight / 2)
+                }
             }
         }
-        .fixedSize()
+        .frame(width: metrics.overallSize, height: metrics.overallSize)
         .foregroundStyle(.primary)
-        .offset(y: metrics.ringYOffset - metrics.ringDiameter * 0.40)
         .transaction { $0.animation = nil }
     }
 }
