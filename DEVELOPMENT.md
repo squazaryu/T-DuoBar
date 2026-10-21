@@ -228,7 +228,7 @@ StatusItemClickTests exercises that controller path, 30 repeated cycles, late
 focus/up events, control-click, unrelated events and invalidation.
 
 
-## Menu bar percentage style (1.12.0, build 36)
+## Menu bar percentage style (1.12.0, build 37)
 
 Settings → General → Appearance → Battery percentage in menu bar adds digits in a top gap of the battery ring. It is off by default and independent of percentages inside the pop-up. Missing/invalid battery readings and adaptive rings retain the original glyph. The option is hidden on Macs using an adaptive ring.
 
@@ -241,3 +241,5 @@ The style uses cached battery status only and adds no polling, timer or network 
 Native pixel comparison verifies the same center in both styles across external-power and color-coding states. Light/dark fixtures cover both styles at actual menu bar size and enlarged.
 
 Battery digits are rendered as a native-size overlay after the ring canvas transform. Their font size and origin align to the current backing pixel grid (1x or 2x). Typography supplies the ring cutout using actual final font metrics and leaves space inside the 22-point menu bar viewport. The normal-size menu font is capped at 8.5 points to avoid reaching the Wi-Fi symbol at 105% icon size; enlarged previews use their own native font size. The text is never resized as a cached 32-point-canvas bitmap. Native raster comparison tests cover 80%, 100% and 105% icons with 8, 80 and 100, with and without a bolt.
+
+Build 37 optically centers the visible digit contours using cached Core Text bounds instead of advance widths. Version 1.12.0 assets and its source tag are replaced with explicit maintainer authorization; the prior build 36 artifacts/tag identity are retained locally. Homebrew cask versions include the build number (1.12.0,37), while the app and JSON manifest retain semantic version 1.12.0 and build 37.

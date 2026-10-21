@@ -28,7 +28,7 @@ final class MenuBarBatteryPercentageTests: XCTestCase {
             battery: self.battery(16), ringMode: .battery)).showsBolt)
     }
 
-    func testGapAdaptsToDigitCountAndBoltWidth() {
+    func testGapAdaptsToVisibleDigitsAndBoltWidth() {
         for bolt in [false, true] {
             let small = DuoBatteryPercentage(value: 8, showsBolt: bolt).topGapDegrees
             let medium = DuoBatteryPercentage(value: 80, showsBolt: bolt).topGapDegrees
@@ -36,7 +36,6 @@ final class MenuBarBatteryPercentageTests: XCTestCase {
             XCTAssertLessThan(small, medium)
             XCTAssertLessThanOrEqual(medium, large)
             XCTAssertLessThanOrEqual(large, 156)
-            XCTAssertEqual(DuoBatteryPercentage(value: 16, showsBolt: bolt).topGapDegrees, medium)
         }
     }
 
@@ -186,6 +185,23 @@ final class MenuBarBatteryPercentageTests: XCTestCase {
             try png.write(to: FileManager.default.temporaryDirectory
                 .appendingPathComponent("T-DuoBar-Native-Percent-\(Int(backing))x.png"))
         }
+    }
+
+    @MainActor
+    func testVisibleDigitsAreCenteredInTheRing() throws {
+        var observations: [[String: Double]] = []
+        for value in [1, 8, 16, 72, 80, 88, 89, 90, 99, 100] {
+            let label = DuoBatteryPercentageLabel(percentage: DuoBatteryPercentage(value: value, showsBolt: false),
+                metrics: .standard).frame(width: 32, height: 32)
+            let mask = try alphaMask(label)
+            let xs = mask.indices.filter { mask[$0] > 32 }.map { $0 % 128 }
+            let first = try XCTUnwrap(xs.min()), last = try XCTUnwrap(xs.max())
+            let midpoint = Double(first + last + 1) / 8
+            observations.append(["value": Double(value), "center": midpoint, "error": midpoint - 16])
+            XCTAssertEqual(midpoint, 16, accuracy: 0.25, "Visible digits \(value) must center on the ring")
+        }
+        try JSONSerialization.data(withJSONObject: observations, options: .prettyPrinted)
+            .write(to: FileManager.default.temporaryDirectory.appendingPathComponent("T-DuoBar-Digit-Centers.json"))
     }
 
     @MainActor

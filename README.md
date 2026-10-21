@@ -42,7 +42,7 @@ An independent community fork of [DuoBar by Mike Li (Mikeli7666)](https://github
 
 ## Install and update
 
-[Download the 1.12.0 DMG](https://github.com/squazaryu/T-DuoBar/releases/download/v1.12.0/T-DuoBar-1.12.0.dmg) · [Release notes and SHA-256](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.0)
+[Download the 1.12.0 DMG](https://github.com/squazaryu/T-DuoBar/releases/download/v1.12.0/T-DuoBar-1.12.0.dmg?build=37) · [Release notes and SHA-256](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.0)
 
 ```sh
 brew install --cask squazaryu/tap/t-duobar
@@ -68,7 +68,7 @@ T-DuoBar keeps the four dots dedicated to **volume**, and builds out the battery
 
 See the [documented comparison with upstream and another fork](docs/COMPARISON.md), checked on 21 October 2026.
 
-## New in 1.12.0 · build 36
+## New in 1.12.0 · build 37
 
 Optional battery percentages, a cutout that adapts to the label width, a unified round glyph with a larger center symbol, consistent power indication and native-size text rendering for sharper digits. Enable **Battery percentage in menu bar** in Settings → General → Appearance. It is off by default. No breaking changes or migration steps.
 
@@ -80,7 +80,7 @@ System readings are processed locally. There is no analytics backend or upload o
 
 VPN status includes only configured connections reported by macOS. It does not prove that all traffic is protected. A tunnel interface alone is not treated as proof of a VPN connection. Device battery data and time estimates depend on macOS/device support; missing readings remain explicit. T-DuoBar does not pair Bluetooth devices or join Wi-Fi networks, and the charge-limit readout is unavailable.
 
-The 1.12.0 release passed 90 focused glyph, typography, charging, settings and localization tests, plus the repository-artwork render check. Intel is compiled; runtime validation is on Apple Silicon. A full-suite pass and new long-duration battery-drain measurements are not claimed. See the validation report for scope.
+The 1.12.0 release passed 91 focused glyph, typography, charging, settings and localization tests, plus the repository-artwork render check. Intel is compiled; runtime validation is on Apple Silicon. A full-suite pass and new long-duration battery-drain measurements are not claimed. See the validation report for scope.
 
 ## Build, source and credits
 

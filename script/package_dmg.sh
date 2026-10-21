@@ -2,7 +2,7 @@
 set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VERSION="1.12.0"
-BUILD_NUMBER="36"
+BUILD_NUMBER="37"
 BUILD_DIR="${TMPDIR:-/tmp}/T-DuoBar-Package-DerivedData"
 OUTPUT_DIR="$ROOT_DIR/build/releases/$VERSION"
 DMG="$OUTPUT_DIR/T-DuoBar-$VERSION.dmg"
