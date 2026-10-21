@@ -241,3 +241,7 @@
 "Reduce Transparency is enabled in macOS. The menu uses an opaque background." = "В macOS включено «Уменьшить прозрачность». Фон меню будет непрозрачным.";
 "Text and controls stay opaque. macOS manages the glass effect." = "Текст и элементы управления остаются непрозрачными. Эффект стекла управляется macOS.";
 "Preview menu" = "Предпросмотр меню";
+
+// Optional menu bar battery digits.
+"Battery percentage in menu bar" = "Проценты батареи в строке меню";
+"For clearer digits, set Icon Size to 100% or 105%." = "Для чётких цифр установите размер значка 100% или 105%.";

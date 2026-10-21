@@ -31,8 +31,6 @@ enum BatteryChargingAnimationProfile {
     // The earlier -24/230 placement intersected the arc's stroke.
     static let boltRadialOffsetRatio: CGFloat = -43 / 230
     static let boltHorizontalOffsetRatio: CGFloat = -3 / 230
-    static let poweredCenterScale: CGFloat = 0.84
-    static let poweredCenterOffsetRatio: CGFloat = 18 / 230
 
     static let inactiveTrackOpacity = 0.24
 

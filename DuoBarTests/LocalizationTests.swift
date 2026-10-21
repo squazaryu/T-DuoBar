@@ -4,6 +4,8 @@ import XCTest
 
 final class LocalizationTests: XCTestCase {
     private let requiredKeys = [
+        "Battery percentage in menu bar",
+        "For clearer digits, set Icon Size to 100% or 105%.",
         "Classic",
         "Preview menu",
         "Liquid Glass",

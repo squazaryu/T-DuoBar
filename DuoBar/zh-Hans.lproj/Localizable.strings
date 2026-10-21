@@ -241,3 +241,7 @@
 "Reduce Transparency is enabled in macOS. The menu uses an opaque background." = "macOS 已启用“降低透明度”。菜单将使用不透明背景。";
 "Text and controls stay opaque. macOS manages the glass effect." = "文字和控件保持不透明。玻璃效果由 macOS 管理。";
 "Preview menu" = "预览菜单";
+
+// Optional menu bar battery digits.
+"Battery percentage in menu bar" = "在菜单栏显示电池百分比";
+"For clearer digits, set Icon Size to 100% or 105%." = "为使数字更清晰，请将图标大小设为100%或105%。";

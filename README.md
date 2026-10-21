@@ -1,112 +1,89 @@
-# T-DuoBar
+<p align="center">
+  <img src="assets/app-icon.png" width="96" alt="T-DuoBar app icon">
+</p>
+<h1 align="center">T-DuoBar</h1>
+<p align="center"><strong>Battery, network and audio — one place in your menu bar.</strong></p>
+<p align="center">
+  <img alt="macOS 13 or later" src="https://img.shields.io/badge/macOS-13%2B-222222?logo=apple&amp;logoColor=white">
+  <img alt="Apple Silicon and Intel" src="https://img.shields.io/badge/Universal_2-Apple_Silicon_%2B_Intel-248A3D">
+  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-blue"></a>
+  <a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.0"><img alt="Experimental release 1.12.0" src="https://img.shields.io/badge/release-1.12.0_experimental-orange"></a>
+</p>
+<p align="center">[Download](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.0) · [Русский](README.ru.md) · [Compare forks](docs/COMPARISON.md) · [Source & build](DEVELOPMENT.md)</p>
 
-A community fork of [DuoBar by Mikeli7666](https://github.com/Mikeli7666/DuoBar), with extended battery, network, and audio controls for the macOS menu bar.
+![T-DuoBar: menu bar glyphs and the control pop-up](assets/t-duobar-hero.png)
 
-[Русский](README.ru.md) · [Development and local installation](DEVELOPMENT.md) · [Original project](https://github.com/Mikeli7666/DuoBar)
+An independent community fork of [DuoBar by Mike Li (Mikeli7666)](https://github.com/Mikeli7666/DuoBar). Keep battery, network and audio together in one menu bar indicator, with a more capable pop-up when you need the details.
 
-## Homebrew installation and updates
+## Why T-DuoBar
+
+- **A readable, configurable glyph.** Choose the circular icon or add battery digits in an adaptive cutout. Both use the same full-size center symbol and circular volume dots. Digits render at native pixel-aligned size; a green power ring omits the redundant bolt.
+- **Battery context.** Remaining time or time to full charge when macOS provides an estimate, accessory batteries and optional low-battery alerts.
+- **Network and VPN at a glance.** Signal, band, channel, IP copying, Personal Hotspot indication and a separate VPN card with the macOS-reported profile and interface.
+- **Useful audio controls.** Output selection, favorites, microphone selection, mute and optional scrolling over the menu bar icon to adjust volume. The four lower dots show output volume.
+- **Your pop-up layout.** Reorder or hide sections; choose Classic or native Liquid Glass, adjust background transparency and preview the actual menu. Glass requires macOS 26+ and respects Reduce Transparency.
+- **Six languages.** English, German, Russian, Ukrainian, Simplified Chinese and Traditional Chinese, with a system-language option.
+- **Homebrew updates.** Weekly checks while the app is running, a clear installed/available version display and an explicit installation action.
+
+## See it in action
+
+| Light appearance | Dark appearance |
+| --- | --- |
+| <img src="assets/popup-light.png" width="320" alt="T-DuoBar light pop-up with network, VPN, volume, battery and audio controls"> | <img src="assets/popup-dark.png" width="320" alt="T-DuoBar dark pop-up with the same sections"> |
+
+<details>
+<summary>Appearance and general settings</summary>
+
+<img src="assets/settings-general.png" width="600" alt="T-DuoBar General settings: language, Liquid Glass, transparency, battery digits and icon size">
+
+</details>
+
+*Native application-view renders with demonstration values. No personal desktop or connection data is shown. The menu screenshots use the classic background; the settings image shows the Liquid Glass option.*
+
+## Install and update
+
+[Download the 1.12.0 DMG](https://github.com/squazaryu/T-DuoBar/releases/download/v1.12.0/T-DuoBar-1.12.0.dmg) · [Release notes and SHA-256](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.0)
 
 ```sh
 brew install --cask squazaryu/tap/t-duobar
-brew update
-brew upgrade --cask squazaryu/tap/t-duobar
 ```
 
-If DuoBar was installed manually, quit it and back up `/Applications/DuoBar.app` before the first Homebrew install. `--adopt` only accepts an identical copy; do not use `--force` to discard an existing installation.
-
-Starting with 1.6.0, DuoBar checks the published Homebrew manifest weekly while running and after launch/wake when a check is due. It notifies once per new version, subject to macOS notification permission. Click **Install with Homebrew** to open Terminal and run the bundled update script, then restart DuoBar. Updates are not installed without a click. If Homebrew is missing, the script displays instructions instead of installing the package manager automatically.
-
-Settings → Updates provides a weekly-check toggle, manual check, installation prompt, release notes and a copyable update command. No update check is performed while DuoBar is closed; a missed check runs after the next launch. Failed checks retry after six hours, not continuously.
-
-Starting with 1.6.1, settings always show the installed version and build number. Every manual check shows a dialog: the installed and available versions with an installation button, confirmation that the installed version is current, or a connection error. Weekly update notifications also identify the installed and available versions. Manual-check dialogs do not require macOS notification permission.
-
-## Version 1.11.1 (build 30)
-
-- Complete German localization, including VPN, Liquid Glass, update dialogs and permission descriptions. Select **Deutsch** in Settings → General → Language, or use a German system language.
-- Thanks to [CTeipen](https://github.com/CTeipen) for the translation in [PR #1](https://github.com/squazaryu/T-DuoBar/pull/1).
-- All 232 English keys are covered; format arguments and regional German language selection are tested. No breaking changes or migration steps.
-
-The localization checks and native German renders passed 16 tests. The attempted full suite was interrupted while waiting in the existing Bluetooth API initialization test; see [1.11.1 validation](release/1.11.1/VALIDATION.md).
-
-### Previous improvements (1.11.0, build 29)
-
-- A separate VPN card shows the status and profile name reported by macOS, with optional interface details and a link to VPN settings. It can be hidden or reordered independently.
-- Choose Classic or native Liquid Glass in Appearance. Glass requires macOS 26+, has a background-transparency slider, and keeps text and controls at normal opacity. Classic is the default; older systems and Reduce Transparency use the opaque presentation.
-- Preview the actual menu from Settings. Both styles share the same content and disclosure state.
-- Normal status-button presses toggle once on mouse-down, preventing a delayed mouse-up from reopening the menu. Context-menu and hover behavior are retained.
-- VPN observation follows actual menu visibility, preserves the last snapshot while refreshing, coalesces changes and rejects cancelled or late reads.
-
-No breaking changes or migration steps. Existing preferences are retained; a new VPN section is inserted beside Network in older saved orders.
-
-### Previous improvements (1.10.0)
-
-- Select the app language in Appearance: System, English, Russian, Ukrainian, Simplified Chinese or Traditional Chinese. Custom labels update without restarting.
-- Optionally hide the empty accessory section. Connected devices return automatically; read failures remain visible.
-- Optionally adjust volume by scrolling over the menu-bar icon. Both new behavior switches default to off.
-- Battery and volume percentages sit beside their titles with consistent typography. The slider uses the available row width.
-- Clicking the empty space between a section's text and chevron now opens and closes its details. System Settings buttons keep their separate action.
-
-No breaking changes or preference migration. Existing settings are retained.
-
-### Earlier improvements (1.9.0)
-
-- Native General, Notifications and Updates settings tabs, plus a right-click menu for settings, update checks and quitting.
-- Reorder the six popover sections with drag handles or Move up / Move down actions. Order and visibility are saved independently.
-- A battery tooltip with percentage, power state and the current time estimate, using the existing status readings.
-- Quick System Settings links and explanations for missing network, battery, audio and accessory data.
-- A Personal Hotspot chain symbol for Wi-Fi that macOS marks as expensive; see the detection limitation below.
-- A distinct T-DuoBar icon and native About panel with version, build and project links.
-- Cancelled accessory reads no longer continue after closing the popover or overwrite newer results. Background timers can be coalesced by macOS.
-- Aligned card buttons, a compact empty accessory row, a power bolt clear of the ring, and a title that stays at the top while details expand.
-
-### Existing controls
-
-- Battery time estimates until empty or fully charged, displayed inside the popover.
-- Expandable battery details with the reported power-adapter wattage.
-- Connected accessory battery readings, including separate AirPods components when macOS reports them. Disconnected cached readings are excluded.
-- Expandable network details: Wi-Fi signal, band, channel, local IPv4 address, and address copying.
-- Audio-output selection with persistent favorites and optional default-microphone selection.
-- Configurable low-battery notifications at 10%, 20%, or 30%, with optional sound. Notifications are off by default and require system authorization.
-- Independent visibility settings for menu sections and battery time. Expanded content scrolls when necessary.
-- Original DuoBar battery ring, volume controls and color coding retained.
-
-## Experimental DMG
-
-[Download T-DuoBar 1.11.1](https://github.com/squazaryu/T-DuoBar/releases/download/v1.11.1/T-DuoBar-1.11.1.dmg) · [Release notes and SHA-256](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.11.1)
-
-**The DMG is an experimental ad-hoc signed build, not Developer ID signed or Apple notarized.** Quit DuoBar, back up the installed copy, mount the DMG, and drag `DuoBar.app` to Applications. Launch it from Applications. macOS may block a downloaded copy; use [Apple's documented individual-app procedure](https://support.apple.com/en-us/102445) only if you trust the release. Do not disable system protections globally.
-
-## Build and install
-
-Requires macOS 13 or newer and full Xcode. This version has been built and tested on Apple Silicon; compatibility with every supported macOS version and accessory has not been physically verified.
+For an existing Homebrew installation, quit DuoBar, then run:
 
 ```sh
-git clone https://github.com/squazaryu/T-DuoBar.git
-cd T-DuoBar
-./script/build_and_run.sh --verify
+brew update
+brew upgrade --cask squazaryu/tap/t-duobar
+open /Applications/DuoBar.app
 ```
 
-The script builds Release, verifies the local signature, installs `/Applications/DuoBar.app`, and checks that the process runs from that location. It moves any previous installed copy intact to `~/Library/Application Support/T-DuoBar/Backups/`.
+Settings → Updates can check manually or weekly and open Terminal to install through Homebrew, then restart the app. Checks run only while DuoBar is open; failed checks retry after six hours. Installation starts only after an explicit click. Homebrew is not installed automatically, and unrelated packages are not upgraded by the in-app install action.
 
-**This fork does not yet provide a Developer ID signed and notarized download.** The experimental DMG and local builds use ad-hoc signing. The display name is T-DuoBar; the `DuoBar.app` filename and original bundle identifier are retained. It shares preferences and replaces the installed DuoBar copy; the fork and original are not intended to run simultaneously. See [DEVELOPMENT.md](DEVELOPMENT.md) for test and debugging commands.
+If adopting a manually installed app, quit it and back up `/Applications/DuoBar.app` first. `--adopt` requires an identical copy; do not use `--force` to discard the existing app. Existing DuoBar preferences are shared and retained. The original app and this fork should not run simultaneously.
 
-## Validation and limitations
+**Distribution status:** this is an experimental ad-hoc signed community build, without Developer ID signing or Apple notarization. Homebrew verifies SHA-256 but does not add notarization. An Internet-downloaded app may need [Apple's individual-app approval procedure](https://support.apple.com/en-us/102445). Do not disable system protections globally.
 
-The 1.11.0 implementation passed 352 tests; six hardware-dependent checks were skipped. Release compiled for both architectures; runtime checks ran on Apple Silicon. Native integration tests exercise the real menu controller, glass surface, background opacity, observer cleanup and repeated clicks. See the [performance and lifecycle report](release/1.11.0/VALIDATION.md) for short desktop measurements and their limits. These checks do not establish compatibility with every device, leak freedom or long-duration energy use.
+## What makes this fork different?
 
-- VPN status covers configured connections reported by macOS; a tunnel interface alone is not proof of a VPN, and the app does not claim all traffic uses it. No VPN connection is started or stopped.
-- Battery duration is the estimate supplied by macOS and may be unavailable.
-- Accessory support and individual earbud/case readings depend on the macOS Bluetooth report. Reads occur locally while the accessory section is shown.
-- A reliable public source for the charge limit has not been identified, so it remains **Unavailable**. The app does not infer a limit from an 80% reading or a paused charge.
-- Adapter wattage is the reported adapter rating, not a measurement of charging power.
-- Wi-Fi details can be withheld by macOS permissions. Device-managed volume may not be adjustable.
-- Hotspot detection is a presentation heuristic based on macOS's expensive-path flag, not a device identification. A phone that is not marked expensive keeps the Wi-Fi symbol; other metered Wi-Fi networks may use the chain. No SSID-name guessing or nearby-network scan is used.
-- Low-battery notifications fire on a threshold crossing, not simply on startup below the threshold.
+T-DuoBar keeps the four dots dedicated to **volume**, and builds out the battery/network/audio pop-up, VPN visibility, appearance settings, localization and Homebrew update flow. For example, [hummusaki/DuoBar](https://github.com/hummusaki/DuoBar#readme) focuses on configurable Bluetooth dots and classic/split-ring styles. Percentages and accessory readings also appear in other forks; we do not claim them as exclusive features.
 
-System-status processing is local. The updater makes an HTTPS request to this project’s Homebrew version manifest; it does not upload system-status data. There is no backend, tracking, or system-status upload. Selecting a microphone changes the default Core Audio input; the app does not record audio.
+See the [documented comparison with upstream and another fork](docs/COMPARISON.md), checked on 21 October 2026.
 
-## Upstream and license
+## New in 1.12.0 · build 36
 
-Based on upstream `main` at `83522010048124876c2e54c8232ad31d1920577c`. Historical marketing files and release notes retained in this repository describe the original project, not a signed release of this fork.
+Optional battery percentages, a cutout that adapts to the label width, a unified round glyph with a larger center symbol, consistent power indication and native-size text rendering for sharper digits. Enable **Battery percentage in menu bar** in Settings → General → Appearance. It is off by default. No breaking changes or migration steps.
 
-DuoBar was created by Mike Li / Mikeli7666. Original copyright and the [MIT license](LICENSE) are preserved. T-DuoBar is an independent community fork and is not affiliated with Apple.
+[Release notes](release/1.12.0/RELEASE_NOTES_1.12.0.md) · [Validation and limits](release/1.12.0/VALIDATION.md)
+
+## Privacy and practical limits
+
+System readings are processed locally. There is no analytics backend or upload of battery, network or device readings. The updater makes an HTTPS request to the version manifest in our Homebrew tap. Selecting a microphone changes the Core Audio input device; it does not record audio.
+
+VPN status includes only configured connections reported by macOS. It does not prove that all traffic is protected. A tunnel interface alone is not treated as proof of a VPN connection. Device battery data and time estimates depend on macOS/device support; missing readings remain explicit. T-DuoBar does not pair Bluetooth devices or join Wi-Fi networks, and the charge-limit readout is unavailable.
+
+The 1.12.0 release passed 90 focused glyph, typography, charging, settings and localization tests, plus the repository-artwork render check. Intel is compiled; runtime validation is on Apple Silicon. A full-suite pass and new long-duration battery-drain measurements are not claimed. See the validation report for scope.
+
+## Build, source and credits
+
+[Development and local installation](DEVELOPMENT.md) · [MIT license](LICENSE) · [Original DuoBar](https://github.com/Mikeli7666/DuoBar)
+
+Thanks to Mike Li for DuoBar and to [CTeipen](https://github.com/CTeipen) for the German translation. Historical upstream marketing material is retained separately; the images above are T-DuoBar-specific native renders.

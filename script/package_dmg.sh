@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VERSION="1.11.1"
-BUILD_NUMBER="30"
+VERSION="1.12.0"
+BUILD_NUMBER="36"
 BUILD_DIR="${TMPDIR:-/tmp}/T-DuoBar-Package-DerivedData"
 OUTPUT_DIR="$ROOT_DIR/build/releases/$VERSION"
 DMG="$OUTPUT_DIR/T-DuoBar-$VERSION.dmg"
@@ -33,7 +33,7 @@ codesign --verify --deep --strict "$STAGING_DIR/DuoBar.app"
 ln -s /Applications "$STAGING_DIR/Applications"
 cp "$ROOT_DIR/LICENSE" "$STAGING_DIR/LICENSE.txt"
 cat > "$STAGING_DIR/READ ME FIRST.txt" <<'NOTICE'
-T-DuoBar 1.11.1 — experimental community build
+T-DuoBar 1.12.0 — experimental community build
 
 This app has an ad-hoc signature. It is NOT Developer ID signed or Apple notarized.
 This differs from the signed releases of the original DuoBar project.
