@@ -1,7 +1,9 @@
 # T-DuoBar 1.12.0 — adaptive battery percentages
 
-Build 36 · Universal 2 (Apple Silicon and Intel) · macOS 13+.
+Build 37 · Universal 2 (Apple Silicon and Intel) · macOS 13+.
 Experimental ad-hoc signed community build; not Developer ID signed or Apple notarized.
+
+Build 37 replaces the earlier build 36 assets of the same experimental release at the maintainer’s explicit request. Percentage alignment now follows the visible glyph contours. Homebrew tracks the build number to detect this replacement.
 
 ## What's new / Что нового
 
@@ -34,6 +36,6 @@ The in-app Homebrew action also updates and restarts the app.
 
 ## Validation and limits
 
-90 focused glyph, typography, charging, settings and localization tests passed, plus one repository-artwork render check. Tests cover all readings 0–100 with/without a bolt, ring clearance, the shared center across both modes and power states, and native raster preservation at the supported icon sizes. Native fixtures were inspected in both appearances. This is targeted validation, not a complete full-suite run or a long-duration energy audit. [Validation details](https://github.com/squazaryu/T-DuoBar/blob/v1.12.0/release/1.12.0/VALIDATION.md).
+91 focused glyph, typography, charging, settings and localization tests passed, plus one repository-artwork render check. Tests cover all readings 0–100 with/without a bolt, ring clearance, the shared center across both modes and power states, and native raster preservation at the supported icon sizes. Native fixtures were inspected in both appearances. This is targeted validation, not a complete full-suite run or a long-duration energy audit. [Validation details](https://github.com/squazaryu/T-DuoBar/blob/v1.12.0/release/1.12.0/VALIDATION.md).
 
 Intel is compiled; runtime checks run on Apple Silicon. Very small icon sizes remain limited by available pixels; 100–105% is recommended for percentage readability. Homebrew verifies the DMG SHA-256 but does not add notarization. Downloaded apps may require [Apple's individual-app approval procedure](https://support.apple.com/en-us/102445).

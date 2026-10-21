@@ -1,4 +1,5 @@
 import AppKit
+import CoreText
 
 /// Typography in final view points, independent of the ring's 32-point canvas.
 struct DuoBatteryPercentageTypography {
@@ -6,11 +7,27 @@ struct DuoBatteryPercentageTypography {
         let font = NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .semibold)
         return font.fontDescriptor.withDesign(.rounded).flatMap { NSFont(descriptor: $0, size: 11) } ?? font
     }()
-    private static let digitAdvance = ("0" as NSString).size(withAttributes: [.font: referenceFont]).width
+    private final class ShapedDigits {
+        let advance: CGFloat
+        let ink: CGRect
+        init(value: Int, font: NSFont) {
+            let text = NSAttributedString(string: String(value), attributes: [.font: font])
+            let line = CTLineCreateWithAttributedString(text)
+            advance = CGFloat(CTLineGetTypographicBounds(line, nil, nil, nil))
+            ink = CTLineGetBoundsWithOptions(line, [.useGlyphPathBounds])
+        }
+    }
+    private static let shapedDigits: NSCache<NSString, ShapedDigits> = {
+        let cache = NSCache<NSString, ShapedDigits>()
+        cache.countLimit = 512
+        return cache
+    }()
 
     let density: CGFloat
     let font: NSFont
     let digitWidth: CGFloat
+    let digitInkWidth: CGFloat
+    let digitInkLeft: CGFloat
     let boltSize: CGFloat
     let boltWidth: CGFloat
     let spacing: CGFloat
@@ -18,7 +35,7 @@ struct DuoBatteryPercentageTypography {
     let textHeight: CGFloat
     let capTop: CGFloat
 
-    var width: CGFloat { digitWidth + spacing + boltWidth }
+    var width: CGFloat { digitInkWidth + spacing + boltWidth }
 
     init(percentage: DuoBatteryPercentage, metrics: DuoGlyphMetrics, displayScale: CGFloat) {
         let density = displayScale.isFinite && displayScale > 0 ? displayScale : 1
@@ -32,6 +49,10 @@ struct DuoBatteryPercentageTypography {
         let menuBarLimit = floor(8.5 * density) / density
         let fontSize = max(1, metrics.overallSize <= 26 ? min(nativeSize, menuBarLimit) : nativeSize)
         let font = NSFont(descriptor: Self.referenceFont.fontDescriptor, size: fontSize) ?? Self.referenceFont
+        let key = "\(fontSize):\(percentage.value)" as NSString
+        let shaped = Self.shapedDigits.object(forKey: key) ?? ShapedDigits(value: percentage.value, font: font)
+        Self.shapedDigits.setObject(shaped, forKey: key)
+        let ink = shaped.ink
         let capHeight = ceilPixel(font.capHeight)
         let center = metrics.overallSize / 2
             + (metrics.ringYOffset - metrics.ringDiameter * 0.40 + metrics.contentYOffset) * canvasScale
@@ -43,7 +64,9 @@ struct DuoBatteryPercentageTypography {
         self.density = density
         self.font = font
         self.capHeight = capHeight
-        digitWidth = ceilPixel(Self.digitAdvance * fontSize / 11 * CGFloat(String(percentage.value).count))
+        digitWidth = ceilPixel(shaped.advance)
+        digitInkWidth = ink.width
+        digitInkLeft = ink.minX
         boltSize = max(1, snap(6 * sizeScale))
         boltWidth = percentage.showsBolt ? ceilPixel(boltSize * 0.8) : 0
         spacing = percentage.showsBolt ? max(1 / density, snap(sizeScale)) : 0
@@ -59,9 +82,11 @@ struct DuoBatteryPercentageTypography {
         let scale = metrics.overallSize / DuoGlyphMetrics.canvasSize
         let radius = metrics.ringPathDiameter / 2 * scale
         let ringCenterY = metrics.overallSize / 2 + (metrics.ringYOffset + metrics.contentYOffset) * scale
-        let clearance = metrics.arcLineWidth / 2 * scale + 1 / density
+        // Include another half backing pixel for hinted glyph edges.
+        let clearance = metrics.arcLineWidth / 2 * scale + 1.5 / density
         // Include the maximum half-pixel shift needed to align the label origin.
-        let halfWidth = width / 2 + 0.5 / density + clearance
+        let safeWidth = max(width, digitWidth + spacing + boltWidth) + 1 / density
+        let halfWidth = safeWidth / 2 + 0.5 / density + clearance
         let horizontal = 2 * asin(Double(min(1, halfWidth / radius))) * 180 / .pi
         let vertical = 2 * acos(Double(min(1, max(-1,
             (ringCenterY - capTop - capHeight - clearance) / radius)))) * 180 / .pi

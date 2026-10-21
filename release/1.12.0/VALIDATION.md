@@ -1,10 +1,10 @@
-# T-DuoBar 1.12.0 (36): validation
+# T-DuoBar 1.12.0 (37): validation
 
-Checked on 21 October 2026, Apple Silicon, macOS 27.2. The user accepted local build 36 for publication.
+Checked on 21 October 2026, Apple Silicon, macOS 27.2. The user accepted build 37 after checking the local icon and explicitly requested replacing the same 1.12.0 release rather than publishing 1.12.1.
 
 ## Automated checks
 
-90 focused tests passed, 0 failures, 0 skips:
+91 focused tests passed, 0 failures, 0 skips:
 
 - MenuBarBatteryPercentageTests: valid/missing readings; adaptive ring exclusion; every reading from 0 to 100 with and without a bolt; label/ring pixel clearance; circular bottom-dot geometry; center size/position preserved across percentage, color and power states; backing-pixel typography alignment; native text raster preservation at 80%, 100% and 105%; native render fixtures at 1× and 2×.
 - BatteryRingPresentationTests, MenuBarIconSizeTests and DuoGlyphStateTests.
@@ -24,3 +24,5 @@ Intel and older macOS versions are compile targets, not physical test devices he
 ## Reproduction
 
 Use the DuoBar Xcode scheme on macOS with full Xcode selected, ad-hoc signing and a temporary DerivedData directory. Select the seven test classes listed above. Add RepositoryArtworkTests/testRenderRepositoryArtwork to render replacement images in the temporary directory; inspect and copy them into assets/. Run script/package_dmg.sh for the Universal 2 DMG.
+
+Build 37 also checks visible digit centering (including 89 and 90), independently from advance widths. The former build 36 files, release metadata and tag identity were saved locally before the authorized replacement.

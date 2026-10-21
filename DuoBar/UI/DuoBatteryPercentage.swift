@@ -30,20 +30,21 @@ struct DuoBatteryPercentageLabel: View {
         let type = DuoBatteryPercentageTypography(percentage: percentage, metrics: metrics, displayScale: displayScale)
         GeometryReader { geometry in
             let origin = geometry.frame(in: .global).origin
-            let left = type.snap((metrics.overallSize - type.width) / 2, origin: origin.x)
+            let left = (metrics.overallSize - type.width) / 2
+            let textLeft = type.snap(left - type.digitInkLeft, origin: origin.x)
             let textTop = type.snap(type.capTop - (type.font.ascender - type.font.capHeight), origin: origin.y)
             ZStack(alignment: .topLeading) {
                 Text(verbatim: String(percentage.value))
                     .font(Font(type.font))
                     .fixedSize()
                     .frame(width: type.digitWidth, height: type.textHeight, alignment: .topLeading)
-                    .position(x: left + type.digitWidth / 2, y: textTop + type.textHeight / 2)
+                    .position(x: textLeft + type.digitWidth / 2, y: textTop + type.textHeight / 2)
                 if percentage.showsBolt {
                     Image(systemName: "bolt.fill")
                         .font(.system(size: type.boltSize, weight: .bold))
                         .fixedSize()
                         .frame(width: type.boltWidth, height: type.capHeight)
-                        .position(x: left + type.digitWidth + type.spacing + type.boltWidth / 2,
+                        .position(x: type.snap(left + type.digitInkWidth + type.spacing, origin: origin.x) + type.boltWidth / 2,
                                   y: type.capTop + type.capHeight / 2)
                 }
             }
