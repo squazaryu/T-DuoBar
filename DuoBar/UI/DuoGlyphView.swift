@@ -93,6 +93,24 @@ struct DuoGlyphView: View {
         )
     }
 
+    func centerContent(reduceMotion: Bool) -> some View {
+        DuoCenterTransitionView(
+            targetState: glyphState.centerState,
+            size: metrics.wifiSymbolSize,
+            ringDiameter: metrics.ringDiameter,
+            ringYOffset: metrics.ringYOffset,
+            centerYOffset: metrics.wifiYOffset,
+            pulseScale: centerPulseScale,
+            animationsEnabled: animationsEnabled,
+            reduceMotion: reduceMotion,
+            centersInRing: batteryPercentage == nil
+        )
+        .scaleEffect(1.05)
+        .offset(y: batteryPercentage == nil
+            ? metrics.ringYOffset
+            : metrics.wifiYOffset + metrics.ringDiameter * 0.08)
+    }
+
     var body: some View {
         ZStack {
             if let topGapDegrees {
@@ -158,18 +176,7 @@ struct DuoGlyphView: View {
                 )
             }
 
-            DuoCenterTransitionView(
-                targetState: glyphState.centerState,
-                size: metrics.wifiSymbolSize,
-                ringDiameter: metrics.ringDiameter,
-                ringYOffset: metrics.ringYOffset,
-                centerYOffset: metrics.wifiYOffset,
-                pulseScale: centerPulseScale,
-                animationsEnabled: animationsEnabled,
-                reduceMotion: reduceMotion
-            )
-            .scaleEffect(1.05)
-            .offset(y: metrics.wifiYOffset + metrics.ringDiameter * 0.08)
+            centerContent(reduceMotion: reduceMotion)
 
             DuoDotRow(
                 activeCount: glyphState.volumeActiveDotCount,
@@ -443,6 +450,7 @@ struct DuoCenterTransitionView: View {
     let pulseScale: CGFloat
     let animationsEnabled: Bool
     let reduceMotion: Bool
+    let centersInRing: Bool
 
     @State private var displayedState: DuoCenterState
     @State private var outgoingState: DuoCenterState?
@@ -456,7 +464,8 @@ struct DuoCenterTransitionView: View {
         centerYOffset: CGFloat,
         pulseScale: CGFloat,
         animationsEnabled: Bool,
-        reduceMotion: Bool
+        reduceMotion: Bool,
+        centersInRing: Bool = false
     ) {
         self.targetState = targetState
         self.size = size
@@ -466,6 +475,7 @@ struct DuoCenterTransitionView: View {
         self.pulseScale = pulseScale
         self.animationsEnabled = animationsEnabled
         self.reduceMotion = reduceMotion
+        self.centersInRing = centersInRing
         _displayedState = State(initialValue: targetState)
     }
 
@@ -477,12 +487,15 @@ struct DuoCenterTransitionView: View {
             pulseScale: pulseScale,
             size: size,
             ringDiameter: ringDiameter,
-            wifiVerticalAdjustment: DuoWiFiReferenceGeometry.verticalAdjustment(
+            // The custom Wi-Fi drawing already fills a centered frame. Its
+            // reference adjustment is only needed for the percentage layout.
+            wifiVerticalAdjustment: centersInRing ? 0 : DuoWiFiReferenceGeometry.verticalAdjustment(
                 ringDiameter: ringDiameter,
                 ringYOffset: ringYOffset,
                 centerYOffset: centerYOffset
             ),
-            usesSpatialMotion: !reduceMotion
+            usesSpatialMotion: !reduceMotion,
+            centersInRing: centersInRing
         )
         .onChange(of: targetState) { newState in
             transition(to: newState)
@@ -521,6 +534,7 @@ struct DuoCenterTransitionLayer: View {
     let ringDiameter: CGFloat
     let wifiVerticalAdjustment: CGFloat
     let usesSpatialMotion: Bool
+    let centersInRing: Bool
 
     init(
         outgoingState: DuoCenterState?,
@@ -534,7 +548,8 @@ struct DuoCenterTransitionLayer: View {
             ringYOffset: DuoGlyphMetrics.standard.ringYOffset,
             centerYOffset: DuoGlyphMetrics.standard.wifiYOffset
         ),
-        usesSpatialMotion: Bool
+        usesSpatialMotion: Bool,
+        centersInRing: Bool = false
     ) {
         self.outgoingState = outgoingState
         self.incomingState = incomingState
@@ -544,6 +559,7 @@ struct DuoCenterTransitionLayer: View {
         self.ringDiameter = ringDiameter
         self.wifiVerticalAdjustment = wifiVerticalAdjustment
         self.usesSpatialMotion = usesSpatialMotion
+        self.centersInRing = centersInRing
     }
 
     var body: some View {
@@ -553,7 +569,8 @@ struct DuoCenterTransitionLayer: View {
                     state: outgoingState,
                     size: size,
                     ringDiameter: ringDiameter,
-                    wifiVerticalAdjustment: wifiVerticalAdjustment
+                    wifiVerticalAdjustment: wifiVerticalAdjustment,
+                    centersInRing: centersInRing
                 )
                     .opacity(1 - progress)
                     .scaleEffect(usesSpatialMotion ? 1 - (0.1 * progress) : 1)
@@ -567,7 +584,8 @@ struct DuoCenterTransitionLayer: View {
                 state: incomingState,
                 size: size,
                 ringDiameter: ringDiameter,
-                wifiVerticalAdjustment: wifiVerticalAdjustment
+                wifiVerticalAdjustment: wifiVerticalAdjustment,
+                centersInRing: centersInRing
             )
                 .opacity(progress)
                 .scaleEffect((usesSpatialMotion ? 0.9 + (0.1 * progress) : 1) * incomingPulseScale)
@@ -641,6 +659,7 @@ struct DuoCenterGlyph: View {
     let size: CGFloat
     let ringDiameter: CGFloat
     let wifiVerticalAdjustment: CGFloat
+    var centersInRing = false
 
     var body: some View {
         Group {
@@ -650,6 +669,8 @@ struct DuoCenterGlyph: View {
                     ringDiameter: ringDiameter,
                     verticalAdjustment: wifiVerticalAdjustment
                 )
+            } else if state == .ethernet {
+                EthernetGlyph(width: symbolSize * 1.45)
             } else {
                 Image(systemName: symbolName)
                     .font(.system(size: symbolSize, weight: .semibold))
@@ -659,13 +680,19 @@ struct DuoCenterGlyph: View {
         .foregroundStyle(glyphColor)
         .opacity(symbolOpacity)
         .frame(width: size * 1.65, height: size * 1.4)
+        // Compensate for asymmetric padding in these SF Symbols, only in the
+        // centered layout. The percentage layout retains its original placement.
+        .offset(
+            x: centersInRing && state == .performanceThermal ? -size * 0.07 : 0,
+            y: centersInRing && state == .airPodsPro ? -size * 0.05 : 0
+        )
     }
 
     private var symbolName: String {
         switch state {
         case .wifi: "wifi"
         case .personalHotspot: "personalhotspot"
-        case .ethernet: "cable.connector.horizontal"
+        case .ethernet: EthernetGlyph.symbolName
         case .offline: "network.slash"
         case .other: "ellipsis.circle"
         case .unavailable: "network.slash"
