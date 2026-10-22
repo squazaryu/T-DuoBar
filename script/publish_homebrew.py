@@ -31,7 +31,7 @@ digest = asset.get("digest", "")
 if not re.fullmatch(r"sha256:[0-9a-f]{64}", digest):
     parser.error("GitHub has not supplied a valid SHA-256 digest for the uploaded DMG")
 cask = tap / "Casks/t-duobar.rb"
-text, version_count = re.subn(r'^  version "[^"]+"$', f'  version "{args.version}"', cask.read_text(), flags=re.M)
+text, version_count = re.subn(r'^  version "[^"]+"$', f'  version "{args.version},{args.build}"', cask.read_text(), flags=re.M)
 text, hash_count = re.subn(r'^  sha256 "[^"]+"$', f'  sha256 "{digest[7:]}"', text, flags=re.M)
 if version_count != 1 or hash_count != 1:
     parser.error("Cask must contain exactly one version and one SHA-256 field")
