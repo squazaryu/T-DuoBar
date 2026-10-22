@@ -7,9 +7,9 @@
   <img alt="macOS 13 or later" src="https://img.shields.io/badge/macOS-13%2B-222222?logo=apple&amp;logoColor=white">
   <img alt="Apple Silicon and Intel" src="https://img.shields.io/badge/Universal_2-Apple_Silicon_%2B_Intel-248A3D">
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-blue"></a>
-  <a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.0"><img alt="Experimental release 1.12.0" src="https://img.shields.io/badge/release-1.12.0_experimental-orange"></a>
+  <a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.1"><img alt="Experimental release 1.12.1" src="https://img.shields.io/badge/release-1.12.1_experimental-orange"></a>
 </p>
-<p align="center">[Скачать](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.0) · [English](README.md) · [Сравнение форков](docs/COMPARISON.md) · [Исходники и сборка](DEVELOPMENT.md)</p>
+<p align="center">[Скачать](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.1) · [English](README.md) · [Сравнение форков](docs/COMPARISON.md) · [Исходники и сборка](DEVELOPMENT.md)</p>
 
 ![T-DuoBar: menu bar glyphs and the control pop-up](assets/t-duobar-hero.png)
 
@@ -42,7 +42,7 @@
 
 ## Установка и обновление
 
-[Скачать DMG 1.12.0](https://github.com/squazaryu/T-DuoBar/releases/download/v1.12.0/T-DuoBar-1.12.0.dmg?build=37) · [Релиз и SHA-256](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.0)
+[Скачать DMG 1.12.1](https://github.com/squazaryu/T-DuoBar/releases/download/v1.12.1/T-DuoBar-1.12.1.dmg?build=38) · [Релиз и SHA-256](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.1)
 
 ```sh
 brew install --cask squazaryu/tap/t-duobar
@@ -68,11 +68,11 @@ open /Applications/DuoBar.app
 
 [Сравнение документированных возможностей с оригиналом и другим форком](docs/COMPARISON.md), проверенное 21 октября 2026 года.
 
-## Новое в 1.12.0 · сборка 37
+## Новое в 1.12.1 · сборка 38
 
-Проценты батареи в адаптивном вырезе кольца, общий круглый силуэт двух режимов, более крупный центр, единая индикация питания и чёткие цифры без повторного масштабирования. Включается в «Настройки → Основные → Оформление → Проценты батареи в строке меню». По умолчанию отключено. Несовместимых изменений и миграций нет.
+Ethernet теперь обозначается знаком macOS «‹•••›» в кольце и разделе «Сеть». Без процентов центральные значки выровнены по центру кольца; расположение с процентами сохранено. Настройки сохраняются, миграций и несовместимых изменений нет.
 
-[Release notes](release/1.12.0/RELEASE_NOTES_1.12.0.md) · [Проверки и ограничения](release/1.12.0/VALIDATION.md)
+[Release notes](release/1.12.1/RELEASE_NOTES_1.12.1.md) · [Проверки и ограничения](release/1.12.1/VALIDATION.md)
 
 ## Приватность и ограничения
 
@@ -80,7 +80,7 @@ open /Applications/DuoBar.app
 
 VPN показывает только настроенные подключения, о которых сообщает macOS, и не гарантирует защиту всего трафика. Один лишь туннельный интерфейс не считается доказательством VPN. Показания аксессуаров и оценки времени зависят от macOS и оборудования; отсутствие данных обозначается явно. Приложение не подключается к Wi-Fi-сетям и не выполняет сопряжение Bluetooth. Лимит заряда недоступен.
 
-Для выпуска 1.12.0 пройден 91 профильный тест значка, текста, зарядки, настроек и локализаций, а также проверка рендера изображений репозитория. Intel проверен сборкой, запуск — на Apple Silicon. Полный прогон всех тестов и новые длительные замеры расхода батареи не заявляются; подробности — в отчёте проверки.
+Для выпуска 1.12.1 пройдено 97 профильных тестов значков, геометрии кольца, зарядки, размеров и обновлений Homebrew. Проверены 19 состояний значков на трёх размерах; расположение с процентами сравнено попиксельно. Intel проверен сборкой, запуск — на Apple Silicon. Полный прогон всех тестов и новые длительные замеры расхода батареи не заявляются.
 
 ## Исходники и авторы
 

@@ -99,12 +99,12 @@ final class MenuBarBatteryPercentageTests: XCTestCase {
     }
 
     @MainActor
-    func testCenterMatchesWithAndWithoutPercentageAndExternalPower() throws {
-        let reference = try alphaMask(DuoGlyphView(status: status(80), metrics: .standard.sized(32),
-            animationsEnabled: false).frame(width: 32, height: 32))
-        for plugged in [false, true] {
-            for colored in [false, true] {
-                for digits in [false, true] {
+    func testEachCenterLayoutRemainsStableWhenExternalPowerChanges() throws {
+        for digits in [false, true] {
+            let reference = try alphaMask(DuoGlyphView(status: status(80), metrics: .standard.sized(32),
+                animationsEnabled: false, showsBatteryPercentage: digits).frame(width: 32, height: 32))
+            for plugged in [false, true] {
+                for colored in [false, true] {
                     let image = try alphaMask(DuoGlyphView(status: status(80, plugged: plugged),
                         metrics: .standard.sized(32), animationsEnabled: false,
                         batteryColorCodingEnabled: colored, showsBatteryPercentage: digits)

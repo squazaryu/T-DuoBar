@@ -79,7 +79,13 @@ struct StatusRow: View {
 
     private var labelContent: some View {
         HStack(spacing: 11) {
-            Image(systemName: symbol)
+            Group {
+                if symbol == EthernetGlyph.symbolName {
+                    EthernetGlyph(width: 18)
+                } else {
+                    Image(systemName: symbol)
+                }
+            }
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(tint)
                 .frame(width: 28, height: 28)

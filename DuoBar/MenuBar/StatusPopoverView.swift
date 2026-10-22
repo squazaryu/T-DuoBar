@@ -294,7 +294,7 @@ struct StatusPopoverView: View {
         guard network.isConnected else { return "network.slash" }
         switch network.transport {
         case .wifi: return network.usesPersonalHotspotSymbol ? "personalhotspot" : "wifi"
-        case .ethernet: return "cable.connector.horizontal"
+        case .ethernet: return EthernetGlyph.symbolName
         case .other: return "ellipsis.circle"
         case .none: return "network.slash"
         }
