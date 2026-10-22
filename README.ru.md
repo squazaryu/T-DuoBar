@@ -9,7 +9,7 @@
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-blue"></a>
   <a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.1"><img alt="Experimental release 1.12.1" src="https://img.shields.io/badge/release-1.12.1_experimental-orange"></a>
 </p>
-<p align="center">[Скачать](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.1) · [English](README.md) · [Сравнение форков](docs/COMPARISON.md) · [Исходники и сборка](DEVELOPMENT.md)</p>
+<p align="center"><a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.1">Скачать</a> · <a href="README.md">English</a> · <a href="docs/COMPARISON.md">Сравнение форков</a> · <a href="DEVELOPMENT.md">Исходники и сборка</a></p>
 
 ![T-DuoBar: menu bar glyphs and the control pop-up](assets/t-duobar-hero.png)
 
