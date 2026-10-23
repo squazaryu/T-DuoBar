@@ -1,5 +1,4 @@
 import AppKit
-import Combine
 import SwiftUI
 
 @MainActor
@@ -23,7 +22,6 @@ final class MenuBarController: NSObject {
     private var defaultsObserver: NSObjectProtocol?
     private var applicationResignObserver: NSObjectProtocol?
     private var accessibilityDisplayObserver: NSObjectProtocol?
-    private var batteryObservation: AnyCancellable?
     private var volumeScrollMonitor: Any?
     private var statusItemMouseMonitor: Any?
     private var volumeScroll = VolumeScrollAccumulator()
@@ -44,7 +42,6 @@ final class MenuBarController: NSObject {
         configureStatusItem()
         configurePopover()
         installStatusItemMouseMonitor()
-        observeBatteryStatus()
         observePreferences()
         observeApplicationActivity()
         observeAccessibilityDisplayOptions()
@@ -59,7 +56,7 @@ final class MenuBarController: NSObject {
         button.sendAction(on: Self.statusItemActionEvents)
         button.image = nil
         button.title = ""
-        updateTooltip(for: statusStore.status.battery)
+        button.toolTip = nil
 
         let rootView = DuoStatusView(statusStore: statusStore) { [weak self] width in
             self?.setStatusItemLength(width)
@@ -81,22 +78,6 @@ final class MenuBarController: NSObject {
             hostingView.bottomAnchor.constraint(equalTo: button.bottomAnchor)
         ])
         self.hostingView = hostingView
-    }
-
-    private func observeBatteryStatus() {
-        // The existing store already receives battery events. Tooltips must not
-        // introduce a second timer or hardware read, even while the menu is shut.
-        batteryObservation = statusStore.$status.map(\.battery).removeDuplicates().sink { [weak self] battery in
-            guard let self, !self.isInvalidated else { return }
-            self.updateTooltip(for: battery)
-        }
-    }
-
-    private func updateTooltip(for battery: BatteryStatus) {
-        let text = StatusTooltip.text(battery: battery,
-            hasInternalBattery: statusStore.deviceContext.hasInternalBattery,
-            showsRemainingTime: defaults.object(forKey: PreferenceKeys.showBatteryTime) as? Bool ?? true)
-        if statusItem.button?.toolTip != text { statusItem.button?.toolTip = text }
     }
 
     var tooltipText: String? { statusItem.button?.toolTip }
@@ -335,7 +316,6 @@ final class MenuBarController: NSObject {
                 self.perform(commands)
                 self.updateAccessoryPolling()
                 self.updateVPNMonitoring()
-                self.updateTooltip(for: self.statusStore.status.battery)
                 self.updateVolumeScrollMonitor()
                 let language = self.defaults.string(forKey: PreferenceKeys.language) ?? AppLanguage.system.rawValue
                 if language != self.lastLanguageRaw {
@@ -508,8 +488,6 @@ final class MenuBarController: NSObject {
         statusItemMouseMonitor = nil
         updateVolumeScrollMonitor()
         isPopoverVisible = false
-        batteryObservation?.cancel()
-        batteryObservation = nil
         statusStore.accessoryBatteryService.stop()
         statusStore.vpnStatusService.stop()
         cancelHoverClose()
