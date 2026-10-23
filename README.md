@@ -7,9 +7,9 @@
   <img alt="macOS 13 or later" src="https://img.shields.io/badge/macOS-13%2B-222222?logo=apple&amp;logoColor=white">
   <img alt="Apple Silicon and Intel" src="https://img.shields.io/badge/Universal_2-Apple_Silicon_%2B_Intel-248A3D">
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-blue"></a>
-  <a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.1"><img alt="Experimental release 1.12.1" src="https://img.shields.io/badge/release-1.12.1_experimental-orange"></a>
+  <a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.2"><img alt="Experimental release 1.12.2" src="https://img.shields.io/badge/release-1.12.2_experimental-orange"></a>
 </p>
-<p align="center"><a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.1">Download</a> · <a href="README.ru.md">Русский</a> · <a href="docs/COMPARISON.md">Compare forks</a> · <a href="DEVELOPMENT.md">Source &amp; build</a></p>
+<p align="center"><a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.2">Download</a> · <a href="README.ru.md">Русский</a> · <a href="docs/COMPARISON.md">Compare forks</a> · <a href="DEVELOPMENT.md">Source &amp; build</a></p>
 
 ![T-DuoBar: menu bar glyphs and the control pop-up](assets/t-duobar-hero.png)
 
@@ -42,7 +42,7 @@ An independent community fork of [DuoBar by Mike Li (Mikeli7666)](https://github
 
 ## Install and update
 
-[Download the 1.12.1 DMG](https://github.com/squazaryu/T-DuoBar/releases/download/v1.12.1/T-DuoBar-1.12.1.dmg?build=38) · [Release notes and SHA-256](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.1)
+[Download the 1.12.2 DMG](https://github.com/squazaryu/T-DuoBar/releases/download/v1.12.2/T-DuoBar-1.12.2.dmg?build=39) · [Release notes and SHA-256](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.2)
 
 ```sh
 brew install --cask squazaryu/tap/t-duobar
@@ -68,11 +68,11 @@ T-DuoBar keeps the four dots dedicated to **volume**, and builds out the battery
 
 See the [documented comparison with upstream and another fork](docs/COMPARISON.md), checked on 21 October 2026.
 
-## New in 1.12.1 · build 38
+## New in 1.12.2 · build 39
 
-Ethernet now uses the macOS-style ‹•••› status mark in the ring and Network section. Center icons are aligned within the ring when percentages are hidden; the percentage layout keeps its existing placement. Preferences are retained; no breaking changes or migrations.
+Optically aligned network, audio and performance symbols in both ring layouts, with a more compact offline symbol. A remaining VPN tunnel alone no longer causes a false Other connection. The battery hover tooltip has been removed. Existing preferences are retained; no migrations are needed.
 
-[Release notes](release/1.12.1/RELEASE_NOTES_1.12.1.md) · [Validation and limits](release/1.12.1/VALIDATION.md)
+[Release notes](release/1.12.2/RELEASE_NOTES_1.12.2.md) · [Validation and limits](release/1.12.2/VALIDATION.md)
 
 ## Privacy and practical limits
 
@@ -80,7 +80,7 @@ System readings are processed locally. There is no analytics backend or upload o
 
 VPN status includes only configured connections reported by macOS. It does not prove that all traffic is protected. A tunnel interface alone is not treated as proof of a VPN connection. Device battery data and time estimates depend on macOS/device support; missing readings remain explicit. T-DuoBar does not pair Bluetooth devices or join Wi-Fi networks, and the charge-limit readout is unavailable.
 
-The 1.12.1 release passed 97 focused icon, ring geometry, charging, size and Homebrew update tests. Validation covers 19 center states at three sizes, including pixel-identical percentage positioning. Intel is compiled; runtime validation is on Apple Silicon. A full-suite pass and new long-duration battery-drain measurements are not claimed.
+The 1.12.2 release passed 106 focused tests: optical alignment at 1×/2× and 80–105% sizes, ring clearance, stable digits/dots, tunnel-only network states and Homebrew updates. Wi-Fi removal was tested with synthetic path snapshots, without disconnecting the live network. Intel is compiled; runtime validation is on Apple Silicon. A full-suite pass and new long-duration energy measurements are not claimed.
 
 ## Build, source and credits
 
