@@ -7,9 +7,9 @@
   <img alt="macOS 13 or later" src="https://img.shields.io/badge/macOS-13%2B-222222?logo=apple&amp;logoColor=white">
   <img alt="Apple Silicon and Intel" src="https://img.shields.io/badge/Universal_2-Apple_Silicon_%2B_Intel-248A3D">
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-blue"></a>
-  <a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.1"><img alt="Experimental release 1.12.1" src="https://img.shields.io/badge/release-1.12.1_experimental-orange"></a>
+  <a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.2"><img alt="Experimental release 1.12.2" src="https://img.shields.io/badge/release-1.12.2_experimental-orange"></a>
 </p>
-<p align="center"><a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.1">Скачать</a> · <a href="README.md">English</a> · <a href="docs/COMPARISON.md">Сравнение форков</a> · <a href="DEVELOPMENT.md">Исходники и сборка</a></p>
+<p align="center"><a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.2">Скачать</a> · <a href="README.md">English</a> · <a href="docs/COMPARISON.md">Сравнение форков</a> · <a href="DEVELOPMENT.md">Исходники и сборка</a></p>
 
 ![T-DuoBar: menu bar glyphs and the control pop-up](assets/t-duobar-hero.png)
 
@@ -42,7 +42,7 @@
 
 ## Установка и обновление
 
-[Скачать DMG 1.12.1](https://github.com/squazaryu/T-DuoBar/releases/download/v1.12.1/T-DuoBar-1.12.1.dmg?build=38) · [Релиз и SHA-256](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.1)
+[Скачать DMG 1.12.2](https://github.com/squazaryu/T-DuoBar/releases/download/v1.12.2/T-DuoBar-1.12.2.dmg?build=39) · [Релиз и SHA-256](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.2)
 
 ```sh
 brew install --cask squazaryu/tap/t-duobar
@@ -68,11 +68,11 @@ open /Applications/DuoBar.app
 
 [Сравнение документированных возможностей с оригиналом и другим форком](docs/COMPARISON.md), проверенное 21 октября 2026 года.
 
-## Новое в 1.12.1 · сборка 38
+## Новое в 1.12.2 · сборка 39
 
-Ethernet теперь обозначается знаком macOS «‹•••›» в кольце и разделе «Сеть». Без процентов центральные значки выровнены по центру кольца; расположение с процентами сохранено. Настройки сохраняются, миграций и несовместимых изменений нет.
+Оптическое выравнивание значков сети, аудио и производительности в обоих режимах кольца; более компактный значок отсутствия сети. Оставшийся VPN-туннель без обычного подключения больше не вызывает ложный Other. Подсказка батареи при наведении убрана. Настройки сохраняются, миграций нет.
 
-[Release notes](release/1.12.1/RELEASE_NOTES_1.12.1.md) · [Проверки и ограничения](release/1.12.1/VALIDATION.md)
+[Release notes](release/1.12.2/RELEASE_NOTES_1.12.2.md) · [Проверки и ограничения](release/1.12.2/VALIDATION.md)
 
 ## Приватность и ограничения
 
@@ -80,7 +80,7 @@ Ethernet теперь обозначается знаком macOS «‹•••
 
 VPN показывает только настроенные подключения, о которых сообщает macOS, и не гарантирует защиту всего трафика. Один лишь туннельный интерфейс не считается доказательством VPN. Показания аксессуаров и оценки времени зависят от macOS и оборудования; отсутствие данных обозначается явно. Приложение не подключается к Wi-Fi-сетям и не выполняет сопряжение Bluetooth. Лимит заряда недоступен.
 
-Для выпуска 1.12.1 пройдено 97 профильных тестов значков, геометрии кольца, зарядки, размеров и обновлений Homebrew. Проверены 19 состояний значков на трёх размерах; расположение с процентами сравнено попиксельно. Intel проверен сборкой, запуск — на Apple Silicon. Полный прогон всех тестов и новые длительные замеры расхода батареи не заявляются.
+Для выпуска 1.12.2 пройдено 106 профильных тестов: выравнивание рисунков на 1×/2× и размерах 80–105%, зазоры до кольца, стабильность цифр и точек, сетевые состояния при оставшемся туннеле и обновления Homebrew. Реальное отключение Wi-Fi не выполнялось; переход проверен на тестовых данных. Intel проверен сборкой, запуск — на Apple Silicon. Полный прогон всех тестов и новые длительные замеры расхода батареи не заявляются.
 
 ## Исходники и авторы
 

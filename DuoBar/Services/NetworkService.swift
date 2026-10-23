@@ -89,23 +89,25 @@ final class NetworkService: NSObject, @preconcurrency CLLocationManagerDelegate 
 
     private func refresh(reason: NetworkRefreshReason) {
         let path = latestPath ?? pathMonitor.currentPath
-        let isConnected = path.status == .satisfied
-        let activeInterface = preferredInterface(in: path)
         let defaultWiFiInterface = client.interface()
-        let wifiInterface = activeInterface?.type == .wifi
-            ? client.interface(withName: activeInterface?.name) ?? defaultWiFiInterface
-            : defaultWiFiInterface
-        let transport = resolvedTransport(
-            pathIsConnected: isConnected,
-            activeInterface: activeInterface,
-            hasWiFiInterface: wifiInterface != nil
+        let connection = NetworkPathResolution.resolve(
+            pathIsConnected: path.status == .satisfied,
+            candidates: path.availableInterfaces.map {
+                NetworkPathCandidate(name: $0.name, type: $0.type, isUsed: path.usesInterfaceType($0.type))
+            },
+            hasWiFiInterface: defaultWiFiInterface != nil
         )
+        let isConnected = connection.isConnected
+        let transport = connection.transport
+        let wifiInterface = transport == .wifi && isConnected
+            ? client.interface(withName: connection.interfaceName) ?? defaultWiFiInterface
+            : defaultWiFiInterface
         let wifiPoweredOn = wifiInterface?.powerOn()
 
         var ssid: String?
         var rssi: Int?
         var rawSSID: String?
-        if transport == .wifi, let wifiInterface {
+        if transport == .wifi, isConnected, let wifiInterface {
             rawSSID = wifiInterface.ssid()
             ssid = SSIDValue.normalized(rawSSID)
             let rawRSSI = wifiInterface.rssiValue()
@@ -116,13 +118,13 @@ final class NetworkService: NSObject, @preconcurrency CLLocationManagerDelegate 
             isAvailable: wifiInterface != nil || !path.availableInterfaces.isEmpty,
             isConnected: isConnected,
             transport: transport,
-            interfaceName: activeInterface?.name,
+            interfaceName: connection.interfaceName,
             isWiFiPoweredOn: wifiPoweredOn,
             ssid: ssid,
             rssi: rssi,
             wifiChannel: transport == .wifi && isConnected ? wifiInterface?.wlanChannel()?.channelNumber : nil,
             wifiBand: transport == .wifi && isConnected ? Self.bandName(wifiInterface?.wlanChannel()) : nil,
-            localIPAddress: isConnected ? LocalNetworkAddress.ipv4(interface: activeInterface?.name) : nil,
+            localIPAddress: isConnected ? LocalNetworkAddress.ipv4(interface: connection.interfaceName) : nil,
             ssidAuthorization: SSIDAuthorizationState(locationManager.authorizationStatus),
             isExpensive: path.isExpensive
         )
@@ -137,7 +139,7 @@ final class NetworkService: NSObject, @preconcurrency CLLocationManagerDelegate 
                 isWiFiPoweredOn: wifiPoweredOn,
                 rawSSID: rawSSID,
                 networkStatusSSID: status.ssid,
-                pathDescription: pathDescription(path, transport: transport),
+                pathDescription: isConnected ? pathDescription(path, transport: transport) : "Unsatisfied",
                 rssi: rssi,
                 refreshReason: reason,
                 locationRequestAttempted: ssidAccessCoordinator.hasAttemptedAuthorizationRequest,
@@ -195,30 +197,6 @@ final class NetworkService: NSObject, @preconcurrency CLLocationManagerDelegate 
             case .refresh:
                 refresh(reason: .authorizationChange)
             }
-        }
-    }
-
-    private func preferredInterface(in path: NWPath) -> NWInterface? {
-        // Prefer a routed wired path when both Wi-Fi and Ethernet are available.
-        // The fallback preserves NWPath's own interface order for other transports.
-        path.availableInterfaces.first {
-            $0.type == .wiredEthernet && path.usesInterfaceType(.wiredEthernet)
-        } ?? path.availableInterfaces.first {
-            $0.type == .wifi && path.usesInterfaceType(.wifi)
-        } ?? path.availableInterfaces.first { path.usesInterfaceType($0.type) }
-    }
-
-    private func resolvedTransport(
-        pathIsConnected: Bool,
-        activeInterface: NWInterface?,
-        hasWiFiInterface: Bool
-    ) -> NetworkTransport {
-        guard pathIsConnected else { return hasWiFiInterface ? .wifi : .none }
-        switch activeInterface?.type {
-        case .wifi: return .wifi
-        case .wiredEthernet: return .ethernet
-        case .some: return .other
-        case .none: return .none
         }
     }
 
