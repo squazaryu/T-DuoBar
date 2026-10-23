@@ -103,12 +103,12 @@ struct DuoGlyphView: View {
             pulseScale: centerPulseScale,
             animationsEnabled: animationsEnabled,
             reduceMotion: reduceMotion,
-            centersInRing: batteryPercentage == nil
+            centersInRing: true
         )
         .scaleEffect(1.05)
-        .offset(y: batteryPercentage == nil
-            ? metrics.ringYOffset
-            : metrics.wifiYOffset + metrics.ringDiameter * 0.08)
+        // One optical baseline per layout, shared by every network/audio state.
+        // Leave a little more room under the digits without moving the label.
+        .offset(y: metrics.ringYOffset + (batteryPercentage == nil ? 0 : metrics.ringDiameter * 0.04))
     }
 
     var body: some View {
@@ -487,8 +487,8 @@ struct DuoCenterTransitionView: View {
             pulseScale: pulseScale,
             size: size,
             ringDiameter: ringDiameter,
-            // The custom Wi-Fi drawing already fills a centered frame. Its
-            // reference adjustment is only needed for the percentage layout.
+            // Optical placement is applied uniformly in DuoCenterGlyph. Keep
+            // the legacy reference adjustment for standalone calibration views.
             wifiVerticalAdjustment: centersInRing ? 0 : DuoWiFiReferenceGeometry.verticalAdjustment(
                 ringDiameter: ringDiameter,
                 ringYOffset: ringYOffset,
@@ -680,12 +680,7 @@ struct DuoCenterGlyph: View {
         .foregroundStyle(glyphColor)
         .opacity(symbolOpacity)
         .frame(width: size * 1.65, height: size * 1.4)
-        // Compensate for asymmetric padding in these SF Symbols, only in the
-        // centered layout. The percentage layout retains its original placement.
-        .offset(
-            x: centersInRing && state == .performanceThermal ? -size * 0.07 : 0,
-            y: centersInRing && state == .airPodsPro ? -size * 0.05 : 0
-        )
+        .offset(centersInRing ? DuoCenterOpticalAlignment.offset(for: state, size: size) : .zero)
     }
 
     private var symbolName: String {
@@ -712,7 +707,8 @@ struct DuoCenterGlyph: View {
         case .personalHotspot, .ethernet, .other, .airPodsPro, .airPodsMax, .airPods, .headphones, .audioDevice,
              .performanceCPU, .performanceMemory, .performanceThermal:
             size * 0.92
-        case .wifi, .offline, .unavailable: size
+        case .offline, .unavailable: centersInRing ? size * 0.84 : size
+        case .wifi: size
         }
     }
 

@@ -15,26 +15,42 @@ final class CenterGlyphAlignmentTests: XCTestCase {
     ]
 
     @MainActor
-    func testVisibleClassicGlyphBoundsAreCenteredInRingAtSupportedScales() throws {
+    func testCenterInkKeepsClearanceFromRingAndVolumeDotsAtSupportedScales() throws {
         for scale in [0.8, 1.0, 1.05] {
             let metrics = DuoGlyphMetrics.standard.scaled(by: scale)
             let reference = try bounds(Rectangle().frame(width: 1, height: 1).offset(y: metrics.ringYOffset))
-            for (name, state) in scenarios {
-                let actual = try bounds(glyph(state, metrics: metrics).centerContent(reduceMotion: false))
-                XCTAssertEqual(actual.midX, reference.midX, accuracy: 0.65, "\(name), scale=\(scale)")
-                XCTAssertEqual(actual.midY, reference.midY, accuracy: 0.65, "\(name), scale=\(scale)")
+            let innerRadius = metrics.ringDiameter / 2 - metrics.arcLineWidth - 0.25
+            for digits in [false, true] {
+                for (name, state) in scenarios {
+                    let pixels = try mask(glyph(state, metrics: metrics, digits: digits).centerContent(reduceMotion: false))
+                    let touchesRing = pixels.indices.contains { index in
+                        guard pixels[index] > 24 else { return false }
+                        let x = (CGFloat(index % 128) + 0.5) / 4
+                        let y = (CGFloat(index / 128) + 0.5) / 4
+                        return hypot(x - reference.midX, y - reference.midY) > innerRadius
+                    }
+                    XCTAssertFalse(touchesRing, "\(name), scale=\(scale), digits=\(digits)")
+                }
             }
         }
     }
 
     @MainActor
-    func testPercentageCenterIsPixelIdenticalToPreviousLayoutForEveryGlyph() throws {
+    func testPercentageLabelRingAndDotsDoNotMoveWhenCenterStateChanges() throws {
         for scale in [0.8, 1.0, 1.05] {
-            let metrics = DuoGlyphMetrics.standard.scaled(by: scale)
+            let metrics = DuoGlyphMetrics.standard.scaled(by: scale).sized(32)
+            let expected = try mask(glyph(.wifi(.strong), metrics: metrics, digits: true))
+            let ringCenterY = 16 + metrics.ringYOffset + metrics.contentYOffset
             for (name, state) in scenarios {
-                let expected = try mask(previousCenter(state, metrics: metrics))
-                let actual = try mask(glyph(state, metrics: metrics, digits: true).centerContent(reduceMotion: false))
-                XCTAssertEqual(actual, expected, "Percentage layout changed: \(name), scale=\(scale)")
+                let actual = try mask(glyph(state, metrics: metrics, digits: true))
+                // Ignore only the center artwork. The rest of the image must be
+                // identical, including digits, the ring, charging and volume.
+                let changedOutsideCenter = actual.indices.contains { index in
+                    let x = (CGFloat(index % 128) + 0.5) / 4 - 16
+                    let y = (CGFloat(index / 128) + 0.5) / 4 - ringCenterY
+                    return hypot(x, y) > metrics.ringDiameter * 0.4 && actual[index] != expected[index]
+                }
+                XCTAssertFalse(changedOutsideCenter, "Peripheral artwork moved: \(name), scale=\(scale)")
             }
         }
     }
@@ -47,7 +63,7 @@ final class CenterGlyphAlignmentTests: XCTestCase {
             let colorScheme: ColorScheme = dark ? .dark : .light
             let background = dark ? Color(red: 0.075, green: 0.08, blue: 0.09) : Color.white
             let gallery = VStack(spacing: 20) {
-                Text("Без процентов · центр кольца").font(.system(size: 21, weight: .semibold))
+                Text("Без процентов · оптическое выравнивание").font(.system(size: 21, weight: .semibold))
                 LazyVGrid(columns: Array(repeating: GridItem(.fixed(130)), count: 5), spacing: 24) {
                     ForEach(self.scenarios.indices, id: \.self) { index in
                         let (name, state) = self.scenarios[index]
@@ -61,36 +77,7 @@ final class CenterGlyphAlignmentTests: XCTestCase {
             }.padding(26).background(background).environment(\.colorScheme, colorScheme)
             try write(gallery, to: output.appendingPathComponent("all-icons-\(dark ? "dark" : "light").png"))
 
-            let selected: [(String, DuoCenterState)] = [("Wi-Fi", .wifi(.strong)), ("Ethernet", .ethernet),
-                                                       ("Hotspot", .personalHotspot), ("AirPods Pro", .airPodsPro)]
-            let comparison = VStack(spacing: 22) {
-                Text("Значки внутри кольца").font(.system(size: 23, weight: .semibold))
-                HStack(spacing: 20) {
-                    Text("").frame(width: 122)
-                    ForEach(selected.indices, id: \.self) { index in
-                        Text(selected[index].0).font(.system(size: 13, weight: .medium)).frame(width: 100)
-                    }
-                }
-                HStack(spacing: 20) {
-                    Text("Было").frame(width: 122, alignment: .leading)
-                    ForEach(selected.indices, id: \.self) { index in
-                        self.oldGlyph(selected[index].1).frame(width: 100, height: 70)
-                    }
-                }
-                HStack(spacing: 20) {
-                    Text("По центру").frame(width: 122, alignment: .leading)
-                    ForEach(selected.indices, id: \.self) { index in
-                        self.glyph(selected[index].1, metrics: .standard.sized(64)).frame(width: 100, height: 70)
-                    }
-                }
-                HStack(spacing: 20) {
-                    Text("С процентами\nбез изменений").font(.system(size: 12)).frame(width: 122, alignment: .leading)
-                    ForEach(selected.indices, id: \.self) { index in
-                        self.glyph(selected[index].1, metrics: .standard.sized(64), digits: true).frame(width: 100, height: 70)
-                    }
-                }
-            }.padding(28).background(background).environment(\.colorScheme, colorScheme)
-            try write(comparison, to: output.appendingPathComponent("comparison-\(dark ? "dark" : "light").png"))
+
         }
     }
 
@@ -101,31 +88,6 @@ final class CenterGlyphAlignmentTests: XCTestCase {
         status.audio.volume = OutputVolumeStatus(level: 0.75, isMuted: false, isSettable: true)
         return DuoGlyphView(status: status, metrics: metrics, animationsEnabled: false,
             centerStateOverride: state, batteryColorCodingEnabled: true, showsBatteryPercentage: digits)
-    }
-
-    private func previousCenter(_ state: DuoCenterState, metrics: DuoGlyphMetrics) -> some View {
-        DuoCenterTransitionView(targetState: state, size: metrics.wifiSymbolSize,
-            ringDiameter: metrics.ringDiameter, ringYOffset: metrics.ringYOffset,
-            centerYOffset: metrics.wifiYOffset, pulseScale: 1, animationsEnabled: false, reduceMotion: false)
-            .scaleEffect(1.05)
-            .offset(y: metrics.wifiYOffset + metrics.ringDiameter * 0.08)
-    }
-
-    private func oldGlyph(_ state: DuoCenterState) -> some View {
-        let metrics = DuoGlyphMetrics.standard
-        return ZStack {
-            DuoArcShape(startDegrees: metrics.arcStartDegrees, endDegrees: metrics.arcEndDegrees, progress: 1)
-                .stroke(Color.green.opacity(DuoNativeVisualConstants.chargingTrackOpacity),
-                    style: StrokeStyle(lineWidth: metrics.arcLineWidth, lineCap: .round))
-                .frame(width: metrics.ringPathDiameter, height: metrics.ringPathDiameter).offset(y: metrics.ringYOffset)
-            DuoArcShape(startDegrees: metrics.arcStartDegrees, endDegrees: metrics.arcEndDegrees, progress: 0.8)
-                .stroke(Color.green, style: StrokeStyle(lineWidth: metrics.arcLineWidth, lineCap: .round))
-                .frame(width: metrics.ringPathDiameter, height: metrics.ringPathDiameter).offset(y: metrics.ringYOffset)
-            previousCenter(state, metrics: metrics)
-            DuoDotRow(activeCount: 3, diameter: metrics.dotDiameter, ringDiameter: metrics.ringDiameter,
-                rowCenterYOffset: metrics.dotYOffset, animationsEnabled: false, ringCenterYOffset: metrics.ringYOffset)
-        }.offset(y: metrics.contentYOffset).frame(width: 32, height: 32)
-            .scaleEffect(2).frame(width: 64, height: 64)
     }
 
     @MainActor
