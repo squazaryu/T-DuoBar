@@ -11,8 +11,6 @@
 </p>
 <p align="center"><a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.12.2">Download</a> · <a href="README.ru.md">Русский</a> · <a href="docs/COMPARISON.md">Compare forks</a> · <a href="DEVELOPMENT.md">Source &amp; build</a></p>
 
-![T-DuoBar: menu bar glyphs and the control pop-up](assets/t-duobar-hero.png)
-
 An independent community fork of [DuoBar by Mike Li (Mikeli7666)](https://github.com/Mikeli7666/DuoBar). Keep battery, network and audio together in one menu bar indicator, with a more capable pop-up when you need the details.
 
 ## Why T-DuoBar
@@ -25,20 +23,45 @@ An independent community fork of [DuoBar by Mike Li (Mikeli7666)](https://github
 - **Six languages.** English, German, Russian, Ukrainian, Simplified Chinese and Traditional Chinese, with a system-language option.
 - **Homebrew updates.** Weekly checks while the app is running, a clear installed/available version display and an explicit installation action.
 
-## See it in action
+## Two menu layouts · next version preview
+
+**The new UI is in local development and is not included in the published 1.12.2 DMG or Homebrew build.** The download links below still install 1.12.2.
+
+Choose **Standard** for separate cards and immediately accessible volume controls, or **Compact** for a single group of summary rows. Click a compact row to reveal its controls, devices and system-settings link. Both layouts share your section order, visibility and favorites.
+
+| Standard · light | Compact · light |
+| --- | --- |
+| <img src="assets/preview/standard-light.png" width="304" alt="Next version preview: Standard layout with separate cards in light appearance"> | <img src="assets/preview/compact-light.png" width="304" alt="Next version preview: Compact layout with summary rows in light appearance"> |
+
+| Standard · dark | Compact · dark |
+| --- | --- |
+| <img src="assets/preview/standard-dark.png" width="304" alt="Next version preview: Standard layout in dark appearance"> | <img src="assets/preview/compact-dark.png" width="304" alt="Next version preview: Compact layout in dark appearance"> |
+
+In the upcoming version: **Settings → General → Appearance → Menu layout**. Standard remains the default. Layout is independent of the Classic / Liquid Glass background and transparency; you can combine either layout with either material.
+
+<details>
+<summary>Preview: layout selection in Settings</summary>
 
 | Light appearance | Dark appearance |
 | --- | --- |
-| <img src="assets/popup-light.png" width="320" alt="T-DuoBar light pop-up with network, VPN, volume, battery and audio controls"> | <img src="assets/popup-dark.png" width="320" alt="T-DuoBar dark pop-up with the same sections"> |
-
-<details>
-<summary>Appearance and general settings</summary>
-
-<img src="assets/settings-general.png" width="600" alt="T-DuoBar General settings: language, Liquid Glass, transparency, battery digits and icon size">
+| <img src="assets/preview/settings-light.png" width="440" alt="Upcoming General settings showing the Menu layout picker set to Compact"> | <img src="assets/preview/settings-dark.png" width="440" alt="Upcoming General settings in dark appearance with the independent layout and background choices"> |
 
 </details>
 
-*Native application-view renders with demonstration values. No personal desktop or connection data is shown. The menu screenshots use the classic background; the settings image shows the Liquid Glass option.*
+<details>
+<summary>Published 1.12.2 interface</summary>
+
+![T-DuoBar 1.12.2: menu bar glyphs and the control pop-up](assets/t-duobar-hero.png)
+
+| Light appearance | Dark appearance |
+| --- | --- |
+| <img src="assets/popup-light.png" width="304" alt="Published T-DuoBar 1.12.2 light pop-up"> | <img src="assets/popup-dark.png" width="304" alt="Published T-DuoBar 1.12.2 dark pop-up"> |
+
+<img src="assets/settings-general.png" width="560" alt="Published 1.12.2 General settings, before the layout picker">
+
+</details>
+
+*Native application-view renders with demonstration values, not personal desktop or connection data. Menu images use the Classic background; they do not simulate Liquid Glass. Preview images show the development build, not a new release.*
 
 ## Install and update
 
@@ -78,7 +101,7 @@ Optically aligned network, audio and performance symbols in both ring layouts, w
 
 System readings are processed locally. There is no analytics backend or upload of battery, network or device readings. The updater makes an HTTPS request to the version manifest in our Homebrew tap. Selecting a microphone changes the Core Audio input device; it does not record audio.
 
-VPN status includes only configured connections reported by macOS. It does not prove that all traffic is protected. A tunnel interface alone is not treated as proof of a VPN connection. Device battery data and time estimates depend on macOS/device support; missing readings remain explicit. T-DuoBar does not pair Bluetooth devices or join Wi-Fi networks, and the charge-limit readout is unavailable.
+VPN status includes only configured connections reported by macOS. It does not prove that all traffic is protected. A tunnel interface alone is not treated as proof of a VPN connection. Device battery data and time estimates depend on macOS/device support; missing readings remain explicit. The published 1.12.2 build does not pair Bluetooth devices or join Wi-Fi networks, and its charge-limit readout is unavailable.
 
 The 1.12.2 release passed 106 focused tests: optical alignment at 1×/2× and 80–105% sizes, ring clearance, stable digits/dots, tunnel-only network states and Homebrew updates. Wi-Fi removal was tested with synthetic path snapshots, without disconnecting the live network. Intel is compiled; runtime validation is on Apple Silicon. A full-suite pass and new long-duration energy measurements are not claimed.
 
