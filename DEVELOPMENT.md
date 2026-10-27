@@ -247,7 +247,7 @@ Battery digits are rendered as a native-size overlay after the ring canvas trans
 Build 37 optically centers the visible digit contours using cached Core Text bounds instead of advance widths. Version 1.12.0 assets and its source tag are replaced with explicit maintainer authorization; the prior build 36 artifacts/tag identity are retained locally. Homebrew cask versions include the build number (1.12.0,37), while the app and JSON manifest retain semantic version 1.12.0 and build 37.
 
 
-## Local upstream additions (unreleased)
+## Upstream additions (1.13.0)
 
 The battery mapper now accepts only an internal-battery power-source dictionary. Rounded 100% capacity is not an authoritative full-charge flag; only `kIOPSIsChargedKey` can set it. T-DuoBar keeps adapter wattage, remaining-time fields and the existing fallback timer tolerance.
 
@@ -258,7 +258,7 @@ Closing either Classic or Liquid Glass menus invalidates pending UI results. At 
 Requested icon size now ranges from 80% to 120%. Whole-circle geometry is uniformly fitted into the 22-point status-item viewport with a half-point margin; it is never made elliptical. macOS's height limit can cap visible growth before 120%, and Settings explains this. Native-size percentage rendering remains in use. Tests check actual 1x/2x ink containment, rather than only changing the maximum slider value.
 
 
-## Selectable pop-up layout (unreleased)
+## Selectable pop-up layout (1.13.0)
 
 Settings → General → Appearance → Menu layout chooses Standard (the default) or Compact. Density is stored independently from the Classic/Liquid Glass background and transparency. Switching it updates the retained pop-up content without restarting the app. Section visibility, order, favorites and battery-summary preferences are shared between layouts.
 
@@ -267,7 +267,7 @@ Compact rows show a single summary line in one grouped card. Clicking the entire
 `PopoverLayoutTests` checks live preference changes, persistence, fallback, full-row volume disclosure, battery-summary visibility, long localized labels and native light/dark rendering. Preview fixtures use isolated preferences and fake data, without changing Wi-Fi or audio output.
 
 
-## Login-item isolation and disclosure motion (unreleased)
+## Login-item isolation and disclosure motion (1.13.0)
 
 Launch-at-login status is now read only by an installed app in `/Applications` or the user's `Applications` directory. Test hosts and DerivedData copies must not call `SMAppService.mainApp`, even to read status: the observed macOS login-item record had been redirected to the temporary Debug bundle. Tests inject a fake backend instead. An already-enabled item is re-registered once after the installed executable changes; disabled or approval-pending items are never enabled automatically. Pending approval is shown separately from an enabled toggle, and Settings refreshes status when the app becomes active. Recovery is asynchronous and waits for unregister completion before registering again.
 

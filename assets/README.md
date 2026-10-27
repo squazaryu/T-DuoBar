@@ -10,10 +10,8 @@ Screenshots use explicit demo battery, network, audio and VPN values. They are n
 Reproduce with `RepositoryArtworkTests/testRenderRepositoryArtwork` in the DuoBar test scheme. Images are written to `$TMPDIR/T-DuoBar-RepositoryArtwork/`; inspect them and copy the approved PNGs into `assets/`. Normal test runs do not modify repository assets. The renderer restores the previous language preference and uses isolated settings for the screenshots. Historical upstream marketing images remain in `marketing/`; the main README uses these fork-specific images.
 
 
-## Next-version UI preview (24 October 2026)
+## Selectable layouts (1.13.0)
 
-`preview/standard-light.png`, `preview/standard-dark.png`, `preview/compact-light.png` and `preview/compact-dark.png` show the selectable layouts from the local development build. `preview/settings-light.png` and `preview/settings-dark.png` show the independent layout picker and background choice. The preview is not included in the published 1.12.2 download.
+`layouts/standard-light.png`, `layouts/standard-dark.png`, `layouts/compact-light.png` and `layouts/compact-dark.png` show both selectable layouts. `layouts/settings-light.png` and `layouts/settings-dark.png` show the independent layout picker and background choice. These images include the current compact utility footer and shared last-row spacing.
 
-These six images were rendered from the current production views by `PopoverLayoutTests/testRenderBothLayoutsAndExpandedControlsInLightAndDark` in the development checkout. Output: `$TMPDIR/T-DuoBar-CompactLayout/`. They include the compact footer grid and one-point Audio Output optical adjustment. Demo network/VPN/audio/battery values are shared between layouts; no live connection data is used. The corresponding application changes are still local; this documentation-only commit does not publish their source or a new application build.
-
-The root-level artwork remains the published-interface gallery. Keep release and preview images separate until the application release is published.
+Reproduce with `PopoverLayoutTests/testRenderBothLayoutsAndExpandedControlsInLightAndDark` on the 1.13.0 source. Output: `$TMPDIR/T-DuoBar-CompactLayout/`. Native views use the same demonstration battery/network/audio/VPN values in both layouts, without live connection data. Root-level images are retained as the historical 1.12.2 gallery.
