@@ -245,3 +245,36 @@
 // Optional menu bar battery digits.
 "Battery percentage in menu bar" = "在菜单栏显示电池百分比";
 "For clearer digits, set Icon Size to 100% or 105%." = "为使数字更清晰，请将图标大小设为100%或105%。";
+
+// On-demand Wi-Fi controls and fitted icon sizes.
+"Nearby Networks" = "附近的网络";
+"Scanning…" = "正在扫描…";
+"Joining…" = "正在加入…";
+"No nearby networks found. Check Location Services or open Wi-Fi Settings." = "未找到附近的网络。请检查定位服务或打开 Wi-Fi 设置。";
+"Wi-Fi password" = "Wi-Fi 密码";
+"Cancel" = "取消";
+"Join" = "加入";
+"Refresh" = "刷新";
+"Wi-Fi Settings…" = "Wi-Fi 设置…";
+"Join Network" = "加入网络";
+"Wi-Fi is Off" = "Wi-Fi 已关闭";
+"Wi-Fi unavailable" = "Wi-Fi 不可用";
+"Unable to Join" = "无法加入";
+"Enter a valid Wi-Fi password." = "请输入有效的 Wi-Fi 密码。";
+"Unable to Scan" = "无法扫描";
+"For clearer digits, use Icon Size of 100% or larger." = "为使数字更清晰，请将图标大小设为 100% 或更大。";
+"macOS limits icon height. Large sizes are fitted to the menu bar." = "macOS 限制图标高度。较大的图标会自动适应菜单栏。";
+
+// Pop-up content layout
+"Menu layout" = "菜单布局";
+"Standard" = "标准";
+"Compact" = "紧凑";
+"Compact rows show a summary. Click a row for details and controls." = "紧凑行显示摘要。点按一行可查看详细信息和控制选项。";
+"Accessories" = "配件";
+"Devices: %d" = "设备：%d";
+"No devices" = "无设备";
+
+// Login item recovery
+"Repair login item" = "修复登录项";
+"Login Items Settings…" = "登录项设置…";
+"Install T-DuoBar in Applications before enabling launch at login." = "启用登录时启动前，请将 T-DuoBar 安装到“应用程序”。";

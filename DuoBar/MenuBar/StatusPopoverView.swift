@@ -4,6 +4,7 @@ import SwiftUI
 struct StatusPopoverView: View {
     @ObservedObject private var statusStore: SystemStatusStore
     @ObservedObject private var accessoryService: AccessoryBatteryService
+    @AppStorage(PreferenceKeys.popoverLayout) private var layoutRaw = PopoverLayout.standard.rawValue
     @AppStorage(PreferenceKeys.language) private var languageRaw = AppLanguage.system.rawValue
     @AppStorage(PreferenceKeys.hideEmptyAccessories) private var hideEmptyAccessories = false
     @AppStorage(PreferenceKeys.showBatteryPercentage) private var showBatteryPercentage = true
@@ -69,33 +70,42 @@ struct StatusPopoverView: View {
             }
             .padding(.horizontal, 2)
 
-            ForEach(MenuSectionOrder.decode(sectionOrder)) { section in
-                if isVisible(section) { sectionView(section) }
-            }
-
-            // Development diagnostics belong in the dedicated DEBUG diagnostics
-            // surface, never in the production status-card hierarchy.
-            Divider()
-
-            HStack(spacing: 6) {
-                settingsAction
-
-                Spacer()
-
-                Button(localized("Quit DuoBar")) {
-                    NSApp.terminate(nil)
+            if layout == .compact {
+                VStack(spacing: 0) {
+                    VStack(spacing: 0) {
+                        ForEach(Array(visibleSections.enumerated()), id: \.element.id) { index, section in
+                            if index > 0 { compactDivider }
+                            sectionView(section)
+                        }
+                    }
+                    .background(.primary.opacity(0.045), in: RoundedRectangle(cornerRadius: 11))
+                    // The last boundary belongs to the section grid. Keeping it
+                    // outside this stack adds the root's 8-point spacing to the
+                    // apparent last-row height, regardless of which section is last.
+                    compactDivider
                 }
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
+            } else {
+                ForEach(visibleSections) { section in sectionView(section) }
+                Divider()
             }
-            .font(.system(size: 11.5, weight: .medium))
-            .padding(.horizontal, 3)
+
+            StatusPopoverFooter(compact: layout == .compact, onQuit: { NSApp.terminate(nil) }) {
+                settingsAction
+            }
         }
         .padding(12)
         .frame(width: 304)
-        .id(languageRaw)
+        .id(languageRaw + layout.rawValue)
+        .environment(\.popoverLayout, layout)
         .environment(\.locale, (AppLanguage(rawValue: languageRaw) ?? .system).locale)
     }
+
+    private var compactDivider: some View {
+        Divider().padding(.leading, 35).padding(.trailing, 10)
+    }
+
+    private var layout: PopoverLayout { PopoverLayout.resolve(layoutRaw) }
+    private var visibleSections: [MenuSection] { MenuSectionOrder.decode(sectionOrder).filter(isVisible) }
 
     private func isVisible(_ section: MenuSection) -> Bool {
         switch section {
@@ -119,15 +129,20 @@ struct StatusPopoverView: View {
         case .vpn:
             VPNSection(service: statusStore.vpnStatusService, onOpenSettings: openVPNSettings)
         case .volume:
-            HStack(spacing: 0) {
-                VolumeStatusRow(volume: statusStore.status.audio.volume,
+            if layout == .compact {
+                CompactVolumeSection(volume: statusStore.status.audio.volume,
                     hasOutputDevice: statusStore.status.audio.defaultOutput != nil,
                     playbackDeviceIdentifier: statusStore.status.audio.defaultOutput?.uid,
-                    onSetVolume: statusStore.setVolume, onSetMuted: statusStore.setMuted, drawsBackground: false)
-                SystemSettingsButton(title: localized("Sound Settings…"), action: openSoundSettings)
-                    .padding(.trailing, 8)
+                    onSetVolume: statusStore.setVolume, onSetMuted: statusStore.setMuted,
+                    onOpenSettings: openSoundSettings)
+            } else {
+                HStack(spacing: 0) {
+                    volumeRow
+                    SystemSettingsButton(title: localized("Sound Settings…"), action: openSoundSettings)
+                        .padding(.trailing, 8)
+                }
+                .background(.primary.opacity(0.045), in: RoundedRectangle(cornerRadius: 11))
             }
-            .background(.primary.opacity(0.045), in: RoundedRectangle(cornerRadius: 11))
         case .battery:
             batterySection
         case .accessories:
@@ -143,6 +158,13 @@ struct StatusPopoverView: View {
                 selectedUID: statusStore.status.audio.defaultInput?.uid,
                 onSelect: statusStore.setDefaultInput, onOpenSettings: openSoundSettings)
         }
+    }
+
+    private var volumeRow: some View {
+        VolumeStatusRow(volume: statusStore.status.audio.volume,
+            hasOutputDevice: statusStore.status.audio.defaultOutput != nil,
+            playbackDeviceIdentifier: statusStore.status.audio.defaultOutput?.uid,
+            onSetVolume: statusStore.setVolume, onSetMuted: statusStore.setMuted, drawsBackground: false)
     }
 
     private var networkSection: some View {
@@ -190,6 +212,11 @@ struct StatusPopoverView: View {
                     }
                 }
             }
+            Divider()
+            NearbyWiFiSection(store: statusStore) {
+                _ = SystemSettingsOpener.open(.wifi)
+                onClose()
+            }
         }
     }
 
@@ -201,6 +228,12 @@ struct StatusPopoverView: View {
                 hasInternalBattery: statusStore.deviceContext.hasInternalBattery, drawsBackground: false)
         } content: {
             if battery.isAvailable {
+                if layout == .compact {
+                    Text(battery.powerStateDescription).foregroundStyle(.secondary)
+                    if showBatteryTime, let time = battery.remainingTimeDescription {
+                        Text(time).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                    }
+                }
                 StatusDetailLine(title: "Power source", value: localized(battery.isPluggedIn ? "Power adapter connected" : "Using battery power"))
                 if battery.isPluggedIn {
                     StatusDetailLine(title: "Adapter power", value: battery.adapterWatts.map { localized("%d W", $0) })
@@ -245,7 +278,7 @@ struct StatusPopoverView: View {
     }
 
     private var settingsLabel: some View {
-        Label(localized("Settings"), systemImage: "gearshape")
+        StatusPopoverSettingsLabel(compact: layout == .compact)
     }
 
     private func openSettingsFromApplicationMenu() {
@@ -374,6 +407,7 @@ struct StatusPopoverView: View {
 }
 
 struct BatteryStatusRow: View {
+    @Environment(\.popoverLayout) private var layout
     let battery: BatteryStatus
     let showPercentage: Bool
     var showsDisclosure = false
@@ -381,7 +415,21 @@ struct BatteryStatusRow: View {
     var hasInternalBattery: Bool? = nil
     var drawsBackground = true
 
+    @ViewBuilder
     var body: some View {
+        if layout == .compact {
+            CompactStatusRow(symbol: symbol, title: localized("Battery"), value: compactValue)
+        } else {
+            standardBody
+        }
+    }
+
+    var compactValue: String {
+        CompactBatterySummary.value(battery: battery, showPercentage: showPercentage,
+            showsRemainingTime: showsRemainingTime, fallback: detail)
+    }
+
+    private var standardBody: some View {
         HStack(spacing: 11) {
             Image(systemName: symbol)
                 .font(.system(size: 13, weight: .semibold))

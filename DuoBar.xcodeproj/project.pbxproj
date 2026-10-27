@@ -292,7 +292,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "DuoBar uses Bluetooth availability with public audio metadata to recognize supported Bluetooth audio connections.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "DuoBar uses location access only to display the name of the Wi-Fi network you are connected to.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "T-DuoBar uses location access to show the current Wi-Fi network name and nearby networks when you open their list.";
 				MARKETING_VERSION = 1.12.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.mikeli.duobar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -320,7 +320,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "DuoBar uses Bluetooth availability with public audio metadata to recognize supported Bluetooth audio connections.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "DuoBar uses location access only to display the name of the Wi-Fi network you are connected to.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "T-DuoBar uses location access to show the current Wi-Fi network name and nearby networks when you open their list.";
 				MARKETING_VERSION = 1.12.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.mikeli.duobar;
 				PRODUCT_NAME = "$(TARGET_NAME)";

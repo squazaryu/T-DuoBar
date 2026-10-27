@@ -16,8 +16,8 @@ final class DuoCenterOpticalAlignmentTests: XCTestCase {
     func testNetworkAudioAndPerformanceSymbolsShareAnOpticalCenter() throws {
         var observations: [[String: Any]] = []
         for backing: CGFloat in [1, 2] {
-            for scale in [0.8, 1.0, 1.05] {
-                let metrics = DuoGlyphMetrics.standard.scaled(by: scale)
+            for scale in [0.8, 1.0, 1.05, 1.1, 1.15, 1.2] {
+                let metrics = DuoGlyphMetrics.standard.scaled(by: scale).fittedToMenuBarHeight()
                 for digits in [false, true] {
                     var centers: [String: CGPoint] = [:]
                     for (name, state) in states {

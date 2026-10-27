@@ -247,3 +247,36 @@
 // Optional menu bar battery digits.
 "Battery percentage in menu bar" = "Batterieprozente in der Menüleiste";
 "For clearer digits, set Icon Size to 100% or 105%." = "Für besser lesbare Ziffern die Symbolgröße auf 100% oder 105% stellen.";
+
+// On-demand Wi-Fi controls and fitted icon sizes.
+"Nearby Networks" = "Netzwerke in der Nähe";
+"Scanning…" = "Suche läuft…";
+"Joining…" = "Verbinden…";
+"No nearby networks found. Check Location Services or open Wi-Fi Settings." = "Keine Netzwerke gefunden. Prüfe die Ortungsdienste oder öffne die WLAN-Einstellungen.";
+"Wi-Fi password" = "WLAN-Passwort";
+"Cancel" = "Abbrechen";
+"Join" = "Verbinden";
+"Refresh" = "Aktualisieren";
+"Wi-Fi Settings…" = "WLAN-Einstellungen…";
+"Join Network" = "Mit Netzwerk verbinden";
+"Wi-Fi is Off" = "WLAN ist aus";
+"Wi-Fi unavailable" = "WLAN nicht verfügbar";
+"Unable to Join" = "Verbindung fehlgeschlagen";
+"Enter a valid Wi-Fi password." = "Gib ein gültiges WLAN-Passwort ein.";
+"Unable to Scan" = "Suche fehlgeschlagen";
+"For clearer digits, use Icon Size of 100% or larger." = "Für besser lesbare Ziffern eine Symbolgröße von mindestens 100% wählen.";
+"macOS limits icon height. Large sizes are fitted to the menu bar." = "macOS begrenzt die Symbolhöhe. Große Symbole werden an die Menüleiste angepasst.";
+
+// Pop-up content layout
+"Menu layout" = "Menülayout";
+"Standard" = "Standard";
+"Compact" = "Kompakt";
+"Compact rows show a summary. Click a row for details and controls." = "Kompakte Zeilen zeigen eine Übersicht. Klicke auf eine Zeile für Details und Bedienelemente.";
+"Accessories" = "Zubehör";
+"Devices: %d" = "Geräte: %d";
+"No devices" = "Keine Geräte";
+
+// Login item recovery
+"Repair login item" = "Anmeldeobjekt reparieren";
+"Login Items Settings…" = "Einstellungen für Anmeldeobjekte…";
+"Install T-DuoBar in Applications before enabling launch at login." = "Installiere T-DuoBar unter Programme, bevor du den Start bei der Anmeldung aktivierst.";

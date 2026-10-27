@@ -490,6 +490,7 @@ final class MenuBarController: NSObject {
         isPopoverVisible = false
         statusStore.accessoryBatteryService.stop()
         statusStore.vpnStatusService.stop()
+        statusStore.nearbyWiFiController.setMenuVisible(false)
         cancelHoverClose()
         lengthAnimationTimer?.invalidate()
         lengthAnimationTimer = nil
@@ -540,18 +541,21 @@ final class MenuBarController: NSObject {
 
 extension MenuBarController {
     private func menuDidShow() {
+        statusStore.nearbyWiFiController.setMenuVisible(true)
         isPopoverVisible = true
         updateAccessoryPolling()
         updateVPNMonitoring()
     }
 
     private func menuWillClose() {
+        statusStore.nearbyWiFiController.setMenuVisible(false)
         isPopoverVisible = false
         updateVPNMonitoring()
         statusStore.accessoryBatteryService.stop()
     }
 
     private func menuDidClose() {
+        statusStore.nearbyWiFiController.setMenuVisible(false)
         isPopoverVisible = false
         updateVPNMonitoring()
         statusStore.accessoryBatteryService.stop()

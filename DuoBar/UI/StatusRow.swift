@@ -7,6 +7,7 @@ struct StatusRow: View {
         case menu
     }
 
+    @Environment(\.popoverLayout) private var layout
     let symbol: String
     let title: String
     let detail: String
@@ -42,7 +43,16 @@ struct StatusRow: View {
         self.activationHint = activationHint
     }
 
+    @ViewBuilder
     var body: some View {
+        if layout == .compact {
+            CompactStatusRow(symbol: symbol, title: title, value: detail, tint: tint)
+        } else {
+            standardBody
+        }
+    }
+
+    private var standardBody: some View {
         HStack(spacing: 8) {
             activationContent
             if let trailing {

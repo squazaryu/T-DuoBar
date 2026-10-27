@@ -245,3 +245,36 @@
 // Optional menu bar battery digits.
 "Battery percentage in menu bar" = "Battery percentage in menu bar";
 "For clearer digits, set Icon Size to 100% or 105%." = "For clearer digits, set Icon Size to 100% or 105%.";
+
+// On-demand Wi-Fi controls and fitted icon sizes.
+"Nearby Networks" = "Nearby Networks";
+"Scanning…" = "Scanning…";
+"Joining…" = "Joining…";
+"No nearby networks found. Check Location Services or open Wi-Fi Settings." = "No nearby networks found. Check Location Services or open Wi-Fi Settings.";
+"Wi-Fi password" = "Wi-Fi password";
+"Cancel" = "Cancel";
+"Join" = "Join";
+"Refresh" = "Refresh";
+"Wi-Fi Settings…" = "Wi-Fi Settings…";
+"Join Network" = "Join Network";
+"Wi-Fi is Off" = "Wi-Fi is Off";
+"Wi-Fi unavailable" = "Wi-Fi unavailable";
+"Unable to Join" = "Unable to Join";
+"Enter a valid Wi-Fi password." = "Enter a valid Wi-Fi password.";
+"Unable to Scan" = "Unable to Scan";
+"For clearer digits, use Icon Size of 100% or larger." = "For clearer digits, use Icon Size of 100% or larger.";
+"macOS limits icon height. Large sizes are fitted to the menu bar." = "macOS limits icon height. Large sizes are fitted to the menu bar.";
+
+// Pop-up content layout
+"Menu layout" = "Menu layout";
+"Standard" = "Standard";
+"Compact" = "Compact";
+"Compact rows show a summary. Click a row for details and controls." = "Compact rows show a summary. Click a row for details and controls.";
+"Accessories" = "Accessories";
+"Devices: %d" = "Devices: %d";
+"No devices" = "No devices";
+
+// Login item recovery
+"Repair login item" = "Repair login item";
+"Login Items Settings…" = "Login Items Settings…";
+"Install T-DuoBar in Applications before enabling launch at login." = "Install T-DuoBar in Applications before enabling launch at login.";

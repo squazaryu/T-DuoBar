@@ -245,3 +245,36 @@
 // Optional menu bar battery digits.
 "Battery percentage in menu bar" = "Відсоток заряду в рядку меню";
 "For clearer digits, set Icon Size to 100% or 105%." = "Для чітких цифр установіть розмір значка 100% або 105%.";
+
+// On-demand Wi-Fi controls and fitted icon sizes.
+"Nearby Networks" = "Мережі поруч";
+"Scanning…" = "Пошук…";
+"Joining…" = "Підключення…";
+"No nearby networks found. Check Location Services or open Wi-Fi Settings." = "Мережі поблизу не знайдено. Перевірте служби геолокації або відкрийте налаштування Wi-Fi.";
+"Wi-Fi password" = "Пароль Wi-Fi";
+"Cancel" = "Скасувати";
+"Join" = "Підключитися";
+"Refresh" = "Оновити";
+"Wi-Fi Settings…" = "Налаштування Wi-Fi…";
+"Join Network" = "Приєднатися до мережі";
+"Wi-Fi is Off" = "Wi-Fi вимкнено";
+"Wi-Fi unavailable" = "Wi-Fi недоступний";
+"Unable to Join" = "Не вдалося підключитися";
+"Enter a valid Wi-Fi password." = "Введіть допустимий пароль Wi-Fi.";
+"Unable to Scan" = "Не вдалося знайти мережі";
+"For clearer digits, use Icon Size of 100% or larger." = "Для чіткіших цифр виберіть розмір значка від 100%.";
+"macOS limits icon height. Large sizes are fitted to the menu bar." = "macOS обмежує висоту значка. Великі розміри підлаштовуються під смугу меню.";
+
+// Pop-up content layout
+"Menu layout" = "Вигляд меню";
+"Standard" = "Звичайний";
+"Compact" = "Компактний";
+"Compact rows show a summary. Click a row for details and controls." = "Компактні рядки показують зведення. Натисніть на рядок, щоб відкрити подробиці й елементи керування.";
+"Accessories" = "Аксесуари";
+"Devices: %d" = "Пристроїв: %d";
+"No devices" = "Немає пристроїв";
+
+// Login item recovery
+"Repair login item" = "Відновити автозапуск";
+"Login Items Settings…" = "Параметри об’єктів входу…";
+"Install T-DuoBar in Applications before enabling launch at login." = "Перемістіть T-DuoBar до «Програм», перш ніж увімкнути автозапуск.";

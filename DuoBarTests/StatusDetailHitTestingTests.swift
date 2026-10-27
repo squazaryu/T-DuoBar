@@ -28,7 +28,7 @@ final class StatusDetailHitTestingTests: XCTestCase {
         defer { window.close() }
 
         func settle() {
-            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
             window.setContentSize(host.fittingSize)
             host.layoutSubtreeIfNeeded()
         }

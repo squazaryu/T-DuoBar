@@ -3,6 +3,7 @@ import SwiftUI
 struct GeneralSettingsView: View {
     var onPreviewPopover: (() -> Void)? = nil
     @AppStorage(PreferenceKeys.language) private var languageRaw = AppLanguage.system.rawValue
+    @AppStorage(PreferenceKeys.popoverLayout) private var popoverLayoutRaw = PopoverLayout.standard.rawValue
     @AppStorage(PreferenceKeys.popoverStyle) private var popoverStyleRaw = PopoverStyle.classic.rawValue
     @AppStorage(PreferenceKeys.popoverTransparency) private var popoverTransparency = PopoverAppearance.defaultTransparency
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
@@ -16,7 +17,7 @@ struct GeneralSettingsView: View {
     @AppStorage(PreferenceKeys.adaptiveRingPriority) private var adaptiveRingPriorityRaw = PerformancePreference.automatic.rawValue
     @AppStorage(PreferenceKeys.adaptiveRingColorCoding) private var adaptiveRingColorCoding = false
     @AppStorage(PreferenceKeys.openOnHover) private var openOnHover = false
-    @StateObject private var launchAtLogin = LaunchAtLoginService()
+    @ObservedObject private var launchAtLogin = LaunchAtLoginService.shared
     @ObservedObject private var adaptiveRingMonitor = AdaptiveRingMonitor.shared
     private let deviceContext = DeviceContextService().current()
     #if DEBUG
@@ -32,6 +33,13 @@ struct GeneralSettingsView: View {
                     set: { languageRaw = $0 })) {
                     ForEach(AppLanguage.allCases) { language in Text(language.name).tag(language.rawValue) }
                 }
+                Picker(localized("Menu layout"), selection: Binding(
+                    get: { PopoverLayout.resolve(popoverLayoutRaw) },
+                    set: { popoverLayoutRaw = $0.rawValue })) {
+                    ForEach(PopoverLayout.allCases) { layout in Text(layout.title).tag(layout) }
+                }
+                Text(localized("Compact rows show a summary. Click a row for details and controls."))
+                    .font(.caption).foregroundStyle(.secondary)
                 Picker(localized("Pop-up appearance"), selection: popoverStyle) {
                     ForEach(PopoverStyle.allCases) { style in
                         Text(style.title).tag(style)
@@ -63,7 +71,7 @@ struct GeneralSettingsView: View {
                 if showsBatteryRingSettings {
                     Toggle(localized("Battery percentage in menu bar"), isOn: $menuBarBatteryPercentage)
                     if menuBarBatteryPercentage {
-                        Text(localized("For clearer digits, set Icon Size to 100% or 105%."))
+                        Text(localized("For clearer digits, use Icon Size of 100% or larger."))
                             .font(.caption).foregroundStyle(.secondary)
                     }
                 }
@@ -78,6 +86,10 @@ struct GeneralSettingsView: View {
                         Text(localized("%d%%", Int((MenuBarIconSize.resolve(iconScale) * 100).rounded())))
                             .monospacedDigit().foregroundStyle(.secondary).frame(width: 44, alignment: .trailing)
                     }.frame(width: 220)
+                }
+                if MenuBarIconSize.resolve(iconScale) > MenuBarIconSize.largeScale {
+                    Text(localized("macOS limits icon height. Large sizes are fitted to the menu bar."))
+                        .font(.caption).foregroundStyle(.secondary)
                 }
             }
 
@@ -110,9 +122,18 @@ struct GeneralSettingsView: View {
                     .help(localized("Open DuoBar when the pointer moves over the menu bar icon."))
                 Toggle(localized("Launch DuoBar at login"), isOn: Binding(
                     get: { launchAtLogin.isEnabled }, set: launchAtLogin.setEnabled))
+                    .disabled(launchAtLogin.isUpdating)
+                if launchAtLogin.isUpdating {
+                    ProgressView().controlSize(.small)
+                } else if launchAtLogin.isEnabled {
+                    Button(localized("Repair login item")) { Task { await launchAtLogin.repair() } }
+                        .buttonStyle(.link)
+                }
                 if launchAtLogin.requiresApproval {
                     Text(localized("Approval is required in System Settings → General → Login Items."))
                         .font(.caption).foregroundStyle(.secondary)
+                    Button(localized("Login Items Settings…"), action: launchAtLogin.openSystemSettings)
+                        .buttonStyle(.link)
                 }
                 if let error = launchAtLogin.errorMessage {
                     Text(error).font(.caption).foregroundStyle(.red).textSelection(.enabled)
@@ -138,6 +159,9 @@ struct GeneralSettingsView: View {
         .onAppear {
             launchAtLogin.refresh()
             if showsAdaptiveRingSettings { adaptiveRingMonitor.setPreference(adaptiveRingPriority.wrappedValue) }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            launchAtLogin.refresh()
         }
         .onChange(of: adaptiveRingPriorityRaw) { _ in
             if showsAdaptiveRingSettings { adaptiveRingMonitor.setPreference(adaptiveRingPriority.wrappedValue) }

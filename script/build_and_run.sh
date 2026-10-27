@@ -49,12 +49,14 @@ if ! mv "$STAGED_APP" "$INSTALL_APP"; then
     exit 1
 fi
 
+PREVIOUS_READY="$(/usr/bin/defaults read com.mikeli.duobar diagnostics.lastMenuBarReady 2>/dev/null || true)"
 /usr/bin/open -n "$INSTALL_APP"
 VERIFIED_PID=""
-for attempt in {1..30}; do
+for attempt in {1..50}; do
+    CURRENT_READY="$(/usr/bin/defaults read com.mikeli.duobar diagnostics.lastMenuBarReady 2>/dev/null || true)"
     for candidate_pid in $(pgrep -x DuoBar || true); do
         process_path="$(ps -p "$candidate_pid" -o command= || true)"
-        if [[ "$process_path" == "$INSTALL_APP/Contents/MacOS/DuoBar" ]]; then
+        if [[ "$process_path" == "$INSTALL_APP/Contents/MacOS/DuoBar" && -n "$CURRENT_READY" && "$CURRENT_READY" != "$PREVIOUS_READY" ]]; then
             VERIFIED_PID="$candidate_pid"
             break
         fi
@@ -63,7 +65,7 @@ for attempt in {1..30}; do
     sleep 0.2
 done
 if [[ -z "$VERIFIED_PID" ]]; then
-    echo "Launch verification failed. Previous app is saved at: $BACKUP_APP" >&2
+    echo "Launch verification failed: the menu did not become ready. Previous app is saved at: $BACKUP_APP" >&2
     exit 1
 fi
 printf 'Installed and running: %s (PID %s)\nBackup: %s\n' "$INSTALL_APP" "$VERIFIED_PID" "$BACKUP_APP"
