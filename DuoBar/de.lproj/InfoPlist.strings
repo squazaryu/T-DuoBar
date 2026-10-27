@@ -1,2 +1,2 @@
 "NSBluetoothAlwaysUsageDescription" = "DuoBar nutzt die Bluetooth-Verfügbarkeit und öffentliche Audio-Metadaten, um unterstützte Bluetooth-Audioverbindungen zu erkennen.";
-"NSLocationWhenInUseUsageDescription" = "DuoBar nutzt den Standortzugriff ausschließlich, um den Namen des verbundenen WLAN-Netzwerks anzuzeigen.";
+"NSLocationWhenInUseUsageDescription" = "T-DuoBar nutzt den Standortzugriff, um den aktuellen WLAN-Namen und beim Öffnen der Liste Netzwerke in der Nähe anzuzeigen.";

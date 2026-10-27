@@ -9,6 +9,7 @@ final class SystemStatusStore: ObservableObject {
 
     let accessoryBatteryService: AccessoryBatteryService
     let vpnStatusService: VPNStatusService
+    let nearbyWiFiController: NearbyWiFiController
     private let batteryNotificationService: BatteryNotificationService?
 
     let priorityController = StatusPriorityController()
@@ -32,10 +33,12 @@ final class SystemStatusStore: ObservableObject {
         deviceContext: DeviceContext? = nil,
         laptopRingModeController: LaptopRingModeController? = nil,
         accessoryBatteryService: AccessoryBatteryService? = nil,
-        vpnStatusService: VPNStatusService? = nil
+        vpnStatusService: VPNStatusService? = nil,
+        nearbyWiFiProvider: (any NearbyWiFiProviding)? = nil
     ) {
         self.accessoryBatteryService = accessoryBatteryService ?? AccessoryBatteryService()
         self.vpnStatusService = vpnStatusService ?? VPNStatusService()
+        nearbyWiFiController = NearbyWiFiController(provider: nearbyWiFiProvider ?? CoreWLANNearbyWiFiProvider())
         batteryNotificationService = startServices ? .shared : nil
         batteryService = BatteryService()
         networkService = NetworkService()
@@ -65,7 +68,12 @@ final class SystemStatusStore: ObservableObject {
             #if DEBUG
             guard self?.debugNetworkOverride == nil else { return }
             #endif
-            self?.mutate { $0.network = value }
+            guard let self else { return }
+            let gainedLocationAccess = self.status.network.ssidAuthorization != .authorized
+                && value.ssidAuthorization == .authorized
+            self.nearbyWiFiController.networkChanged(wifiPoweredOn: value.isWiFiPoweredOn)
+            self.mutate { $0.network = value }
+            if gainedLocationAccess { self.nearbyWiFiController.invalidateScanCache() }
         }
         audioOutputService.onStatusChange = { [weak self] value in
             #if DEBUG
@@ -117,6 +125,25 @@ final class SystemStatusStore: ObservableObject {
         case .unavailable:
             wifiPowerControlError = localized("Wi-Fi control unavailable")
         }
+    }
+
+    func openNearbyWiFi() async {
+        guard nearbyWiFiController.isMenuVisible, !Task.isCancelled else { return }
+        requestWiFiSSIDAccess(trigger: .popoverOpened)
+        await nearbyWiFiController.activate()
+    }
+
+    func refreshNearbyWiFi() async {
+        guard nearbyWiFiController.isMenuVisible, nearbyWiFiController.isVisible, !Task.isCancelled else { return }
+        requestWiFiSSIDAccess(trigger: .popoverOpened)
+        await nearbyWiFiController.refresh()
+    }
+
+    @discardableResult
+    func joinNearbyWiFi(_ network: NearbyWiFiNetwork, password: String?) async -> Bool {
+        let joined = await nearbyWiFiController.join(network, password: password)
+        if joined { networkService.refresh() }
+        return joined
     }
 
     var usesAdaptiveRing: Bool {

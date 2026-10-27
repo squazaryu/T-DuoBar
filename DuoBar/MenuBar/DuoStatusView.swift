@@ -39,7 +39,7 @@ struct DuoStatusView: View {
     }
 
     private var targetWidth: CGFloat {
-        metrics.statusItemWidth
+        max(metrics.statusItemWidth, MenuBarIconSize.statusItemWidth(for: menuBarIconScale))
     }
 
     private var animation: Animation? {
@@ -60,7 +60,7 @@ struct DuoStatusView: View {
             batteryColorCodingEnabled: batteryColorCoding,
             showsBatteryPercentage: menuBarBatteryPercentage
         )
-        .offset(y: DuoGlyphMetrics.menuBarVerticalOffset)
+        .offset(y: metrics.menuBarYOffset)
         .frame(width: targetWidth, height: 22)
         .contentShape(Rectangle())
         .animation(animation, value: targetWidth)
@@ -149,7 +149,7 @@ struct DuoStatusView: View {
         #else
         baseMetrics = .standard
         #endif
-        return baseMetrics.scaled(by: menuBarIconScale)
+        return baseMetrics.scaled(by: menuBarIconScale).fittedToMenuBarHeight()
     }
 
     private var resolvedRingPresentation: DuoPersistentRingPresentation {

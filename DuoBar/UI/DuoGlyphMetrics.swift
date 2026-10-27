@@ -30,6 +30,26 @@ struct DuoGlyphMetrics: Equatable {
 
     var ringYOffset: CGFloat = -0.8
     var statusItemHorizontalPadding: CGFloat = 3
+    private(set) var isHeightFitted = false
+
+    var menuBarYOffset: CGFloat {
+        isHeightFitted
+            ? -(ringYOffset + contentYOffset) * overallSize / Self.canvasSize
+            : Self.menuBarVerticalOffset
+    }
+
+    /// Fit uniformly to the actual status-item viewport; never squash the circle.
+    /// Requested scale still controls spacing, but macOS owns the available height.
+    func fittedToMenuBarHeight(_ height: CGFloat = 22) -> DuoGlyphMetrics {
+        guard height.isFinite, height > 1 else { return self }
+        let outerDiameter = ringDiameter * overallSize / Self.canvasSize
+        let available = height - 0.5
+        guard outerDiameter > available else { return self }
+        var copy = self
+        copy.overallSize *= available / outerDiameter
+        copy.isHeightFitted = true
+        return copy
+    }
 
     var arcLineWidth: CGFloat {
         ringLineWidth * Self.referenceArcStrokeRatio / Self.priorArcStrokeRatio

@@ -1,5 +1,7 @@
 enum PreferenceKeys {
+    static let lastMenuBarReady = "diagnostics.lastMenuBarReady"
     static let language = "appearance.language"
+    static let popoverLayout = "appearance.popoverLayout"
     static let popoverStyle = "appearance.popoverStyle"
     static let popoverTransparency = "appearance.popoverTransparency"
     static let hideEmptyAccessories = "menu.hideEmptyAccessories"

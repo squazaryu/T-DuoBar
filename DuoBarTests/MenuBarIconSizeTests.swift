@@ -26,10 +26,34 @@ final class MenuBarIconSizeTests: XCTestCase {
 
     func testScaleClampsAndQuantizesToFiveHundredths() {
         XCTAssertEqual(MenuBarIconSize.resolve(0.2), 0.8, accuracy: 0.0001)
-        XCTAssertEqual(MenuBarIconSize.resolve(1.8), 1.05, accuracy: 0.0001)
+        XCTAssertEqual(MenuBarIconSize.resolve(1.8), 1.20, accuracy: 0.0001)
         XCTAssertEqual(MenuBarIconSize.resolve(0.826), 0.85, accuracy: 0.0001)
         XCTAssertEqual(MenuBarIconSize.resolve(0.924), 0.90, accuracy: 0.0001)
         XCTAssertEqual(MenuBarIconSize.resolve(1.0), 1.0, accuracy: 0.0001)
+    }
+
+    func testExtraLargeRequestIsStoredAndGetsEnoughHorizontalSpace() {
+        XCTAssertEqual(MenuBarIconSize.resolve(1.20), 1.20)
+        XCTAssertEqual(MenuBarIconSize.resolve(1.174), 1.15, accuracy: 0.0001)
+        XCTAssertEqual(MenuBarIconSize.statusItemWidth(for: 1.20), 32.4, accuracy: 0.0001)
+    }
+
+    func testAllRequestedSizesFitHeightWithoutSquashingTheCircle() {
+        for height: CGFloat in [22, 24, 28] {
+            for scale in stride(from: 0.8, through: 1.2, by: 0.05) {
+                let source = DuoGlyphMetrics.standard.scaled(by: scale)
+                let fitted = source.fittedToMenuBarHeight(height)
+                let diameter = fitted.ringDiameter * fitted.overallSize / DuoGlyphMetrics.canvasSize
+                XCTAssertLessThanOrEqual(diameter, height - 0.5 + 0.0001)
+                XCTAssertEqual(fitted.ringDiameter, source.ringDiameter)
+                XCTAssertEqual(fitted.wifiSymbolSize, source.wifiSymbolSize)
+                if fitted.isHeightFitted {
+                    let center = (fitted.ringYOffset + fitted.contentYOffset) * fitted.overallSize / DuoGlyphMetrics.canvasSize
+                    XCTAssertEqual(center + fitted.menuBarYOffset, 0, accuracy: 0.0001)
+                }
+            }
+        }
+        XCTAssertEqual(DuoGlyphMetrics.standard.fittedToMenuBarHeight(), .standard)
     }
 
     func testDefaultScaledMetricsExactlyPreserveStandardGeometry() {
@@ -65,7 +89,7 @@ final class MenuBarIconSizeTests: XCTestCase {
         XCTAssertEqual(metrics.statusItemWidth, 22, accuracy: 0.0001)
     }
 
-    func testMaximumScaledMetrics() {
+    func testLarge105PercentScaledMetrics() {
         let metrics = DuoGlyphMetrics.standard.scaled(by: 1.05)
         XCTAssertEqual(metrics.overallSize, 25.2, accuracy: 0.0001)
         XCTAssertEqual(metrics.ringDiameter, 27.825, accuracy: 0.0001)

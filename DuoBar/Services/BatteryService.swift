@@ -65,41 +65,18 @@ final class BatteryService {
         let descriptions = sources.compactMap {
             IOPSGetPowerSourceDescription(info, $0)?.takeUnretainedValue() as? [String: Any]
         }
-        guard let dictionary = descriptions.first(where: { $0["Type"] as? String == kIOPSInternalBatteryType })
-            ?? descriptions.first
+        guard let dictionary = BatteryPowerSourceStatusMapper.internalBattery(in: descriptions)
         else {
             publish(.unavailable, trigger: trigger)
             return
         }
 
-        let currentCapacity = dictionary[kIOPSCurrentCapacityKey] as? Int
-        let maximumCapacity = dictionary[kIOPSMaxCapacityKey] as? Int
-        let percentage: Int?
-        if let currentCapacity, let maximumCapacity, maximumCapacity > 0 {
-            percentage = min(max(Int((Double(currentCapacity) / Double(maximumCapacity) * 100).rounded()), 0), 100)
-        } else {
-            percentage = nil
-        }
-
-        let isCharging = dictionary[kIOPSIsChargingKey] as? Bool ?? false
-        let powerSourceState = dictionary[kIOPSPowerSourceStateKey] as? String
-        let isPluggedIn = powerSourceState == kIOPSACPowerValue
-        let isFullyCharged = dictionary[kIOPSIsChargedKey] as? Bool ?? (percentage == 100 && isPluggedIn && !isCharging)
-
         let adapter = IOPSCopyExternalPowerAdapterDetails()?.takeRetainedValue() as? [String: Any]
-        let watts = adapter?[kIOPSPowerAdapterWattsKey] as? Int
-
         publish(
-            BatteryStatus(
-                percentage: percentage,
-                isCharging: isCharging,
-                isPluggedIn: isPluggedIn,
-                isFullyCharged: isFullyCharged,
-                isAvailable: true,
-                isLowPowerModeEnabled: ProcessInfo.processInfo.isLowPowerModeEnabled,
-                adapterWatts: isPluggedIn ? watts.flatMap { (1...1000).contains($0) ? $0 : nil } : nil,
-                timeToEmptyMinutes: dictionary[kIOPSTimeToEmptyKey] as? Int,
-                timeToFullChargeMinutes: dictionary[kIOPSTimeToFullChargeKey] as? Int
+            BatteryPowerSourceStatusMapper.status(
+                dictionary: dictionary,
+                adapterWatts: adapter?[kIOPSPowerAdapterWattsKey] as? Int,
+                lowPowerModeEnabled: ProcessInfo.processInfo.isLowPowerModeEnabled
             ),
             trigger: trigger
         )

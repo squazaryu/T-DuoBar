@@ -1,10 +1,35 @@
 import SwiftUI
 
 struct AccessoryBatterySection: View {
+    @Environment(\.popoverLayout) private var layout
     @ObservedObject var service: AccessoryBatteryService
     var onOpenSettings: (() -> Void)? = nil
 
+    @ViewBuilder
     var body: some View {
+        if layout == .compact {
+            StatusDetailSection(settingsTitle: localized("Bluetooth Settings…"), onOpenSettings: onOpenSettings) {
+                CompactStatusRow(symbol: "keyboard", title: localized("Accessories"), value: compactSummary)
+            } content: {
+                if service.accessories.isEmpty { emptyState }
+                else { connectedAccessories }
+            }
+        } else {
+            standardBody
+        }
+    }
+
+    private var compactSummary: String {
+        if service.isRefreshing && service.accessories.isEmpty { return localized("Reading accessories…") }
+        if service.errorMessage != nil { return localized("Accessory battery data unavailable") }
+        guard !service.accessories.isEmpty else { return localized("No devices") }
+        if service.accessories.count == 1, let item = service.accessories.first {
+            return item.name + " · " + (item.percentage.map { localized("%d%%", $0) } ?? "—")
+        }
+        return localized("Devices: %d", service.accessories.count)
+    }
+
+    private var standardBody: some View {
         VStack(alignment: .leading, spacing: 0) {
             if service.accessories.isEmpty {
                 emptyState
@@ -19,11 +44,16 @@ struct AccessoryBatterySection: View {
     private var emptyState: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 0) {
-                StatusRow(symbol: "keyboard", title: localized("Accessory batteries"),
-                    detail: service.isRefreshing ? localized("Reading accessories…")
-                        : localized(service.errorMessage == nil ? "No connected accessories" : "Accessory battery data unavailable"),
-                    stateText: "", tint: .primary, drawsBackground: false)
-                if let onOpenSettings {
+                if layout == .standard {
+                    StatusRow(symbol: "keyboard", title: localized("Accessory batteries"),
+                        detail: service.isRefreshing ? localized("Reading accessories…")
+                            : localized(service.errorMessage == nil ? "No connected accessories" : "Accessory battery data unavailable"),
+                        stateText: "", tint: .primary, drawsBackground: false)
+                }
+                if layout == .compact {
+                    Text(compactSummary).font(.system(size: 10.5)).foregroundStyle(.secondary)
+                }
+                if layout == .standard, let onOpenSettings {
                     SystemSettingsButton(title: localized("Bluetooth Settings…"), action: onOpenSettings)
                         .padding(.trailing, 8)
                 }
@@ -46,7 +76,7 @@ struct AccessoryBatterySection: View {
             HStack {
                 Text(localized("Accessory batteries")).font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary)
                 Spacer(minLength: 2)
-                if let onOpenSettings {
+                if layout == .standard, let onOpenSettings {
                     SystemSettingsButton(title: localized("Bluetooth Settings…"), action: onOpenSettings)
                 }
             }

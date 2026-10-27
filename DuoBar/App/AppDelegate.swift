@@ -78,6 +78,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let menuBarController = MenuBarController(statusStore: statusStore)
         self.menuBarController = menuBarController
         HomebrewUpdateService.shared.start()
+        Task { await LaunchAtLoginService.shared.reconcileAfterUpdate() }
+        // A live process alone does not prove startup reached a responsive menu.
+        DispatchQueue.main.async {
+            UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: PreferenceKeys.lastMenuBarReady)
+        }
 
         #if DEBUG
         if MarketingCaptureMode.isEnabled, MarketingCaptureMode.opensPopover {

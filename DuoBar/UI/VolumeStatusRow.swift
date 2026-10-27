@@ -7,10 +7,24 @@ struct VolumeStatusRow: View {
     let onSetVolume: (Double) -> Bool
     let onSetMuted: (Bool) -> Bool
     var drawsBackground = true
+    var controlsOnly = false
 
     @State private var feedbackInteraction = VolumeFeedbackInteraction()
 
+    @ViewBuilder
     var body: some View {
+        if controlsOnly {
+            HStack(spacing: 8) {
+                muteControl.frame(width: 28, height: 28)
+                volumeControl
+            }
+            .frame(minHeight: 28)
+        } else {
+            standardBody
+        }
+    }
+
+    private var standardBody: some View {
         HStack(spacing: 11) {
             muteControl
                 .frame(width: 28, height: 28)
@@ -19,31 +33,36 @@ struct VolumeStatusRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 StatusRowHeader(title: localized("Volume"), value: stateText)
 
-                if volume.isSettable, let level = volume.level {
-                    Slider(
-                        value: Binding(
-                            get: { level },
-                            set: handleUserVolumeChange
-                        ),
-                        in: 0...1,
-                        onEditingChanged: handleSliderEditingChanged
-                    )
-                    .controlSize(.mini)
-                    .accessibilityLabel(localized("Output volume"))
-                    .accessibilityValue(stateText)
-                } else {
-                    Text(hasOutputDevice ? localized("Controlled by device") : localized("Volume unavailable"))
-                        .font(.system(size: 10.5))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.72)
-                }
+                volumeControl
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.horizontal, 10)
         .frame(height: 54)
         .background(.primary.opacity(drawsBackground ? 0.045 : 0), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
+    }
+
+    @ViewBuilder
+    private var volumeControl: some View {
+        if volume.isSettable, let level = volume.level {
+            Slider(
+                value: Binding(
+                    get: { level },
+                    set: handleUserVolumeChange
+                ),
+                in: 0...1,
+                onEditingChanged: handleSliderEditingChanged
+            )
+            .controlSize(.mini)
+            .accessibilityLabel(localized("Output volume"))
+            .accessibilityValue(stateText)
+        } else {
+            Text(hasOutputDevice ? localized("Controlled by device") : localized("Volume unavailable"))
+                .font(.system(size: 10.5))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+        }
     }
 
     @ViewBuilder

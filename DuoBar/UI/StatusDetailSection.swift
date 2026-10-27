@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct StatusDetailSection<Header: View, Content: View>: View {
+    @Environment(\.popoverLayout) private var layout
     @State private var expanded = false
     @ViewBuilder let header: Header
     @ViewBuilder let content: Content
@@ -30,20 +31,25 @@ struct StatusDetailSection<Header: View, Content: View>: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .accessibilityHint(localized("Show details"))
                 .accessibilityValue(expanded ? localized("Expanded") : localized("Collapsed"))
-                if let settingsTitle, let onOpenSettings {
+                if layout == .standard, let settingsTitle, let onOpenSettings {
                     SystemSettingsButton(title: settingsTitle, action: onOpenSettings)
                         .padding(.trailing, 8)
                 }
             }
-            if expanded {
+            AnimatedDisclosureContent(isExpanded: expanded) {
                 VStack(alignment: .leading, spacing: 7) {
                     Divider()
                     content
+                    if layout == .compact, let settingsTitle, let onOpenSettings {
+                        Button(settingsTitle, action: onOpenSettings).buttonStyle(.link)
+                    }
                 }.font(.system(size: 10.5)).padding(10)
             }
         }
         .frame(maxWidth: .infinity)
-        .background(.primary.opacity(0.045), in: RoundedRectangle(cornerRadius: 11))
+        .clipped()
+        .modifier(SectionDisclosureAnimation(isExpanded: expanded))
+        .background(.primary.opacity(layout == .compact ? 0 : 0.045), in: RoundedRectangle(cornerRadius: 11))
     }
 }
 
