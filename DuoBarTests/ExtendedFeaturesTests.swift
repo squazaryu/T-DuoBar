@@ -106,6 +106,10 @@ final class ExtendedFeaturesTests: XCTestCase {
         host.appearance = NSAppearance(named: .aqua)
         host.frame = NSRect(origin: .zero, size: host.fittingSize)
         host.layoutSubtreeIfNeeded()
+        // The disclosure measures its natural height on the next SwiftUI pass.
+        RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+        host.frame.size = host.fittingSize
+        host.layoutSubtreeIfNeeded()
         XCTAssertGreaterThan(host.bounds.height, 120)
         let bitmap = try XCTUnwrap(host.bitmapImageRepForCachingDisplay(in: host.bounds))
         host.cacheDisplay(in: host.bounds, to: bitmap)
