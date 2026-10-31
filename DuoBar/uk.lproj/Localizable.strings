@@ -278,3 +278,30 @@
 "Repair login item" = "Відновити автозапуск";
 "Login Items Settings…" = "Параметри об’єктів входу…";
 "Install T-DuoBar in Applications before enabling launch at login." = "Перемістіть T-DuoBar до «Програм», перш ніж увімкнути автозапуск.";
+
+// Optional menu presentation, diagnostics and battery history
+"Menu options" = "Параметри меню";
+"Wider pop-up" = "Широке pop-up меню";
+"Highlight menu rows" = "Підсвічування рядків меню";
+"Larger, higher-contrast menu text" = "Більший і контрастніший текст меню";
+"Expand one section at a time" = "Розкривати лише один розділ";
+"Show network diagnostics" = "Показувати діагностику мережі";
+"Diagnostics run only when you press Check connection. No background checks." = "Перевірка запускається лише кнопкою «Перевірити з’єднання». Фонових перевірок немає.";
+"Check connection" = "Перевірити з’єднання";
+"Checks www.apple.com over HTTPS. DNS errors are reported separately. Runs only on request." = "Перевіряє www.apple.com через HTTPS. Помилки DNS показуються окремо. Лише за вашим запитом.";
+"Connect to a network before checking." = "Перед перевіркою підключіться до мережі.";
+"Name resolution" = "Розпізнавання імені";
+"HTTPS reachability" = "Доступність HTTPS";
+"Passed" = "Успішно";
+"Failed" = "Помилка";
+"Not confirmed" = "Не підтверджено";
+"The Apple test page is reachable. This does not test every app or VPN route." = "Тестова сторінка Apple доступна. Це не перевірка всіх програм і маршрутів VPN.";
+"The test page returned an unexpected response. The network may require sign-in." = "Тестова сторінка повернула неочікувану відповідь. Можливо, мережа вимагає авторизації.";
+"The test server name could not be resolved." = "Не вдалося розпізнати ім’я тестового сервера.";
+"The HTTPS check failed. Check your connection, network sign-in or VPN." = "Перевірка HTTPS не пройшла. Перевірте з’єднання, авторизацію в мережі або VPN.";
+"Battery history · 6 hours" = "Історія батареї · 6 годин";
+"History appears as battery readings are collected." = "Історія з’явиться в міру накопичення показників батареї.";
+"Used in the last hour: %d%%" = "За останню годину витрачено: %d%%";
+"Stored locally for 24 hours. Gaps and charging sessions are shown separately." = "Зберігається локально 24 години. Паузи й сеанси заряджання показані окремо.";
+"Time" = "Час";
+"Charge" = "Заряд";

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct VolumeStatusRow: View {
+    @Environment(\.menuTypography) private var typography
     let volume: OutputVolumeStatus
     let hasOutputDevice: Bool
     let playbackDeviceIdentifier: String?
@@ -38,7 +39,7 @@ struct VolumeStatusRow: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.horizontal, 10)
-        .frame(height: 54)
+        .frame(height: typography.readable ? 62 : 54)
         .background(.primary.opacity(drawsBackground ? 0.045 : 0), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
     }
 
@@ -58,8 +59,8 @@ struct VolumeStatusRow: View {
             .accessibilityValue(stateText)
         } else {
             Text(hasOutputDevice ? localized("Controlled by device") : localized("Volume unavailable"))
-                .font(.system(size: 10.5))
-                .foregroundStyle(.secondary)
+                .font(.system(size: typography.size(10.5)))
+                .foregroundStyle(typography.secondary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.72)
         }
@@ -72,7 +73,7 @@ struct VolumeStatusRow: View {
                 handleUserMuteChange()
             } label: {
                 Image(systemName: volumeSymbol)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.system(size: typography.size(13), weight: .semibold))
                     .frame(width: 28, height: 28)
                     .contentShape(Rectangle())
             }
@@ -81,7 +82,7 @@ struct VolumeStatusRow: View {
             .accessibilityLabel(volume.isMuted ? localized("Unmute output") : localized("Mute output"))
         } else {
             Image(systemName: volumeSymbol)
-                .font(.system(size: 13, weight: .semibold))
+                .font(.system(size: typography.size(13), weight: .semibold))
         }
     }
 

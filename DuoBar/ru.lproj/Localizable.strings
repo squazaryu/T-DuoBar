@@ -278,3 +278,30 @@
 "Repair login item" = "Восстановить автозапуск";
 "Login Items Settings…" = "Настройки объектов входа…";
 "Install T-DuoBar in Applications before enabling launch at login." = "Переместите T-DuoBar в «Программы», прежде чем включать автозапуск.";
+
+// Optional menu presentation, diagnostics and battery history
+"Menu options" = "Параметры меню";
+"Wider pop-up" = "Широкое pop-up меню";
+"Highlight menu rows" = "Подсветка строк меню";
+"Larger, higher-contrast menu text" = "Крупный и контрастный текст меню";
+"Expand one section at a time" = "Раскрывать только один раздел";
+"Show network diagnostics" = "Показывать диагностику сети";
+"Diagnostics run only when you press Check connection. No background checks." = "Проверка запускается только кнопкой «Проверить соединение». Фоновых проверок нет.";
+"Check connection" = "Проверить соединение";
+"Checks www.apple.com over HTTPS. DNS errors are reported separately. Runs only on request." = "Проверяет www.apple.com по HTTPS. Ошибки DNS показываются отдельно. Только по вашему запросу.";
+"Connect to a network before checking." = "Перед проверкой подключитесь к сети.";
+"Name resolution" = "Разрешение имени";
+"HTTPS reachability" = "Доступность HTTPS";
+"Passed" = "Успешно";
+"Failed" = "Ошибка";
+"Not confirmed" = "Не подтверждено";
+"The Apple test page is reachable. This does not test every app or VPN route." = "Тестовая страница Apple доступна. Это не проверка всех приложений и маршрутов VPN.";
+"The test page returned an unexpected response. The network may require sign-in." = "Тестовая страница вернула неожиданный ответ. Возможно, сеть требует авторизации.";
+"The test server name could not be resolved." = "Не удалось разрешить имя тестового сервера.";
+"The HTTPS check failed. Check your connection, network sign-in or VPN." = "Проверка HTTPS не прошла. Проверьте соединение, авторизацию в сети или VPN.";
+"Battery history · 6 hours" = "История батареи · 6 часов";
+"History appears as battery readings are collected." = "История появится по мере накопления показаний батареи.";
+"Used in the last hour: %d%%" = "За последний час израсходовано: %d%%";
+"Stored locally for 24 hours. Gaps and charging sessions are shown separately." = "Хранится локально 24 часа. Паузы и сеансы зарядки показаны раздельно.";
+"Time" = "Время";
+"Charge" = "Заряд";

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct StatusRow: View {
+    @Environment(\.menuTypography) private var typography
     enum Accessory {
         case none
         case disclosure
@@ -60,7 +61,7 @@ struct StatusRow: View {
             }
         }
         .padding(.horizontal, 10)
-        .frame(height: 48)
+        .frame(height: typography.readable ? 56 : 48)
         .background(.primary.opacity(drawsBackground ? 0.045 : 0), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
     }
 
@@ -96,19 +97,19 @@ struct StatusRow: View {
                     Image(systemName: symbol)
                 }
             }
-                .font(.system(size: 13, weight: .semibold))
+                .font(.system(size: typography.size(13), weight: .semibold))
                 .foregroundStyle(tint)
                 .frame(width: 28, height: 28)
                 .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(title)
-                    .font(.system(size: 12.5, weight: .semibold))
+                    .font(.system(size: typography.size(12.5), weight: .semibold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.82)
                 Text(detail)
-                    .font(.system(size: 10.5))
-                    .foregroundStyle(.secondary)
+                    .font(.system(size: typography.size(10.5)))
+                    .foregroundStyle(typography.secondary)
                     .lineLimit(1)
                     .truncationMode(.middle)
                     .minimumScaleFactor(0.72)
@@ -120,8 +121,8 @@ struct StatusRow: View {
 
             if trailing == nil {
                 Text(stateText)
-                    .font(.system(size: 10.5, weight: .medium, design: .rounded))
-                    .foregroundStyle(.secondary)
+                    .font(.system(size: typography.size(10.5), weight: .medium, design: .rounded))
+                    .foregroundStyle(typography.secondary)
                     .monospacedDigit()
                     .lineLimit(1)
                     .minimumScaleFactor(0.72)
@@ -145,19 +146,20 @@ struct StatusRow: View {
 }
 
 struct StatusRowHeader: View {
+    @Environment(\.menuTypography) private var typography
     let title: String
     let value: String?
 
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 6) {
             Text(title)
-                .font(.system(size: 12.5, weight: .semibold))
+                .font(.system(size: typography.size(12.5), weight: .semibold))
                 .lineLimit(1)
                 .minimumScaleFactor(0.82)
             if let value {
                 Text(value)
-                    .font(.system(size: 12.5, weight: .medium, design: .rounded))
-                    .foregroundStyle(.secondary)
+                    .font(.system(size: typography.size(12.5), weight: .medium, design: .rounded))
+                    .foregroundStyle(typography.secondary)
                     .monospacedDigit()
                     .lineLimit(1)
                     .minimumScaleFactor(0.82)
@@ -169,13 +171,14 @@ struct StatusRowHeader: View {
 
 /// Align disclosure indicators independently of their intrinsic symbol widths.
 struct StatusRowAccessorySlot: View {
+    @Environment(\.menuTypography) private var typography
     @Environment(\.statusSectionExpanded) private var isExpanded
     let symbol: String
 
     var body: some View {
         Image(systemName: symbol)
             .rotationEffect(.degrees(symbol == "chevron.right" && isExpanded ? 90 : 0))
-            .font(.system(size: 9, weight: .semibold))
+            .font(.system(size: typography.size(9), weight: .semibold))
             .foregroundStyle(.tertiary)
             .frame(width: 12, height: 16)
             .accessibilityHidden(true)

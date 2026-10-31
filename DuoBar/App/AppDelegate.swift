@@ -144,6 +144,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         menuBarController?.invalidate()
         menuBarController = nil
+        statusStore?.batteryHistory.flush()
         statusStore = nil
         instanceLock?.release()
         instanceLock = nil

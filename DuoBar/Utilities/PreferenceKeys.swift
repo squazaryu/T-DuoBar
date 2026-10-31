@@ -1,4 +1,9 @@
 enum PreferenceKeys {
+    static let widePopover = "menu.widePopover"
+    static let highlightMenuRows = "menu.highlightRows"
+    static let readableMenuText = "menu.readableText"
+    static let singleExpandedSection = "menu.singleExpandedSection"
+    static let networkDiagnostics = "menu.networkDiagnostics"
     static let lastMenuBarReady = "diagnostics.lastMenuBarReady"
     static let language = "appearance.language"
     static let popoverLayout = "appearance.popoverLayout"

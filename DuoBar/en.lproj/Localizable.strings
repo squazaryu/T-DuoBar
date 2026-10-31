@@ -278,3 +278,30 @@
 "Repair login item" = "Repair login item";
 "Login Items Settings…" = "Login Items Settings…";
 "Install T-DuoBar in Applications before enabling launch at login." = "Install T-DuoBar in Applications before enabling launch at login.";
+
+// Optional menu presentation, diagnostics and battery history
+"Menu options" = "Menu options";
+"Wider pop-up" = "Wider pop-up";
+"Highlight menu rows" = "Highlight menu rows";
+"Larger, higher-contrast menu text" = "Larger, higher-contrast menu text";
+"Expand one section at a time" = "Expand one section at a time";
+"Show network diagnostics" = "Show network diagnostics";
+"Diagnostics run only when you press Check connection. No background checks." = "Diagnostics run only when you press Check connection. No background checks.";
+"Check connection" = "Check connection";
+"Checks www.apple.com over HTTPS. DNS errors are reported separately. Runs only on request." = "Checks www.apple.com over HTTPS. DNS errors are reported separately. Runs only on request.";
+"Connect to a network before checking." = "Connect to a network before checking.";
+"Name resolution" = "Name resolution";
+"HTTPS reachability" = "HTTPS reachability";
+"Passed" = "Passed";
+"Failed" = "Failed";
+"Not confirmed" = "Not confirmed";
+"The Apple test page is reachable. This does not test every app or VPN route." = "The Apple test page is reachable. This does not test every app or VPN route.";
+"The test page returned an unexpected response. The network may require sign-in." = "The test page returned an unexpected response. The network may require sign-in.";
+"The test server name could not be resolved." = "The test server name could not be resolved.";
+"The HTTPS check failed. Check your connection, network sign-in or VPN." = "The HTTPS check failed. Check your connection, network sign-in or VPN.";
+"Battery history · 6 hours" = "Battery history · 6 hours";
+"History appears as battery readings are collected." = "History appears as battery readings are collected.";
+"Used in the last hour: %d%%" = "Used in the last hour: %d%%";
+"Stored locally for 24 hours. Gaps and charging sessions are shown separately." = "Stored locally for 24 hours. Gaps and charging sessions are shown separately.";
+"Time" = "Time";
+"Charge" = "Charge";

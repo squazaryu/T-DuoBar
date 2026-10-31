@@ -93,6 +93,7 @@ struct GeneralSettingsView: View {
                 }
             }
 
+            MenuExperienceSettingsView()
             MenuSectionsSettingsView()
 
             Section(localized("Battery")) {

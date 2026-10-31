@@ -2,6 +2,10 @@ import SwiftUI
 
 struct StatusDetailSection<Header: View, Content: View>: View {
     @Environment(\.popoverLayout) private var layout
+    @Environment(\.menuTypography) private var typography
+    @Environment(\.expandedMenuSection) private var activeSection
+    @AppStorage(PreferenceKeys.singleExpandedSection) private var singleSection = false
+    @State private var sectionID = UUID()
     @State private var expanded = false
     @ViewBuilder let header: Header
     @ViewBuilder let content: Content
@@ -20,12 +24,18 @@ struct StatusDetailSection<Header: View, Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 0) {
-                Button { expanded.toggle() } label: {
+                Button {
+                    if singleSection {
+                        activeSection.wrappedValue = expanded ? nil : sectionID
+                    }
+                    expanded.toggle()
+                } label: {
                     header
                         .environment(\.statusSectionExpanded, expanded)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         // Plain buttons otherwise exclude transparent gaps from hit testing.
                         .contentShape(Rectangle())
+                        .modifier(MenuRowHighlight(isExpanded: expanded))
                 }
                 .buttonStyle(.plain)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -43,10 +53,16 @@ struct StatusDetailSection<Header: View, Content: View>: View {
                     if layout == .compact, let settingsTitle, let onOpenSettings {
                         Button(settingsTitle, action: onOpenSettings).buttonStyle(.link)
                     }
-                }.font(.system(size: 10.5)).padding(10)
+                }.font(.system(size: typography.size(10.5))).padding(10)
             }
         }
         .frame(maxWidth: .infinity)
+        .onChange(of: activeSection.wrappedValue) { active in
+            if singleSection, let active, active != sectionID { expanded = false }
+        }
+        .onChange(of: singleSection) { single in
+            if single, expanded { activeSection.wrappedValue = sectionID }
+        }
         .clipped()
         .modifier(SectionDisclosureAnimation(isExpanded: expanded))
         .background(.primary.opacity(layout == .compact ? 0 : 0.045), in: RoundedRectangle(cornerRadius: 11))
@@ -54,11 +70,12 @@ struct StatusDetailSection<Header: View, Content: View>: View {
 }
 
 struct StatusDetailLine: View {
+    @Environment(\.menuTypography) private var typography
     let title: String
     let value: String?
     var body: some View {
         HStack {
-            Text(localized(title)).foregroundStyle(.secondary)
+            Text(localized(title)).foregroundStyle(typography.secondary)
             Spacer(minLength: 6)
             Text(value ?? localized("Unavailable")).monospacedDigit()
                 .textSelection(.enabled)
