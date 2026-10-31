@@ -15,3 +15,10 @@ Reproduce with `RepositoryArtworkTests/testRenderRepositoryArtwork` in the DuoBa
 `layouts/standard-light.png`, `layouts/standard-dark.png`, `layouts/compact-light.png` and `layouts/compact-dark.png` show both selectable layouts. `layouts/settings-light.png` and `layouts/settings-dark.png` show the independent layout picker and background choice. These images include the current compact utility footer and shared last-row spacing.
 
 Reproduce with `PopoverLayoutTests/testRenderBothLayoutsAndExpandedControlsInLightAndDark` on the 1.13.0 source. Output: `$TMPDIR/T-DuoBar-CompactLayout/`. Native views use the same demonstration battery/network/audio/VPN values in both layouts, without live connection data. Root-level images are retained as the historical 1.12.2 gallery.
+
+
+## Optional tools and history (1.14.0)
+
+`menu-tools/history-{light,dark}.png` are actual expanded Battery popups from `MenuReleaseVisualTests` (English, Compact, normal width/text). `menu-tools/readable-{light,dark}.png` show the wide/readable Compact menu with all sections enabled. Data is synthetic and no personal connection or battery readings are shown.
+
+`menu-tools/overview-{light,dark}.png` are native galleries from `MenuOptionsTests/testRenderOptionalPresentationAndBatteryHistory`, including the five controls enabled for illustration. `layouts/settings-{light,dark}.png` are refreshed General settings from `PopoverLayoutTests`. Defaults remain off for all five options; history has no toggle. No Liquid Glass blur is simulated in these Classic-background renders.

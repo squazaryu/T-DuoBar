@@ -7,6 +7,8 @@ final class SystemStatusStore: ObservableObject {
     @Published private(set) var laptopRingModeState: LaptopRingModeState
     @Published private(set) var wifiPowerControlError: String?
 
+    let networkDiagnostics: NetworkDiagnosticsService
+    let batteryHistory: BatteryHistoryStore
     let accessoryBatteryService: AccessoryBatteryService
     let vpnStatusService: VPNStatusService
     let nearbyWiFiController: NearbyWiFiController
@@ -34,8 +36,12 @@ final class SystemStatusStore: ObservableObject {
         laptopRingModeController: LaptopRingModeController? = nil,
         accessoryBatteryService: AccessoryBatteryService? = nil,
         vpnStatusService: VPNStatusService? = nil,
-        nearbyWiFiProvider: (any NearbyWiFiProviding)? = nil
+        nearbyWiFiProvider: (any NearbyWiFiProviding)? = nil,
+        batteryHistory: BatteryHistoryStore? = nil,
+        networkDiagnostics: NetworkDiagnosticsService? = nil
     ) {
+        self.networkDiagnostics = networkDiagnostics ?? NetworkDiagnosticsService()
+        self.batteryHistory = batteryHistory ?? BatteryHistoryStore(defaults: startServices ? .standard : nil)
         self.accessoryBatteryService = accessoryBatteryService ?? AccessoryBatteryService()
         self.vpnStatusService = vpnStatusService ?? VPNStatusService()
         nearbyWiFiController = NearbyWiFiController(provider: nearbyWiFiProvider ?? CoreWLANNearbyWiFiProvider())
@@ -232,6 +238,7 @@ final class SystemStatusStore: ObservableObject {
     }
 
     private func acceptBatteryStatus(_ battery: BatteryStatus) {
+        batteryHistory.record(battery)
         laptopRingModeController.update(with: battery)
         mutate { $0.battery = battery }
         batteryNotificationService?.update(battery)

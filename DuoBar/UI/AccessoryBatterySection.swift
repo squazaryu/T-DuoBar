@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct AccessoryBatterySection: View {
+    @Environment(\.menuTypography) private var typography
     @Environment(\.popoverLayout) private var layout
     @ObservedObject var service: AccessoryBatteryService
     var onOpenSettings: (() -> Void)? = nil
@@ -51,7 +52,7 @@ struct AccessoryBatterySection: View {
                         stateText: "", tint: .primary, drawsBackground: false)
                 }
                 if layout == .compact {
-                    Text(compactSummary).font(.system(size: 10.5)).foregroundStyle(.secondary)
+                    Text(compactSummary).font(.system(size: typography.size(10.5))).foregroundStyle(typography.secondary)
                 }
                 if layout == .standard, let onOpenSettings {
                     SystemSettingsButton(title: localized("Bluetooth Settings…"), action: onOpenSettings)
@@ -61,7 +62,7 @@ struct AccessoryBatterySection: View {
             if service.errorMessage != nil {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(localized("Could not read accessory data. Check the Bluetooth connection and try again."))
-                        .font(.system(size: 10.5)).foregroundStyle(.secondary)
+                        .font(.system(size: typography.size(10.5))).foregroundStyle(typography.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                     Button(localized("Try again")) { service.refresh(force: true) }
                         .buttonStyle(.link).controlSize(.small).disabled(service.isRefreshing)
@@ -74,7 +75,7 @@ struct AccessoryBatterySection: View {
     private var connectedAccessories: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(localized("Accessory batteries")).font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary)
+                Text(localized("Accessory batteries")).font(.system(size: typography.size(11), weight: .semibold)).foregroundStyle(typography.secondary)
                 Spacer(minLength: 2)
                 if layout == .standard, let onOpenSettings {
                     SystemSettingsButton(title: localized("Bluetooth Settings…"), action: onOpenSettings)
@@ -82,14 +83,14 @@ struct AccessoryBatterySection: View {
             }
             ForEach(service.accessories) { accessory in
                 HStack(spacing: 9) {
-                    Image(systemName: accessory.symbol).font(.system(size: 16)).frame(width: 28)
+                    Image(systemName: accessory.symbol).font(.system(size: typography.size(16))).frame(width: 28)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(accessory.name).font(.system(size: 11.5, weight: .medium)).lineLimit(1)
-                        Text(componentSummary(accessory)).font(.system(size: 9.5)).foregroundStyle(.secondary)
+                        Text(accessory.name).font(.system(size: typography.size(11.5), weight: .medium)).lineLimit(1)
+                        Text(componentSummary(accessory)).font(.system(size: typography.size(9.5))).foregroundStyle(typography.secondary)
                     }
                     Spacer(minLength: 4)
                     Text(accessory.percentage.map { localized("%d%%", $0) } ?? "—")
-                        .font(.system(size: 10.5, weight: .medium)).monospacedDigit()
+                        .font(.system(size: typography.size(10.5), weight: .medium)).monospacedDigit()
                     Image(systemName: accessory.percentage == nil ? "questionmark.circle" : (accessory.percentage ?? 100) < 20 ? "battery.25percent" : "battery.75percent")
                         .foregroundStyle((accessory.percentage ?? 100) < 20 ? Color.red : Color.secondary)
                 }.padding(.vertical, 3)

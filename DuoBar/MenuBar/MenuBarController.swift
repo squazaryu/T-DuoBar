@@ -10,6 +10,8 @@ final class MenuBarController: NSObject {
     private var glassPanel: GlassPopoverPanel?
     private var popoverContentController: NSViewController?
     private var popoverContentHeight: CGFloat = 316
+    private var popoverContentWidth: CGFloat = 304
+    private var desiredPopoverWidth: CGFloat { MenuPresentation.width(defaults: defaults) }
     private var isMenuShown: Bool { popover.isShown || glassPanel?.isVisible == true }
     private let statusStore: SystemStatusStore
     private let defaults: UserDefaults
@@ -89,14 +91,15 @@ final class MenuBarController: NSObject {
         updatePopoverBehavior()
         popover.delegate = self
         popover.animates = true
-        popover.contentSize = NSSize(width: 304, height: 316)
+        popover.contentSize = NSSize(width: desiredPopoverWidth, height: 316)
         let hostingController = NSHostingController(
             rootView: StatusPopoverView(statusStore: statusStore, onHeightChange: { [weak self] height in
                 DispatchQueue.main.async {
                     guard let self, !self.isInvalidated,
-                          abs(self.popoverContentHeight - height) > 0.5 else { return }
+                          abs(self.popoverContentHeight - height) > 0.5 || abs(self.popoverContentWidth - self.desiredPopoverWidth) > 0.5 else { return }
                     self.popoverContentHeight = height
-                    let size = NSSize(width: 304, height: height)
+                    self.popoverContentWidth = self.desiredPopoverWidth
+                    let size = NSSize(width: self.desiredPopoverWidth, height: height)
                     if self.popover.contentViewController != nil { self.popover.contentSize = size }
                     self.glassPanel?.resizeContent(to: size)
                 }
@@ -210,7 +213,7 @@ final class MenuBarController: NSObject {
         updatePopoverAppearance()
         statusStore.refresh()
         NSApp.activate(ignoringOtherApps: true)
-        let size = NSSize(width: 304, height: popoverContentHeight)
+        let size = NSSize(width: desiredPopoverWidth, height: popoverContentHeight)
         if usesGlassPanel {
             popover.contentViewController = nil
             let panel = glassPanel ?? makeGlassPanel()
@@ -313,9 +316,19 @@ final class MenuBarController: NSObject {
                 let commands = self.hoverInteraction.setEnabled(enabled)
                 self.updatePopoverBehavior()
                 self.updatePopoverAppearance()
+                if abs(self.popoverContentWidth - self.desiredPopoverWidth) > 0.5 {
+                    self.popoverContentWidth = self.desiredPopoverWidth
+                    let size = NSSize(width: self.desiredPopoverWidth, height: self.popoverContentHeight)
+                    if self.popover.contentViewController != nil { self.popover.contentSize = size }
+                    self.glassPanel?.resizeContent(to: size)
+                }
                 self.perform(commands)
                 self.updateAccessoryPolling()
                 self.updateVPNMonitoring()
+                if !self.defaults.bool(forKey: PreferenceKeys.networkDiagnostics),
+                   self.statusStore.networkDiagnostics.isRunning || self.statusStore.networkDiagnostics.result != nil {
+                    self.statusStore.networkDiagnostics.cancel()
+                }
                 self.updateVolumeScrollMonitor()
                 let language = self.defaults.string(forKey: PreferenceKeys.language) ?? AppLanguage.system.rawValue
                 if language != self.lastLanguageRaw {
@@ -491,6 +504,7 @@ final class MenuBarController: NSObject {
         statusStore.accessoryBatteryService.stop()
         statusStore.vpnStatusService.stop()
         statusStore.nearbyWiFiController.setMenuVisible(false)
+        statusStore.networkDiagnostics.cancel()
         cancelHoverClose()
         lengthAnimationTimer?.invalidate()
         lengthAnimationTimer = nil
@@ -549,6 +563,7 @@ extension MenuBarController {
 
     private func menuWillClose() {
         statusStore.nearbyWiFiController.setMenuVisible(false)
+        statusStore.networkDiagnostics.cancel()
         isPopoverVisible = false
         updateVPNMonitoring()
         statusStore.accessoryBatteryService.stop()
@@ -556,6 +571,7 @@ extension MenuBarController {
 
     private func menuDidClose() {
         statusStore.nearbyWiFiController.setMenuVisible(false)
+        statusStore.networkDiagnostics.cancel()
         isPopoverVisible = false
         updateVPNMonitoring()
         statusStore.accessoryBatteryService.stop()

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct VPNSection: View {
+    @Environment(\.menuTypography) private var typography
     @Environment(\.popoverLayout) private var layout
     @ObservedObject var service: VPNStatusService
     let onOpenSettings: () -> Void
@@ -32,7 +33,7 @@ struct VPNSection: View {
     private var standardHeader: some View {
         HStack(spacing: 11) {
             Image(systemName: "lock.shield")
-                .font(.system(size: 13, weight: .semibold))
+                .font(.system(size: typography.size(13), weight: .semibold))
                 .foregroundStyle(service.status.state == .connected ? Color.green : .primary)
                 .frame(width: 28, height: 28)
                 .background((service.status.state == .connected ? Color.green : .primary).opacity(0.12),
@@ -41,8 +42,8 @@ struct VPNSection: View {
                 StatusRowHeader(title: localized("VPN"), value: isInitialRead
                     ? localized("Checking…") : service.status.state.title)
                 Text(isInitialRead ? localized("Reading VPN status…") : service.status.summary)
-                    .font(.system(size: 10.5))
-                    .foregroundStyle(.secondary)
+                    .font(.system(size: typography.size(10.5)))
+                    .foregroundStyle(typography.secondary)
                     .lineLimit(1)
                     .truncationMode(.middle)
             }
@@ -50,16 +51,16 @@ struct VPNSection: View {
             StatusRowAccessorySlot(symbol: "chevron.right")
         }
         .padding(.horizontal, 10)
-        .frame(height: 48)
+        .frame(height: typography.readable ? 56 : 48)
     }
 
     @ViewBuilder
     private var details: some View {
         if isInitialRead {
-            Text(localized("Reading VPN status…")).foregroundStyle(.secondary)
+            Text(localized("Reading VPN status…")).foregroundStyle(typography.secondary)
         } else if !service.status.isAvailable {
             Text(localized("macOS could not read VPN status."))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(typography.secondary)
                 .fixedSize(horizontal: false, vertical: true)
             Button(localized("Try again")) {
                 if service.isMonitoring { service.refresh() } else { service.start() }
@@ -68,7 +69,7 @@ struct VPNSection: View {
             .disabled(service.isRefreshing)
         } else if service.status.connections.isEmpty {
             Text(localized("No macOS VPN profiles found"))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(typography.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         } else {
             ForEach(service.status.connections) { connection in
@@ -76,7 +77,7 @@ struct VPNSection: View {
                     HStack(alignment: .firstTextBaseline, spacing: 8) {
                         Text(connection.displayName).lineLimit(1).truncationMode(.middle)
                         Spacer(minLength: 8)
-                        Text(connection.state.title).foregroundStyle(.secondary)
+                        Text(connection.state.title).foregroundStyle(typography.secondary)
                     }
                     if let interfaceName = connection.interfaceName {
                         StatusDetailLine(title: "Interface", value: interfaceName)
@@ -85,7 +86,7 @@ struct VPNSection: View {
             }
         }
         Text(localized("Only VPN connections reported by macOS are shown."))
-            .foregroundStyle(.secondary)
+            .foregroundStyle(typography.secondary)
             .fixedSize(horizontal: false, vertical: true)
     }
 }

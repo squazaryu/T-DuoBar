@@ -18,12 +18,17 @@ struct StatusPopoverView: View {
     @AppStorage(PreferenceKeys.showMicrophone) private var showMicrophone = false
     @AppStorage(PreferenceKeys.showBatteryTime) private var showBatteryTime = true
     @AppStorage(PreferenceKeys.menuSectionOrder) private var sectionOrder = MenuSectionOrder.defaultValue
+    @AppStorage(PreferenceKeys.widePopover) private var widePopover = false
+    @AppStorage(PreferenceKeys.readableMenuText) private var readableText = false
+    @AppStorage(PreferenceKeys.networkDiagnostics) private var showDiagnostics = false
+    @ObservedObject private var diagnostics: NetworkDiagnosticsService
     @State private var contentHeight: CGFloat = 316
     private let onHeightChange: (CGFloat) -> Void
     private let onClose: () -> Void
 
     init(statusStore: SystemStatusStore, onHeightChange: @escaping (CGFloat) -> Void = { _ in }, onClose: @escaping () -> Void) {
         self.statusStore = statusStore
+        self.diagnostics = statusStore.networkDiagnostics
         self.accessoryService = statusStore.accessoryBatteryService
         self.onClose = onClose
         self.onHeightChange = onHeightChange
@@ -35,7 +40,7 @@ struct StatusPopoverView: View {
                 Color.clear.preference(key: PopoverContentHeightKey.self, value: geometry.size.height)
             })
         }
-        .frame(width: 304, height: min(contentHeight, maximumHeight))
+        .frame(width: MenuPresentation.width(wide: widePopover), height: min(contentHeight, maximumHeight))
         // NSPopover and SwiftUI update their heights on different layout passes.
         // Fill the host and keep the scroll view at its top during that interval.
         .frame(maxHeight: .infinity, alignment: .top)
@@ -94,7 +99,9 @@ struct StatusPopoverView: View {
             }
         }
         .padding(12)
-        .frame(width: 304)
+        .frame(width: MenuPresentation.width(wide: widePopover))
+        .environment(\.menuTypography, MenuTypography(readable: readableText))
+        .modifier(MenuSectionExpansionScope())
         .id(languageRaw + layout.rawValue)
         .environment(\.popoverLayout, layout)
         .environment(\.locale, (AppLanguage(rawValue: languageRaw) ?? .system).locale)
@@ -212,6 +219,10 @@ struct StatusPopoverView: View {
                     }
                 }
             }
+            if showDiagnostics {
+                Divider()
+                NetworkDiagnosticsSection(service: diagnostics, network: statusStore.status.network)
+            }
             Divider()
             NearbyWiFiSection(store: statusStore) {
                 _ = SystemSettingsOpener.open(.wifi)
@@ -229,7 +240,9 @@ struct StatusPopoverView: View {
         } content: {
             if battery.isAvailable {
                 if layout == .compact {
-                    Text(battery.powerStateDescription).foregroundStyle(.secondary)
+                    if battery.powerStateDescription != localized(battery.isPluggedIn ? "Power adapter connected" : "Using battery power") {
+                        Text(battery.powerStateDescription).foregroundStyle(.secondary)
+                    }
                     if showBatteryTime, let time = battery.remainingTimeDescription {
                         Text(time).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                     }
@@ -247,6 +260,8 @@ struct StatusPopoverView: View {
                     Text(localized("macOS has not provided a time estimate yet. Check again after the power source or workload settles."))
                         .foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                 }
+                Divider()
+                BatteryHistorySection(history: statusStore.batteryHistory)
                 Text(localized("The charge limit is unavailable to T-DuoBar. Check charging options in Battery Settings."))
                     .foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             } else {
@@ -407,6 +422,7 @@ struct StatusPopoverView: View {
 }
 
 struct BatteryStatusRow: View {
+    @Environment(\.menuTypography) private var typography
     @Environment(\.popoverLayout) private var layout
     let battery: BatteryStatus
     let showPercentage: Bool
@@ -418,7 +434,7 @@ struct BatteryStatusRow: View {
     @ViewBuilder
     var body: some View {
         if layout == .compact {
-            CompactStatusRow(symbol: symbol, title: localized("Battery"), value: compactValue)
+            CompactStatusRow(symbol: symbol, title: localized("Battery"), value: compactValue, fallbackValue: trailingValue)
         } else {
             standardBody
         }
@@ -432,7 +448,7 @@ struct BatteryStatusRow: View {
     private var standardBody: some View {
         HStack(spacing: 11) {
             Image(systemName: symbol)
-                .font(.system(size: 13, weight: .semibold))
+                .font(.system(size: typography.size(13), weight: .semibold))
                 .foregroundStyle(.primary)
                 .frame(width: 28, height: 28)
                 .background(.primary.opacity(0.12), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
@@ -440,14 +456,14 @@ struct BatteryStatusRow: View {
             VStack(alignment: .leading, spacing: 1) {
                 StatusRowHeader(title: localized("Battery"), value: trailingValue)
                 Text(detail)
-                    .font(.system(size: 10.5))
-                    .foregroundStyle(.secondary)
+                    .font(.system(size: typography.size(10.5)))
+                    .foregroundStyle(typography.secondary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.72)
                 if showsRemainingTime, let time = battery.remainingTimeDescription {
                     Text(time)
-                        .font(.system(size: 10.5))
-                        .foregroundStyle(.secondary)
+                        .font(.system(size: typography.size(10.5)))
+                        .foregroundStyle(typography.secondary)
                         .monospacedDigit()
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
@@ -460,7 +476,7 @@ struct BatteryStatusRow: View {
             }
         }
         .padding(.horizontal, 10)
-        .frame(minHeight: !showsRemainingTime || battery.remainingTimeDescription == nil ? 48 : 64)
+        .frame(minHeight: (!showsRemainingTime || battery.remainingTimeDescription == nil ? 48 : 64) * typography.scale)
         .background(.primary.opacity(drawsBackground ? 0.045 : 0), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
     }
 

@@ -280,3 +280,30 @@
 "Repair login item" = "Anmeldeobjekt reparieren";
 "Login Items Settings…" = "Einstellungen für Anmeldeobjekte…";
 "Install T-DuoBar in Applications before enabling launch at login." = "Installiere T-DuoBar unter Programme, bevor du den Start bei der Anmeldung aktivierst.";
+
+// Optional menu presentation, diagnostics and battery history
+"Menu options" = "Menüoptionen";
+"Wider pop-up" = "Breiteres Pop-up";
+"Highlight menu rows" = "Menüzeilen hervorheben";
+"Larger, higher-contrast menu text" = "Größerer, kontrastreicher Menütext";
+"Expand one section at a time" = "Nur einen Abschnitt gleichzeitig öffnen";
+"Show network diagnostics" = "Netzwerkdiagnose anzeigen";
+"Diagnostics run only when you press Check connection. No background checks." = "Die Diagnose startet nur mit Verbindung prüfen. Keine Hintergrundprüfungen.";
+"Check connection" = "Verbindung prüfen";
+"Checks www.apple.com over HTTPS. DNS errors are reported separately. Runs only on request." = "Prüft www.apple.com per HTTPS. DNS-Fehler werden separat angezeigt. Nur auf Anfrage.";
+"Connect to a network before checking." = "Vor der Prüfung mit einem Netzwerk verbinden.";
+"Name resolution" = "Namensauflösung";
+"HTTPS reachability" = "HTTPS-Erreichbarkeit";
+"Passed" = "Erfolgreich";
+"Failed" = "Fehlgeschlagen";
+"Not confirmed" = "Nicht bestätigt";
+"The Apple test page is reachable. This does not test every app or VPN route." = "Die Apple-Testseite ist erreichbar. Andere Apps und VPN-Routen werden nicht geprüft.";
+"The test page returned an unexpected response. The network may require sign-in." = "Unerwartete Antwort der Testseite. Möglicherweise ist eine Netzwerkanmeldung nötig.";
+"The test server name could not be resolved." = "Der Name des Testservers konnte nicht aufgelöst werden.";
+"The HTTPS check failed. Check your connection, network sign-in or VPN." = "HTTPS-Prüfung fehlgeschlagen. Verbindung, Netzwerkanmeldung oder VPN prüfen.";
+"Battery history · 6 hours" = "Batterieverlauf · 6 Stunden";
+"History appears as battery readings are collected." = "Der Verlauf erscheint, sobald Batteriewerte erfasst wurden.";
+"Used in the last hour: %d%%" = "Verbrauch in der letzten Stunde: %d%%";
+"Stored locally for 24 hours. Gaps and charging sessions are shown separately." = "24 Stunden lokal gespeichert. Pausen und Ladevorgänge werden getrennt dargestellt.";
+"Time" = "Zeit";
+"Charge" = "Ladung";

@@ -278,3 +278,30 @@
 "Repair login item" = "修復登入項目";
 "Login Items Settings…" = "登入項目設定…";
 "Install T-DuoBar in Applications before enabling launch at login." = "啟用登入時啟動前，請將 T-DuoBar 安裝到「應用程式」。";
+
+// Optional menu presentation, diagnostics and battery history
+"Menu options" = "選單選項";
+"Wider pop-up" = "加寬彈出選單";
+"Highlight menu rows" = "反白選單列";
+"Larger, higher-contrast menu text" = "更大、更高對比度的選單文字";
+"Expand one section at a time" = "一次只展開一個區段";
+"Show network diagnostics" = "顯示網路診斷";
+"Diagnostics run only when you press Check connection. No background checks." = "僅在按下「檢查連線」時執行診斷，不進行背景檢查。";
+"Check connection" = "檢查連線";
+"Checks www.apple.com over HTTPS. DNS errors are reported separately. Runs only on request." = "透過 HTTPS 檢查 www.apple.com，另外回報 DNS 錯誤。僅按需執行。";
+"Connect to a network before checking." = "檢查前請先連接網路。";
+"Name resolution" = "名稱解析";
+"HTTPS reachability" = "HTTPS 可連線性";
+"Passed" = "成功";
+"Failed" = "失敗";
+"Not confirmed" = "未確認";
+"The Apple test page is reachable. This does not test every app or VPN route." = "可連線至 Apple 測試頁面。這不會檢查所有 App 或 VPN 路由。";
+"The test page returned an unexpected response. The network may require sign-in." = "測試頁面傳回非預期回應，網路可能需要登入。";
+"The test server name could not be resolved." = "無法解析測試伺服器名稱。";
+"The HTTPS check failed. Check your connection, network sign-in or VPN." = "HTTPS 檢查失敗。請檢查連線、網路登入或 VPN。";
+"Battery history · 6 hours" = "電池記錄 · 6 小時";
+"History appears as battery readings are collected." = "收集電池讀數後將顯示記錄。";
+"Used in the last hour: %d%%" = "過去一小時消耗：%d%%";
+"Stored locally for 24 hours. Gaps and charging sessions are shown separately." = "在本機保留 24 小時，間隔與充電時段分開顯示。";
+"Time" = "時間";
+"Charge" = "電量";
