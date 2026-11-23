@@ -7,9 +7,9 @@
   <img alt="macOS 13 or later" src="https://img.shields.io/badge/macOS-13%2B-222222?logo=apple&amp;logoColor=white">
   <img alt="Apple Silicon and Intel" src="https://img.shields.io/badge/Universal_2-Apple_Silicon_%2B_Intel-248A3D">
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-blue"></a>
-  <a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.14.0"><img alt="Experimental release 1.14.0" src="https://img.shields.io/badge/release-1.14.0_experimental-orange"></a>
+  <a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.15.0"><img alt="Experimental release 1.15.0" src="https://img.shields.io/badge/release-1.15.0_experimental-orange"></a>
 </p>
-<p align="center"><a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.14.0">Download</a> · <a href="README.ru.md">Русский</a> · <a href="docs/COMPARISON.md">Compare forks</a> · <a href="DEVELOPMENT.md">Source &amp; build</a></p>
+<p align="center"><a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.15.0">Download</a> · <a href="README.ru.md">Русский</a> · <a href="docs/COMPARISON.md">Compare forks</a> · <a href="DEVELOPMENT.md">Source &amp; build</a></p>
 
 An independent community fork of [DuoBar by Mike Li (Mikeli7666)](https://github.com/Mikeli7666/DuoBar). Keep battery, network and audio together in one menu bar indicator, with a more capable pop-up when you need the details.
 
@@ -91,7 +91,7 @@ After enabling diagnostics, Network offers **Check connection**. It checks HTTPS
 
 ## Install and update
 
-[Download the 1.14.0 DMG](https://github.com/squazaryu/T-DuoBar/releases/download/v1.14.0/T-DuoBar-1.14.0.dmg?build=41) · [Release notes and SHA-256](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.14.0)
+[Download the 1.15.0 DMG](https://github.com/squazaryu/T-DuoBar/releases/download/v1.15.0/T-DuoBar-1.15.0.dmg?build=42) · [Release notes and SHA-256](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.15.0)
 
 ```sh
 brew install --cask squazaryu/tap/t-duobar
@@ -117,11 +117,19 @@ T-DuoBar keeps the four dots dedicated to **volume**, and builds out the battery
 
 See the [documented comparison with upstream and another fork](docs/COMPARISON.md), checked on 21 October 2026.
 
-## New in 1.14.0 · build 41
+## New in 1.15.0 · build 42
 
-Five optional menu tools and local battery history. Chart time labels follow the app language and its axis shows charge percentages. Duplicate power-source text is removed; narrow Compact rows keep numeric battery readings legible. New opt-ins are not enabled automatically and existing preferences are retained.
+Enable any of these options in **Settings → General**. The three options are off by default.
 
-[Release notes](release/1.14.0/RELEASE_NOTES_1.14.0.md) · [Validation and limits](release/1.14.0/VALIDATION.md)
+- **Menu options → Show live network traffic** adds receive and send rates for the active interface to expanded Network. Sampling pauses when the section collapses, the pop-up closes or the display sleeps.
+- **Battery → Show battery health** shows the cycle count and an estimate of maximum capacity for the internal battery. The estimate can differ from the value in macOS.
+- **Desktop → Desktop status indicator** adds a draggable battery, network and volume indicator in three sizes. It saves its position on the selected display.
+
+| Desktop indicator · light | Desktop indicator · dark |
+| --- | --- |
+| <img src="assets/1.15.0/desktop-light.png" width="312" alt="The three desktop indicator sizes in light appearance"> | <img src="assets/1.15.0/desktop-dark.png" width="312" alt="The three desktop indicator sizes in dark appearance"> |
+
+[Release notes](release/1.15.0/RELEASE_NOTES_1.15.0.md) · [Validation and limits](release/1.15.0/VALIDATION.md)
 
 ## Privacy and practical limits
 
@@ -129,7 +137,7 @@ System readings are processed locally. There is no analytics backend or upload o
 
 VPN status includes only configured connections reported by macOS. It does not prove that all traffic is protected. A tunnel interface alone is not treated as proof of a VPN connection. Device battery data and time estimates depend on macOS/device support; missing readings remain explicit. Joining Wi-Fi starts only after explicit selection of a network; password-protected networks also require the Join button. Passwords are passed in memory to CoreWLAN and are never saved or logged. Enterprise and unsupported networks open macOS Wi-Fi Settings. T-DuoBar does not pair Bluetooth devices, and the charge-limit readout is unavailable.
 
-See [VALIDATION.md](release/1.14.0/VALIDATION.md) for release checks. Joining another real Wi-Fi network and login after a reboot remain unverified. Intel is compiled; runtime validation is on Apple Silicon. New long-duration energy measurements are not claimed.
+See [VALIDATION.md](release/1.15.0/VALIDATION.md) for the hardware, runtime and packaging checks for this release.
 
 ## Build, source and credits
 
