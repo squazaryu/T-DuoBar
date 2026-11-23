@@ -79,6 +79,115 @@ final class MenuReleaseVisualTests: XCTestCase {
         }
     }
 
+    func testNextVersionDetailsRenderAndFollowPopoverVisibility() async throws {
+        let suite = "MenuNextVersion.\(UUID().uuidString)"
+        let prefs = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { prefs.removePersistentDomain(forName: suite) }
+        let arguments = UserDefaults.standard.volatileDomain(forName: UserDefaults.argumentDomain)
+        defer { UserDefaults.standard.setVolatileDomain(arguments, forName: UserDefaults.argumentDomain) }
+        prefs.set(false, forKey: PreferenceKeys.animationsEnabled)
+        prefs.set(true, forKey: PreferenceKeys.showNetworkTraffic)
+        prefs.set(true, forKey: PreferenceKeys.showBatteryHealth)
+        let output = FileManager.default.temporaryDirectory.appendingPathComponent("T-DuoBar-NextVersionVisual")
+        try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
+
+        for (language, layout, dark) in [(AppLanguage.russian, PopoverLayout.standard, false),
+                                        (.german, .compact, true)] {
+            prefs.set(language.rawValue, forKey: PreferenceKeys.language)
+            prefs.set(layout.rawValue, forKey: PreferenceKeys.popoverLayout)
+            prefs.set(dark, forKey: PreferenceKeys.readableMenuText)
+            let languageOverride = arguments.merging([PreferenceKeys.language: language.rawValue]) { _, new in new }
+            UserDefaults.standard.setVolatileDomain(languageOverride, forName: UserDefaults.argumentDomain)
+            for panel in ["network", "battery"] {
+                configureVisibility(prefs, panel: panel)
+                let readings = NextVersionReadings()
+                let monitor = NetworkTrafficMonitor { _ in await readings.networkSample() }
+                let store = makeStore(vpn: VPNStatusService(monitor: TestVPNChangeMonitor()),
+                    diagnostics: NetworkDiagnosticsService(provider: VisualDiagnostics()), networkTraffic: monitor)
+                let root = StatusPopoverView(statusStore: store, readBatteryHealth: { await readings.batteryHealth() },
+                    onClose: {}).defaultAppStorage(prefs).environment(\.colorScheme, dark ? .dark : .light)
+                    .background(Color(nsColor: .windowBackgroundColor))
+                let host = NSHostingView(rootView: root)
+                host.appearance = NSAppearance(named: dark ? .darkAqua : .aqua)
+                host.frame = NSRect(origin: .zero, size: host.fittingSize)
+                let window = NSWindow(contentRect: host.bounds, styleMask: .borderless, backing: .buffered, defer: false)
+                window.isReleasedWhenClosed = false
+                window.setFrameOrigin(NSPoint(x: -10000, y: -10000))
+                window.contentView = host
+                defer { store.setPopoverVisible(false); window.contentView = nil; window.close() }
+
+                window.makeKeyAndOrderFront(nil)
+                store.setPopoverVisible(true)
+                settle(host)
+                let initial = await readings.counts()
+                XCTAssertEqual(initial.network, 0)
+                XCTAssertEqual(initial.battery, 0)
+                let headerY: CGFloat = 54
+                let headerTop = host.isFlipped ? headerY : host.bounds.height - headerY
+                try click(host, window: window, point: NSPoint(x: 90, y: headerY))
+                settle(host)
+                if panel == "network" {
+                    for _ in 0..<180 where monitor.rates == nil { try await Task.sleep(for: .milliseconds(10)) }
+                    XCTAssertEqual(monitor.rates, NetworkTrafficRates(receiveBytesPerSecond: 1_200_000, sendBytesPerSecond: 80_000))
+                } else {
+                    for _ in 0..<60 {
+                        if await readings.counts().battery == 1 { break }
+                        try await Task.sleep(for: .milliseconds(10))
+                    }
+                    let active = await readings.counts()
+                    XCTAssertEqual(active.battery, 1)
+                    XCTAssertEqual(active.network, 0)
+                }
+                settle(host)
+                let bitmap = try XCTUnwrap(host.bitmapImageRepForCachingDisplay(in: host.bounds))
+                host.cacheDisplay(in: host.bounds, to: bitmap)
+                let image = try XCTUnwrap(bitmap.representation(using: .png, properties: [:]))
+                try image.write(to: output.appendingPathComponent("\(language.rawValue)-\(layout.rawValue)-\(panel).png"))
+
+                if panel == "network" {
+                    if dark { store.setPopoverVisible(false) }
+                    else {
+                        // Match the real popover's window resize. AppKit discards events
+                        // above the original, collapsed bounds of the fixture window.
+                        window.setContentSize(host.fittingSize)
+                        settle(host)
+                        let y = host.isFlipped ? headerTop : host.bounds.height - headerTop
+                        try click(host, window: window, point: NSPoint(x: 90, y: y))
+                        settle(host)
+                    }
+                    XCTAssertNil(monitor.rates)
+                    let stopped = await readings.counts()
+                    try await Task.sleep(for: .milliseconds(1150))
+                    let later = await readings.counts()
+                    XCTAssertEqual(later.network, stopped.network)
+                }
+            }
+        }
+    }
+
+    func testRenderDesktopIndicatorSizes() throws {
+        let store = SystemStatusStore(startServices: false, deviceContext: DeviceContext(hasInternalBattery: true))
+        store.applyMarketingCaptureState("hero")
+        let output = FileManager.default.temporaryDirectory.appendingPathComponent("T-DuoBar-NextVersionVisual")
+        try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
+        for scheme in [ColorScheme.light, .dark] {
+            let gallery = HStack(spacing: 14) {
+                ForEach(DesktopIndicatorSize.allCases) { size in
+                    DesktopIndicatorView(statusStore: store).frame(width: size.edge, height: size.edge)
+                }
+            }
+            .padding(14)
+            .background(Color.gray.opacity(0.25))
+            .environment(\.colorScheme, scheme)
+            let renderer = ImageRenderer(content: gallery)
+            renderer.scale = 2
+            let bitmap = NSBitmapImageRep(cgImage: try XCTUnwrap(renderer.cgImage))
+            let name = scheme == .light ? "desktop-light.png" : "desktop-dark.png"
+            try XCTUnwrap(bitmap.representation(using: .png, properties: [:]))
+                .write(to: output.appendingPathComponent(name))
+        }
+    }
+
     private func configureVisibility(_ defaults: UserDefaults, panel: String) {
         for (key, name) in [(PreferenceKeys.showNetwork, "network"), (PreferenceKeys.showBattery, "battery"),
                             (PreferenceKeys.showVPN, "vpn"), (PreferenceKeys.showVolume, "volume"),
@@ -89,7 +198,8 @@ final class MenuReleaseVisualTests: XCTestCase {
         defaults.set(false, forKey: PreferenceKeys.hideEmptyAccessories)
     }
 
-    private func makeStore(vpn: VPNStatusService, diagnostics: NetworkDiagnosticsService) -> SystemStatusStore {
+    private func makeStore(vpn: VPNStatusService, diagnostics: NetworkDiagnosticsService,
+                           networkTraffic: NetworkTrafficMonitor? = nil) -> SystemStatusStore {
         var clock = Date().addingTimeInterval(-6 * 3600)
         let history = BatteryHistoryStore(now: { clock })
         for i in 0...120 {
@@ -101,8 +211,8 @@ final class MenuReleaseVisualTests: XCTestCase {
                 isFullyCharged: false, isAvailable: true))
         }
         clock = Date()
-        let store = SystemStatusStore(startServices: false, vpnStatusService: vpn,
-            batteryHistory: history, networkDiagnostics: diagnostics)
+        let store = SystemStatusStore(startServices: false, deviceContext: DeviceContext(hasInternalBattery: true),
+            vpnStatusService: vpn, batteryHistory: history, networkDiagnostics: diagnostics, networkTraffic: networkTraffic)
         store.applyMarketingCaptureState("hero")
         store.applyDebugBatteryStatus(BatteryStatus(percentage: 72, isCharging: false, isPluggedIn: false,
             isFullyCharged: false, isAvailable: true, timeToEmptyMinutes: 108))
@@ -132,6 +242,27 @@ final class MenuReleaseVisualTests: XCTestCase {
         NSApp.sendEvent(down)
         if let event = NSApp.nextEvent(matching: .leftMouseUp, until: .distantPast, inMode: .default, dequeue: true) { NSApp.sendEvent(event) }
     }
+}
+
+private actor NextVersionReadings {
+    private let clock = ContinuousClock.now
+    private let awakeClock = SuspendingClock.now
+    private var networkReads = 0
+    private var batteryReads = 0
+
+    func networkSample() -> NetworkTrafficSample {
+        networkReads += 1
+        return NetworkTrafficSample(interfaceIndex: 1, interfaceChangeTime: 0,
+            receivedBytes: UInt64(networkReads) * 1_200_000, sentBytes: UInt64(networkReads) * 80_000,
+            time: clock.advanced(by: .seconds(networkReads)), awakeTime: awakeClock.advanced(by: .seconds(networkReads)))
+    }
+
+    func batteryHealth() -> BatteryHealthSnapshot {
+        batteryReads += 1
+        return BatteryHealthSnapshot(maximumCapacityPercentage: 91, cycleCount: 185)
+    }
+
+    func counts() -> (network: Int, battery: Int) { (networkReads, batteryReads) }
 }
 
 private struct VisualDiagnostics: NetworkDiagnosticsProviding {

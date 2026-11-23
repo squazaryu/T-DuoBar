@@ -7,6 +7,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var instanceLock: ApplicationInstanceLock?
     private var statusStore: SystemStatusStore?
     private var menuBarController: MenuBarController?
+    private var desktopIndicatorController: DesktopIndicatorController?
     private var wakeObserver: NSObjectProtocol?
 
     #if DEBUG
@@ -27,6 +28,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             PreferenceKeys.menuBarIconScale: MenuBarIconSize.defaultScale,
             PreferenceKeys.batteryColorCoding: false,
             PreferenceKeys.openOnHover: false,
+            PreferenceKeys.showDesktopIndicator: false,
+            PreferenceKeys.desktopIndicatorSize: DesktopIndicatorSize.defaultSize.rawValue,
             PreferenceKeys.showNetwork: true,
             PreferenceKeys.showVPN: true,
             PreferenceKeys.showVolume: true,
@@ -77,6 +80,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let menuBarController = MenuBarController(statusStore: statusStore)
         self.menuBarController = menuBarController
+        desktopIndicatorController = DesktopIndicatorController(statusStore: statusStore)
         HomebrewUpdateService.shared.start()
         Task { await LaunchAtLoginService.shared.reconcileAfterUpdate() }
         // A live process alone does not prove startup reached a responsive menu.
@@ -144,6 +148,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         menuBarController?.invalidate()
         menuBarController = nil
+        desktopIndicatorController?.invalidate()
+        desktopIndicatorController = nil
         statusStore?.batteryHistory.flush()
         statusStore = nil
         instanceLock?.release()

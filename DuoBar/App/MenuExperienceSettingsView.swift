@@ -6,6 +6,7 @@ struct MenuExperienceSettingsView: View {
     @AppStorage(PreferenceKeys.readableMenuText) private var readable = false
     @AppStorage(PreferenceKeys.singleExpandedSection) private var single = false
     @AppStorage(PreferenceKeys.networkDiagnostics) private var diagnostics = false
+    @AppStorage(PreferenceKeys.showNetworkTraffic) private var traffic = false
 
     var body: some View {
         Section(localized("Menu options")) {
@@ -16,6 +17,8 @@ struct MenuExperienceSettingsView: View {
             Toggle(localized("Show network diagnostics"), isOn: $diagnostics)
             Text(localized("Diagnostics run only when you press Check connection. No background checks."))
                 .font(.caption).foregroundStyle(.secondary)
+            Toggle(localized("Show live network traffic"), isOn: $traffic)
+                .help(localized("Measures the active interface while Network is expanded."))
         }
     }
 }

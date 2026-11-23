@@ -109,27 +109,7 @@ struct DuoStatusView: View {
             temporaryPerformanceMetric = nil
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(accessibilitySummary)
-    }
-
-    private var accessibilitySummary: String {
-        let network: String
-        switch statusStore.status.network.transport {
-        case .ethernet:
-            network = statusStore.status.network.isConnected ? localized("Ethernet connected") : localized("Ethernet disconnected")
-        case .wifi:
-            network = statusStore.status.network.isConnected ? localized("Wi-Fi connected") : localized("Wi-Fi disconnected")
-        case .other, .none:
-            network = statusStore.status.network.isConnected ? localized("Network connected") : localized("Network disconnected")
-        }
-        let volume: String
-        if statusStore.status.audio.volume.isMuted {
-            volume = localized("volume muted")
-        } else {
-            volume = statusStore.status.audio.volume.percentage.map { localized("volume %d percent", $0) } ?? localized("volume unavailable")
-        }
-        let battery = statusStore.status.battery.percentage.map { localized("battery %d percent", $0) } ?? localized("battery unavailable")
-        return localized("%@, %@, %@", network, volume, battery)
+        .accessibilityLabel(StatusAccessibilitySummary.text(for: statusStore.status))
     }
 
     private var metrics: DuoGlyphMetrics {

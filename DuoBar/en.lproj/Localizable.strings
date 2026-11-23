@@ -305,3 +305,22 @@
 "Stored locally for 24 hours. Gaps and charging sessions are shown separately." = "Stored locally for 24 hours. Gaps and charging sessions are shown separately.";
 "Time" = "Time";
 "Charge" = "Charge";
+
+// Network traffic, battery health and desktop status indicator
+"Show live network traffic" = "Show live network traffic";
+"Measures the active interface while Network is expanded." = "Measures the active interface while Network is expanded.";
+"Current traffic" = "Current traffic";
+"Receive rate" = "Receive rate";
+"Send rate" = "Send rate";
+"%@/s" = "%@/s";
+"%@ per second" = "%@ per second";
+"Show battery health" = "Show battery health";
+"Maximum capacity" = "Maximum capacity";
+"Cycle count" = "Cycle count";
+"Estimate based on the battery’s design capacity. macOS may report a different value." = "Estimate based on the battery’s design capacity. macOS may report a different value.";
+"Reading battery health…" = "Reading battery health…";
+"Desktop" = "Desktop";
+"Desktop status indicator" = "Desktop status indicator";
+"Indicator size" = "Indicator size";
+"Medium" = "Medium";
+"Drag the indicator to move it." = "Drag the indicator to move it.";

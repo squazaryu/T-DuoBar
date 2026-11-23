@@ -305,3 +305,22 @@
 "Stored locally for 24 hours. Gaps and charging sessions are shown separately." = "Зберігається локально 24 години. Паузи й сеанси заряджання показані окремо.";
 "Time" = "Час";
 "Charge" = "Заряд";
+
+// Network traffic, battery health and desktop status indicator
+"Show live network traffic" = "Показувати поточний трафік";
+"Measures the active interface while Network is expanded." = "Дані активного інтерфейсу вимірюються, поки розгорнуто розділ «Мережа».";
+"Current traffic" = "Поточний трафік";
+"Receive rate" = "Швидкість отримання";
+"Send rate" = "Швидкість надсилання";
+"%@/s" = "%@/с";
+"%@ per second" = "%@ за секунду";
+"Show battery health" = "Показувати стан акумулятора";
+"Maximum capacity" = "Максимальна ємність";
+"Cycle count" = "Кількість циклів";
+"Estimate based on the battery’s design capacity. macOS may report a different value." = "Оцінка відносно проєктної ємності. Значення може відрізнятися від показника macOS.";
+"Reading battery health…" = "Зчитування даних акумулятора…";
+"Desktop" = "Стільниця";
+"Desktop status indicator" = "Індикатор на стільниці";
+"Indicator size" = "Розмір індикатора";
+"Medium" = "Середній";
+"Drag the indicator to move it." = "Перетягніть індикатор, щоб перемістити його.";

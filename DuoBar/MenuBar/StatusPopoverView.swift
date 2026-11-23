@@ -17,21 +17,27 @@ struct StatusPopoverView: View {
     @AppStorage(PreferenceKeys.showAudioOutput) private var showAudioOutput = true
     @AppStorage(PreferenceKeys.showMicrophone) private var showMicrophone = false
     @AppStorage(PreferenceKeys.showBatteryTime) private var showBatteryTime = true
+    @AppStorage(PreferenceKeys.showBatteryHealth) private var showBatteryHealth = false
     @AppStorage(PreferenceKeys.menuSectionOrder) private var sectionOrder = MenuSectionOrder.defaultValue
     @AppStorage(PreferenceKeys.widePopover) private var widePopover = false
     @AppStorage(PreferenceKeys.readableMenuText) private var readableText = false
     @AppStorage(PreferenceKeys.networkDiagnostics) private var showDiagnostics = false
+    @AppStorage(PreferenceKeys.showNetworkTraffic) private var showNetworkTraffic = false
     @ObservedObject private var diagnostics: NetworkDiagnosticsService
     @State private var contentHeight: CGFloat = 316
     private let onHeightChange: (CGFloat) -> Void
     private let onClose: () -> Void
+    private let readBatteryHealth: @Sendable () async -> BatteryHealthSnapshot
 
-    init(statusStore: SystemStatusStore, onHeightChange: @escaping (CGFloat) -> Void = { _ in }, onClose: @escaping () -> Void) {
+    init(statusStore: SystemStatusStore,
+         readBatteryHealth: @escaping @Sendable () async -> BatteryHealthSnapshot = { await BatteryHealthReader.read() },
+         onHeightChange: @escaping (CGFloat) -> Void = { _ in }, onClose: @escaping () -> Void) {
         self.statusStore = statusStore
         self.diagnostics = statusStore.networkDiagnostics
         self.accessoryService = statusStore.accessoryBatteryService
         self.onClose = onClose
         self.onHeightChange = onHeightChange
+        self.readBatteryHealth = readBatteryHealth
     }
 
     var body: some View {
@@ -219,6 +225,11 @@ struct StatusPopoverView: View {
                     }
                 }
             }
+            if showNetworkTraffic {
+                let network = statusStore.status.network
+                NetworkTrafficDetail(monitor: statusStore.networkTraffic,
+                    interfaceName: network.isConnected ? network.interfaceName : nil)
+            }
             if showDiagnostics {
                 Divider()
                 NetworkDiagnosticsSection(service: diagnostics, network: statusStore.status.network)
@@ -259,6 +270,9 @@ struct StatusPopoverView: View {
                    !battery.isPluggedIn || battery.isCharging {
                     Text(localized("macOS has not provided a time estimate yet. Check again after the power source or workload settles."))
                         .foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                }
+                if showBatteryHealth, statusStore.deviceContext.hasInternalBattery {
+                    BatteryHealthDetails(isActive: statusStore.isPopoverVisible, read: readBatteryHealth)
                 }
                 Divider()
                 BatteryHistorySection(history: statusStore.batteryHistory)

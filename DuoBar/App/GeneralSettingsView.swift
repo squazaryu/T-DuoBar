@@ -14,6 +14,9 @@ struct GeneralSettingsView: View {
     @AppStorage(PreferenceKeys.menuBarBatteryPercentage) private var menuBarBatteryPercentage = false
     @AppStorage(PreferenceKeys.batteryColorCoding) private var batteryColorCoding = false
     @AppStorage(PreferenceKeys.showBatteryTime) private var showBatteryTime = true
+    @AppStorage(PreferenceKeys.showBatteryHealth) private var showBatteryHealth = false
+    @AppStorage(PreferenceKeys.showDesktopIndicator) private var showDesktopIndicator = false
+    @AppStorage(PreferenceKeys.desktopIndicatorSize) private var desktopIndicatorSize = DesktopIndicatorSize.defaultSize.rawValue
     @AppStorage(PreferenceKeys.adaptiveRingPriority) private var adaptiveRingPriorityRaw = PerformancePreference.automatic.rawValue
     @AppStorage(PreferenceKeys.adaptiveRingColorCoding) private var adaptiveRingColorCoding = false
     @AppStorage(PreferenceKeys.openOnHover) private var openOnHover = false
@@ -98,8 +101,26 @@ struct GeneralSettingsView: View {
 
             Section(localized("Battery")) {
                 Toggle(localized("Show battery time"), isOn: $showBatteryTime)
+                if deviceContext.hasInternalBattery {
+                    Toggle(localized("Show battery health"), isOn: $showBatteryHealth)
+                }
                 if showsBatteryRingSettings {
                     Toggle(localized("Battery Color Coding"), isOn: $batteryColorCoding)
+                }
+            }
+
+            Section(localized("Desktop")) {
+                Toggle(localized("Desktop status indicator"), isOn: $showDesktopIndicator)
+                if showDesktopIndicator {
+                    Picker(localized("Indicator size"), selection: Binding(
+                        get: { DesktopIndicatorSize.resolve(desktopIndicatorSize) },
+                        set: { desktopIndicatorSize = $0.rawValue })) {
+                        ForEach(DesktopIndicatorSize.allCases) { size in
+                            Text(localized(size.titleKey)).tag(size)
+                        }
+                    }
+                    Text(localized("Drag the indicator to move it."))
+                        .font(.caption).foregroundStyle(.secondary)
                 }
             }
 

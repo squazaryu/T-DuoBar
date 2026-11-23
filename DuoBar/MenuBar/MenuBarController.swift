@@ -24,6 +24,7 @@ final class MenuBarController: NSObject {
     private var defaultsObserver: NSObjectProtocol?
     private var applicationResignObserver: NSObjectProtocol?
     private var accessibilityDisplayObserver: NSObjectProtocol?
+    private var screenActivityObservers: [NSObjectProtocol] = []
     private var volumeScrollMonitor: Any?
     private var statusItemMouseMonitor: Any?
     private var volumeScroll = VolumeScrollAccumulator()
@@ -31,6 +32,7 @@ final class MenuBarController: NSObject {
     private var hoverInteraction: HoverPopoverInteraction
     private var isInvalidated = false
     private var isPopoverVisible = false
+    private var screensAreAwake = true
 
     init(statusStore: SystemStatusStore, defaults: UserDefaults = .standard) {
         self.statusStore = statusStore
@@ -47,6 +49,7 @@ final class MenuBarController: NSObject {
         observePreferences()
         observeApplicationActivity()
         observeAccessibilityDisplayOptions()
+        observeScreenActivity()
         updateVolumeScrollMonitor()
     }
 
@@ -329,6 +332,10 @@ final class MenuBarController: NSObject {
                    self.statusStore.networkDiagnostics.isRunning || self.statusStore.networkDiagnostics.result != nil {
                     self.statusStore.networkDiagnostics.cancel()
                 }
+                if !self.defaults.bool(forKey: PreferenceKeys.showNetworkTraffic)
+                    || self.defaults.object(forKey: PreferenceKeys.showNetwork) as? Bool == false {
+                    self.statusStore.networkTraffic.setDisplayedInterface(nil)
+                }
                 self.updateVolumeScrollMonitor()
                 let language = self.defaults.string(forKey: PreferenceKeys.language) ?? AppLanguage.system.rawValue
                 if language != self.lastLanguageRaw {
@@ -414,6 +421,23 @@ final class MenuBarController: NSObject {
             object: nil, queue: .main
         ) { [weak self] _ in
             Task { @MainActor in self?.updatePopoverAppearance() }
+        }
+    }
+
+    private func observeScreenActivity() {
+        let center = NSWorkspace.shared.notificationCenter
+        let events: [(Notification.Name, Bool)] = [
+            (NSWorkspace.screensDidSleepNotification, false),
+            (NSWorkspace.screensDidWakeNotification, true)
+        ]
+        screenActivityObservers = events.map { name, awake in
+            center.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                Task { @MainActor in
+                    guard let self, !self.isInvalidated else { return }
+                    self.screensAreAwake = awake
+                    self.statusStore.setPopoverVisible(awake && self.isPopoverVisible)
+                }
+            }
         }
     }
 
@@ -505,6 +529,7 @@ final class MenuBarController: NSObject {
         statusStore.vpnStatusService.stop()
         statusStore.nearbyWiFiController.setMenuVisible(false)
         statusStore.networkDiagnostics.cancel()
+        statusStore.setPopoverVisible(false)
         cancelHoverClose()
         lengthAnimationTimer?.invalidate()
         lengthAnimationTimer = nil
@@ -525,6 +550,8 @@ final class MenuBarController: NSObject {
             NSWorkspace.shared.notificationCenter.removeObserver(accessibilityDisplayObserver)
             self.accessibilityDisplayObserver = nil
         }
+        for observer in screenActivityObservers { NSWorkspace.shared.notificationCenter.removeObserver(observer) }
+        screenActivityObservers.removeAll()
         popoverBackgroundView = nil
         popoverTrackingView?.removeFromSuperview()
         popoverTrackingView = nil
@@ -547,6 +574,7 @@ final class MenuBarController: NSObject {
         if let accessibilityDisplayObserver {
             NSWorkspace.shared.notificationCenter.removeObserver(accessibilityDisplayObserver)
         }
+        for observer in screenActivityObservers { NSWorkspace.shared.notificationCenter.removeObserver(observer) }
         if !isInvalidated {
             NSStatusBar.system.removeStatusItem(statusItem)
         }
@@ -557,6 +585,7 @@ extension MenuBarController {
     private func menuDidShow() {
         statusStore.nearbyWiFiController.setMenuVisible(true)
         isPopoverVisible = true
+        statusStore.setPopoverVisible(screensAreAwake)
         updateAccessoryPolling()
         updateVPNMonitoring()
     }
@@ -564,6 +593,7 @@ extension MenuBarController {
     private func menuWillClose() {
         statusStore.nearbyWiFiController.setMenuVisible(false)
         statusStore.networkDiagnostics.cancel()
+        statusStore.setPopoverVisible(false)
         isPopoverVisible = false
         updateVPNMonitoring()
         statusStore.accessoryBatteryService.stop()
@@ -572,6 +602,7 @@ extension MenuBarController {
     private func menuDidClose() {
         statusStore.nearbyWiFiController.setMenuVisible(false)
         statusStore.networkDiagnostics.cancel()
+        statusStore.setPopoverVisible(false)
         isPopoverVisible = false
         updateVPNMonitoring()
         statusStore.accessoryBatteryService.stop()
