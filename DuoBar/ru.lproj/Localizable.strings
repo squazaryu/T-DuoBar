@@ -305,3 +305,22 @@
 "Stored locally for 24 hours. Gaps and charging sessions are shown separately." = "Хранится локально 24 часа. Паузы и сеансы зарядки показаны раздельно.";
 "Time" = "Время";
 "Charge" = "Заряд";
+
+// Network traffic, battery health and desktop status indicator
+"Show live network traffic" = "Показывать текущий трафик";
+"Measures the active interface while Network is expanded." = "Замеры идут на активном интерфейсе, пока раскрыт раздел «Сеть».";
+"Current traffic" = "Текущий трафик";
+"Receive rate" = "Скорость приёма";
+"Send rate" = "Скорость отправки";
+"%@/s" = "%@/с";
+"%@ per second" = "%@ в секунду";
+"Show battery health" = "Показывать состояние аккумулятора";
+"Maximum capacity" = "Максимальная ёмкость";
+"Cycle count" = "Количество циклов";
+"Estimate based on the battery’s design capacity. macOS may report a different value." = "Оценка относительно проектной ёмкости. Значение может отличаться от показания macOS.";
+"Reading battery health…" = "Чтение данных об аккумуляторе…";
+"Desktop" = "Рабочий стол";
+"Desktop status indicator" = "Индикатор на рабочем столе";
+"Indicator size" = "Размер индикатора";
+"Medium" = "Средний";
+"Drag the indicator to move it." = "Перетащите индикатор, чтобы переместить его.";

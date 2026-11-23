@@ -4,6 +4,7 @@ enum PreferenceKeys {
     static let readableMenuText = "menu.readableText"
     static let singleExpandedSection = "menu.singleExpandedSection"
     static let networkDiagnostics = "menu.networkDiagnostics"
+    static let showNetworkTraffic = "menu.showNetworkTraffic"
     static let lastMenuBarReady = "diagnostics.lastMenuBarReady"
     static let language = "appearance.language"
     static let popoverLayout = "appearance.popoverLayout"
@@ -28,11 +29,15 @@ enum PreferenceKeys {
     static let showAudioOutput = "menu.showAudioOutput"
     static let showMicrophone = "menu.showMicrophone"
     static let showBatteryTime = "menu.showBatteryTime"
+    static let showBatteryHealth = "menu.showBatteryHealth"
     static let menuSectionOrder = "menu.sectionOrder"
     static let favoriteOutputUIDs = "audio.favoriteOutputUIDs"
     static let lowBatteryNotificationEnabled = "battery.notificationEnabled"
     static let lowBatteryNotificationThreshold = "battery.notificationThreshold"
     static let lowBatteryNotificationSound = "battery.notificationSound"
+
+    static let showDesktopIndicator = "desktopIndicator.enabled"
+    static let desktopIndicatorSize = "desktopIndicator.size"
 
     static let weeklyUpdateChecks = "updates.weeklyChecks"
     static let lastUpdateCheck = "updates.lastSuccess"

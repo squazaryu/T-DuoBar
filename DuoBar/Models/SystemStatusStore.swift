@@ -8,6 +8,8 @@ final class SystemStatusStore: ObservableObject {
     @Published private(set) var wifiPowerControlError: String?
 
     let networkDiagnostics: NetworkDiagnosticsService
+    let networkTraffic: NetworkTrafficMonitor
+    @Published private(set) var isPopoverVisible = false
     let batteryHistory: BatteryHistoryStore
     let accessoryBatteryService: AccessoryBatteryService
     let vpnStatusService: VPNStatusService
@@ -38,9 +40,11 @@ final class SystemStatusStore: ObservableObject {
         vpnStatusService: VPNStatusService? = nil,
         nearbyWiFiProvider: (any NearbyWiFiProviding)? = nil,
         batteryHistory: BatteryHistoryStore? = nil,
-        networkDiagnostics: NetworkDiagnosticsService? = nil
+        networkDiagnostics: NetworkDiagnosticsService? = nil,
+        networkTraffic: NetworkTrafficMonitor? = nil
     ) {
         self.networkDiagnostics = networkDiagnostics ?? NetworkDiagnosticsService()
+        self.networkTraffic = networkTraffic ?? NetworkTrafficMonitor()
         self.batteryHistory = batteryHistory ?? BatteryHistoryStore(defaults: startServices ? .standard : nil)
         self.accessoryBatteryService = accessoryBatteryService ?? AccessoryBatteryService()
         self.vpnStatusService = vpnStatusService ?? VPNStatusService()
@@ -108,6 +112,12 @@ final class SystemStatusStore: ObservableObject {
         networkService.refresh()
         audioOutputService.refresh()
         bluetoothService.refresh()
+    }
+
+    func setPopoverVisible(_ visible: Bool) {
+        guard isPopoverVisible != visible else { return }
+        networkTraffic.setPopoverVisible(visible)
+        isPopoverVisible = visible
     }
 
     func requestWiFiSSIDAccess(trigger: LocationRequestTrigger) {

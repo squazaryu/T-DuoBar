@@ -307,3 +307,22 @@
 "Stored locally for 24 hours. Gaps and charging sessions are shown separately." = "24 Stunden lokal gespeichert. Pausen und Ladevorgänge werden getrennt dargestellt.";
 "Time" = "Zeit";
 "Charge" = "Ladung";
+
+// Network traffic, battery health and desktop status indicator
+"Show live network traffic" = "Aktuellen Netzwerkverkehr anzeigen";
+"Measures the active interface while Network is expanded." = "Misst den aktiven Anschluss, solange der Bereich „Netzwerk“ geöffnet ist.";
+"Current traffic" = "Datenverkehr";
+"Receive rate" = "Empfangsrate";
+"Send rate" = "Senderate";
+"%@/s" = "%@/s";
+"%@ per second" = "%@ pro Sekunde";
+"Show battery health" = "Batteriezustand anzeigen";
+"Maximum capacity" = "Maximale Kapazität";
+"Cycle count" = "Ladezyklen";
+"Estimate based on the battery’s design capacity. macOS may report a different value." = "Schätzung anhand der Auslegungskapazität der Batterie. macOS kann einen anderen Wert anzeigen.";
+"Reading battery health…" = "Batteriedaten werden gelesen…";
+"Desktop" = "Schreibtisch";
+"Desktop status indicator" = "Statusanzeige auf dem Schreibtisch";
+"Indicator size" = "Größe der Anzeige";
+"Medium" = "Mittel";
+"Drag the indicator to move it." = "Ziehen Sie die Anzeige an die gewünschte Stelle.";

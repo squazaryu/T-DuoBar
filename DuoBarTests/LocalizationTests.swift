@@ -236,6 +236,23 @@ final class LocalizationTests: XCTestCase {
         "Open Wi-Fi Settings",
         "Open Network Settings",
         "Open Battery Settings",
+        "Show live network traffic",
+        "Measures the active interface while Network is expanded.",
+        "Current traffic",
+        "Receive rate",
+        "Send rate",
+        "%@/s",
+        "%@ per second",
+        "Show battery health",
+        "Maximum capacity",
+        "Cycle count",
+        "Estimate based on the battery’s design capacity. macOS may report a different value.",
+        "Reading battery health…",
+        "Desktop",
+        "Desktop status indicator",
+        "Indicator size",
+        "Medium",
+        "Drag the indicator to move it.",
         "No output devices"
     ]
 

@@ -5,12 +5,14 @@ import XCTest
 
 @MainActor
 final class MenuOptionsTests: XCTestCase {
-    func testAllFiveOptionsAreOffByDefaultAndWidthChangesLive() throws {
+    func testOptionsAreOffByDefaultAndWidthChangesLive() throws {
         let name = "MenuOptions.\(UUID().uuidString)"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: name))
         defer { defaults.removePersistentDomain(forName: name) }
         for key in [PreferenceKeys.widePopover, PreferenceKeys.highlightMenuRows, PreferenceKeys.readableMenuText,
-                    PreferenceKeys.singleExpandedSection, PreferenceKeys.networkDiagnostics] {
+                    PreferenceKeys.singleExpandedSection, PreferenceKeys.networkDiagnostics,
+                    PreferenceKeys.showNetworkTraffic, PreferenceKeys.showBatteryHealth,
+                    PreferenceKeys.showDesktopIndicator] {
             XCTAssertFalse(defaults.bool(forKey: key))
         }
         let store = SystemStatusStore(startServices: false)

@@ -7,9 +7,9 @@
   <img alt="macOS 13 or later" src="https://img.shields.io/badge/macOS-13%2B-222222?logo=apple&amp;logoColor=white">
   <img alt="Apple Silicon and Intel" src="https://img.shields.io/badge/Universal_2-Apple_Silicon_%2B_Intel-248A3D">
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-blue"></a>
-  <a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.14.0"><img alt="Experimental release 1.14.0" src="https://img.shields.io/badge/release-1.14.0_experimental-orange"></a>
+  <a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.15.0"><img alt="Экспериментальный выпуск 1.15.0" src="https://img.shields.io/badge/release-1.15.0_experimental-orange"></a>
 </p>
-<p align="center"><a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.14.0">Скачать</a> · <a href="README.md">English</a> · <a href="docs/COMPARISON.md">Сравнение форков</a> · <a href="DEVELOPMENT.md">Исходники и сборка</a></p>
+<p align="center"><a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.15.0">Скачать</a> · <a href="README.md">English</a> · <a href="docs/COMPARISON.md">Сравнение форков</a> · <a href="DEVELOPMENT.md">Исходники и сборка</a></p>
 
 Независимый общественный форк [DuoBar от Mike Li (Mikeli7666)](https://github.com/Mikeli7666/DuoBar). Батарея, сеть и звук объединены в одном значке строки меню, а подробности и управление доступны в pop-up.
 
@@ -91,7 +91,7 @@
 
 ## Установка и обновление
 
-[Скачать DMG 1.14.0](https://github.com/squazaryu/T-DuoBar/releases/download/v1.14.0/T-DuoBar-1.14.0.dmg?build=41) · [Релиз и SHA-256](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.14.0)
+[Скачать DMG 1.15.0](https://github.com/squazaryu/T-DuoBar/releases/download/v1.15.0/T-DuoBar-1.15.0.dmg?build=42) · [Релиз и SHA-256](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.15.0)
 
 ```sh
 brew install --cask squazaryu/tap/t-duobar
@@ -117,11 +117,28 @@ open /Applications/DuoBar.app
 
 [Сравнение документированных возможностей с оригиналом и другим форком](docs/COMPARISON.md), проверенное 21 октября 2026 года.
 
-## Новое в 1.14.0 · сборка 41
+## Новое в 1.15.0 · сборка 42
 
-Пять дополнительных опций меню и локальная история батареи. График учитывает язык интерфейса и показывает проценты на шкале; повтор источника питания убран. В компактном меню цифровые показания не обрезаются посередине. Новые опции не включаются автоматически, прежние настройки сохраняются.
+Три опции в **Настройки → Основные** выключены по умолчанию. Их можно включать независимо.
 
-[Release notes](release/1.14.0/RELEASE_NOTES_1.14.0.md) · [Проверки и ограничения](release/1.14.0/VALIDATION.md)
+- **Параметры меню → Показывать текущий трафик** добавляет в раскрытую «Сеть» скорость приёма и отправки по активному интерфейсу. Замеры останавливаются при сворачивании раздела, закрытии меню и сне дисплея.
+- **Аккумулятор → Показывать состояние аккумулятора** выводит количество циклов и оценку максимальной ёмкости. Оценка может отличаться от показания macOS.
+- **Рабочий стол → Индикатор на рабочем столе** показывает заряд, сеть и громкость. У индикатора три размера. Его можно перемещать, а положение сохраняется для экрана.
+
+| Индикатор · светлая тема | Индикатор · тёмная тема |
+| --- | --- |
+| <img src="assets/1.15.0/desktop-light.png" width="312" alt="Три размера индикатора в светлой теме"> | <img src="assets/1.15.0/desktop-dark.png" width="312" alt="Три размера индикатора в тёмной теме"> |
+
+<details>
+<summary>Трафик и состояние аккумулятора в меню</summary>
+
+| Текущий трафик | Ёмкость и циклы |
+| --- | --- |
+| <img src="assets/1.15.0/ru-standard-network.png" width="304" alt="Скорости приёма и отправки в раскрытом разделе Сеть"> | <img src="assets/1.15.0/ru-standard-battery.png" width="304" alt="Максимальная ёмкость и число циклов в раскрытом разделе Аккумулятор"> |
+
+</details>
+
+[Заметки к выпуску](release/1.15.0/RELEASE_NOTES_1.15.0.md) · [Проверки и ограничения](release/1.15.0/VALIDATION.md)
 
 ## Приватность и ограничения
 
@@ -129,7 +146,7 @@ open /Applications/DuoBar.app
 
 VPN показывает только настроенные подключения, о которых сообщает macOS, и не гарантирует защиту всего трафика. Один лишь туннельный интерфейс не считается доказательством VPN. Показания аксессуаров и оценки времени зависят от macOS и оборудования; отсутствие данных обозначается явно. Подключение к Wi-Fi начинается только по явному выбору сети; для защищённых паролем сетей дополнительно нужно нажать Join. Пароль передаётся CoreWLAN в памяти, не сохраняется и не записывается в журнал. Для корпоративных и неподдерживаемых сетей открываются настройки Wi-Fi macOS. Приложение не выполняет сопряжение Bluetooth; лимит заряда недоступен.
 
-Проверки выпуска описаны в [VALIDATION.md](release/1.14.0/VALIDATION.md). Реальное подключение к другой Wi-Fi-сети и вход после перезагрузки не выполнялись. Intel проверен сборкой, запуск — на Apple Silicon. Новые длительные замеры расхода батареи не заявляются.
+Проверки оборудования, приложения и DMG описаны в [VALIDATION.md](release/1.15.0/VALIDATION.md).
 
 ## Исходники и авторы
 

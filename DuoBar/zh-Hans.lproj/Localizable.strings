@@ -305,3 +305,22 @@
 "Stored locally for 24 hours. Gaps and charging sessions are shown separately." = "在本机保留 24 小时，间隔和充电时段分开显示。";
 "Time" = "时间";
 "Charge" = "电量";
+
+// Network traffic, battery health and desktop status indicator
+"Show live network traffic" = "显示实时网络流量";
+"Measures the active interface while Network is expanded." = "展开“网络”时，测量当前活跃接口的流量。";
+"Current traffic" = "实时流量";
+"Receive rate" = "接收速率";
+"Send rate" = "发送速率";
+"%@/s" = "%@/秒";
+"%@ per second" = "每秒 %@";
+"Show battery health" = "显示电池健康信息";
+"Maximum capacity" = "最大容量";
+"Cycle count" = "循环次数";
+"Estimate based on the battery’s design capacity. macOS may report a different value." = "根据电池设计容量估算。macOS 显示的数值可能不同。";
+"Reading battery health…" = "正在读取电池健康信息…";
+"Desktop" = "桌面";
+"Desktop status indicator" = "桌面状态指示器";
+"Indicator size" = "指示器大小";
+"Medium" = "中";
+"Drag the indicator to move it." = "拖动指示器即可移动。";

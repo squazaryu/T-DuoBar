@@ -53,7 +53,9 @@ struct StatusDetailSection<Header: View, Content: View>: View {
                     if layout == .compact, let settingsTitle, let onOpenSettings {
                         Button(settingsTitle, action: onOpenSettings).buttonStyle(.link)
                     }
-                }.font(.system(size: typography.size(10.5))).padding(10)
+                }
+                .environment(\.statusSectionExpanded, expanded)
+                .font(.system(size: typography.size(10.5))).padding(10)
             }
         }
         .frame(maxWidth: .infinity)

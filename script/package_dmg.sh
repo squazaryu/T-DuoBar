@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VERSION="1.14.0"
-BUILD_NUMBER="41"
+VERSION="1.15.0"
+BUILD_NUMBER="42"
 BUILD_DIR="${TMPDIR:-/tmp}/T-DuoBar-Package-DerivedData"
 OUTPUT_DIR="$ROOT_DIR/build/releases/$VERSION"
 DMG="$OUTPUT_DIR/T-DuoBar-$VERSION.dmg"
@@ -19,8 +19,7 @@ trap 'rm -rf "$STAGING_DIR"' EXIT
 xcodebuild -quiet -project "$ROOT_DIR/DuoBar.xcodeproj" -scheme DuoBar \
     -configuration Release -destination 'generic/platform=macOS' \
     -derivedDataPath "$BUILD_DIR" ARCHS='arm64 x86_64' ONLY_ACTIVE_ARCH=NO \
-    CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= \
-    MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD_NUMBER" build
+    CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= build
 APP="$BUILD_DIR/Build/Products/Release/DuoBar.app"
 codesign --verify --deep --strict "$APP"
 [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Contents/Info.plist")" == "$VERSION" ]]
@@ -33,7 +32,7 @@ codesign --verify --deep --strict "$STAGING_DIR/DuoBar.app"
 ln -s /Applications "$STAGING_DIR/Applications"
 cp "$ROOT_DIR/LICENSE" "$STAGING_DIR/LICENSE.txt"
 cat > "$STAGING_DIR/READ ME FIRST.txt" <<'NOTICE'
-T-DuoBar 1.14.0 — experimental community build
+T-DuoBar 1.15.0 — experimental community build
 
 This app has an ad-hoc signature. It is NOT Developer ID signed or Apple notarized.
 This differs from the signed releases of the original DuoBar project.
