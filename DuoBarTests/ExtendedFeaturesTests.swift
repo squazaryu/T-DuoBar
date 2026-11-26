@@ -38,6 +38,59 @@ final class ExtendedFeaturesTests: XCTestCase {
         XCTAssertThrowsError(try AccessoryBatteryParser.parse(Data("invalid".utf8)))
     }
 
+    func testAccessoryFallbacksFillOnlyMissingLevelsForConnectedDevices() throws {
+        let report = ["device_connected": [
+            ["Office Mouse": ["device_address": "01:23:45:67:89:AB", "device_minorType": "Mouse"]],
+            ["Nothing Headphone (1)": ["device_minorType": "Headset"]],
+            ["AirPods Pro": ["device_batteryLevelLeft": "0%", "device_batteryLevelCase": "90%"]],
+            ["Shared": ["device_address": "01:23:45:67:89:AC", "device_batteryLevelMain": "40%"]],
+            ["shared": ["device_address": "01:23:45:67:89:AD"]]
+        ]]
+        let devices = try AccessoryBatteryParser.parse(JSONSerialization.data(withJSONObject: report))
+        let mouseAddress = try XCTUnwrap(AccessoryBatteryParser.normalizedAddress("01-23-45-67-89-ab"))
+        let readings = AccessoryBatteryFallbacks.fillMissingLevels(devices, readHID: { requested in
+            XCTAssertEqual(requested, [mouseAddress, "0123456789ad"])
+            return [mouseAddress: 89]
+        }, readPowerSources: {
+            ["nothing headphone (1)": 45, "office mouse": 12, "airpods pro": 99, "shared": 30, "disconnected": 73]
+        })
+        XCTAssertEqual(readings.map(\.id), devices.map(\.id))
+        XCTAssertEqual(readings.first { $0.name == "Office Mouse" }?.percentage, 89)
+        XCTAssertEqual(readings.first { $0.name == "Office Mouse" }?.symbol, "computermouse")
+        XCTAssertEqual(readings.first { $0.name == "Nothing Headphone (1)" }?.percentage, 45)
+        XCTAssertEqual(readings.first { $0.name == "AirPods Pro" }?.percentage, 0)
+        XCTAssertEqual(readings.first { $0.name == "Shared" }?.percentage, 40)
+        XCTAssertNil(readings.first { $0.name == "shared" }?.percentage)
+        XCTAssertNil(AccessoryBatteryParser.normalizedAddress("01-23-45-67-89"))
+    }
+
+    func testAccessoryPowerSnapshotRejectsMissingAndAmbiguousReadings() {
+        let report = """
+        Now drawing from 'AC Power'
+         -InternalBattery-0 (id=123)\t93%; charged present: true
+         -Nothing Headphone (1) (id=124)\t45%; discharging present: true
+         -Clavier (id=125)\t0%; discharging present: true
+         -Bluetooth Speaker (id=126)\t100%; charged present: true
+         -Disconnected (id=127)\t99%; present: false
+         -Unknown (id=128)\t101%; discharging present: true
+         -Duplicate (id=129)\t10%; discharging present: true
+         -duplicate (id=130)\t(no estimate) present: true
+        """
+        let levels = AccessoryBatteryFallbacks.powerLevels(in: Data(report.utf8), excluding: ["InternalBattery-0"])
+        XCTAssertEqual(levels, ["nothing headphone (1)": 45, "clavier": 0, "bluetooth speaker": 100])
+    }
+
+    func testAccessoryFallbacksSkipPowerUtilityWhenHIDCompletesReadings() {
+        let address = "0123456789ab"
+        let mouse = AccessoryBattery(id: address, name: "Custom name", levels: [:],
+            bluetoothAddress: address, deviceMinorType: "Mouse")
+        let items = AccessoryBatteryFallbacks.fillMissingLevels([mouse], readHID: { _ in [address: 75] }, readPowerSources: {
+            XCTFail("No additional report is needed when the address-based read is complete")
+            return [:]
+        })
+        XCTAssertEqual(items.first?.percentage, 75)
+    }
+
     func testAlertCrossingDoesNotRepeatAroundThreshold() {
         var gate = LowBatteryAlertGate()
         XCTAssertFalse(gate.shouldAlert(battery: battery(25), threshold: 20, enabled: true))

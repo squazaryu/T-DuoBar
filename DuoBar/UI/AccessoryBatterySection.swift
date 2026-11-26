@@ -10,7 +10,8 @@ struct AccessoryBatterySection: View {
     var body: some View {
         if layout == .compact {
             StatusDetailSection(settingsTitle: localized("Bluetooth Settings…"), onOpenSettings: onOpenSettings) {
-                CompactStatusRow(symbol: "keyboard", title: localized("Accessories"), value: compactSummary)
+                CompactStatusRow(symbol: "keyboard", title: localized("Accessories"), value: compactSummary,
+                    fallbackValue: singleAccessory?.percentage.map { localized("%d%%", $0) })
             } content: {
                 if service.accessories.isEmpty { emptyState }
                 else { connectedAccessories }
@@ -24,10 +25,14 @@ struct AccessoryBatterySection: View {
         if service.isRefreshing && service.accessories.isEmpty { return localized("Reading accessories…") }
         if service.errorMessage != nil { return localized("Accessory battery data unavailable") }
         guard !service.accessories.isEmpty else { return localized("No devices") }
-        if service.accessories.count == 1, let item = service.accessories.first {
+        if let item = singleAccessory {
             return item.name + " · " + (item.percentage.map { localized("%d%%", $0) } ?? "—")
         }
         return localized("Devices: %d", service.accessories.count)
+    }
+
+    private var singleAccessory: AccessoryBattery? {
+        service.accessories.count == 1 ? service.accessories.first : nil
     }
 
     private var standardBody: some View {
@@ -73,37 +78,104 @@ struct AccessoryBatterySection: View {
     }
 
     private var connectedAccessories: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(localized("Accessory batteries")).font(.system(size: typography.size(11), weight: .semibold)).foregroundStyle(typography.secondary)
-                Spacer(minLength: 2)
-                if layout == .standard, let onOpenSettings {
-                    SystemSettingsButton(title: localized("Bluetooth Settings…"), action: onOpenSettings)
+        VStack(alignment: .leading, spacing: 4) {
+            if layout == .standard {
+                HStack {
+                    Text(localized("Accessory batteries"))
+                        .font(.system(size: typography.size(11), weight: .semibold))
+                        .foregroundStyle(typography.secondary)
+                    Spacer(minLength: 2)
+                    if let onOpenSettings {
+                        SystemSettingsButton(title: localized("Bluetooth Settings…"), action: onOpenSettings)
+                    }
                 }
             }
             ForEach(service.accessories) { accessory in
-                HStack(spacing: 9) {
-                    Image(systemName: accessory.symbol).font(.system(size: typography.size(16))).frame(width: 28)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(accessory.name).font(.system(size: typography.size(11.5), weight: .medium)).lineLimit(1)
-                        Text(componentSummary(accessory)).font(.system(size: typography.size(9.5))).foregroundStyle(typography.secondary)
-                    }
-                    Spacer(minLength: 4)
-                    Text(accessory.percentage.map { localized("%d%%", $0) } ?? "—")
-                        .font(.system(size: typography.size(10.5), weight: .medium)).monospacedDigit()
-                    Image(systemName: accessory.percentage == nil ? "questionmark.circle" : (accessory.percentage ?? 100) < 20 ? "battery.25percent" : "battery.75percent")
-                        .foregroundStyle((accessory.percentage ?? 100) < 20 ? Color.red : Color.secondary)
-                }.padding(.vertical, 3)
-                if accessory.id != service.accessories.last?.id { Divider().opacity(0.4) }
+                AccessoryBatteryRow(accessory: accessory)
             }
-        }.padding(10)
+        }
+        .padding(layout == .standard ? 10 : 0)
+    }
+}
+
+private struct AccessoryBatteryRow: View {
+    @Environment(\.menuTypography) private var typography
+    let accessory: AccessoryBattery
+
+    var body: some View {
+        HStack(spacing: 9) {
+            Image(systemName: accessory.symbol)
+                .font(.system(size: typography.size(13), weight: .semibold))
+                .foregroundStyle(Color.accentColor)
+                .frame(width: typography.size(26), height: typography.size(26))
+                .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
+            VStack(alignment: .leading, spacing: 2) {
+                Text(accessory.name)
+                    .font(.system(size: typography.size(11.5), weight: .medium))
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                if !componentSummary.isEmpty {
+                    Text(componentSummary)
+                        .font(.system(size: typography.size(9.5)))
+                        .foregroundStyle(typography.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            HStack(spacing: 5) {
+                Text(percentageLabel ?? "—")
+                    .font(.system(size: typography.size(11.5), weight: .medium))
+                    .monospacedDigit()
+                    .foregroundStyle(percentageLabel == nil ? typography.secondary : AnyShapeStyle(.primary))
+                    .fixedSize()
+                    .frame(minWidth: typography.size(32), alignment: .trailing)
+                AccessoryBatteryGauge(percentage: accessory.percentage)
+            }
+            .fixedSize()
+        }
+        .padding(.vertical, 2)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(accessory.name))
+        .accessibilityValue(Text(accessibilityValue))
     }
 
-    private func componentSummary(_ item: AccessoryBattery) -> String {
-        let values = [("left", "Left"), ("right", "Right"), ("case", "Case")].compactMap { key, title in
-            item.levels[key].map { localized(title) + " " + localized("%d%%", $0) }
+    private var percentageLabel: String? { accessory.percentage.map { localized("%d%%", $0) } }
+
+    private var componentSummary: String {
+        [("left", "Left"), ("right", "Right"), ("case", "Case")].compactMap { key, title in
+            accessory.levels[key].map { localized(title) + " " + localized("%d%%", $0) }
+        }.joined(separator: " · ")
+    }
+
+    private var accessibilityValue: String {
+        let charge = percentageLabel ?? localized("Battery reading unavailable")
+        return componentSummary.isEmpty ? charge : charge + " · " + componentSummary
+    }
+}
+
+private struct AccessoryBatteryGauge: View {
+    @Environment(\.menuTypography) private var typography
+    let percentage: Int?
+
+    var body: some View {
+        let level = percentage ?? 0
+        let color: Color = level < 20 ? .red : .primary
+        let width = typography.size(18)
+        let height = typography.size(10)
+        HStack(spacing: 1) {
+            RoundedRectangle(cornerRadius: 2.5)
+                .strokeBorder(color.opacity(0.6), lineWidth: 1)
+                .frame(width: width, height: height)
+                .overlay(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 1)
+                        .fill(color)
+                        .frame(width: (width - 4) * CGFloat(level) / 100, height: height - 4)
+                        .padding(.leading, 2)
+                }
+            Capsule().fill(color.opacity(0.6)).frame(width: 1.5, height: typography.size(4))
         }
-        if !values.isEmpty { return values.joined(separator: " · ") }
-        return item.percentage == nil ? localized("macOS has not reported a battery level.") : localized("Connected")
+        .opacity(percentage == nil ? 0 : 1)
+        .accessibilityHidden(true)
     }
 }

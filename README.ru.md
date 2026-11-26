@@ -7,9 +7,9 @@
   <img alt="macOS 13 or later" src="https://img.shields.io/badge/macOS-13%2B-222222?logo=apple&amp;logoColor=white">
   <img alt="Apple Silicon and Intel" src="https://img.shields.io/badge/Universal_2-Apple_Silicon_%2B_Intel-248A3D">
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-blue"></a>
-  <a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.15.0"><img alt="Экспериментальный выпуск 1.15.0" src="https://img.shields.io/badge/release-1.15.0_experimental-orange"></a>
+  <a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.15.1"><img alt="Экспериментальный выпуск 1.15.1" src="https://img.shields.io/badge/release-1.15.1_experimental-orange"></a>
 </p>
-<p align="center"><a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.15.0">Скачать</a> · <a href="README.md">English</a> · <a href="docs/COMPARISON.md">Сравнение форков</a> · <a href="DEVELOPMENT.md">Исходники и сборка</a></p>
+<p align="center"><a href="https://github.com/squazaryu/T-DuoBar/releases/tag/v1.15.1">Скачать</a> · <a href="README.md">English</a> · <a href="docs/COMPARISON.md">Сравнение форков</a> · <a href="DEVELOPMENT.md">Исходники и сборка</a></p>
 
 Независимый общественный форк [DuoBar от Mike Li (Mikeli7666)](https://github.com/Mikeli7666/DuoBar). Батарея, сеть и звук объединены в одном значке строки меню, а подробности и управление доступны в pop-up.
 
@@ -91,7 +91,7 @@
 
 ## Установка и обновление
 
-[Скачать DMG 1.15.0](https://github.com/squazaryu/T-DuoBar/releases/download/v1.15.0/T-DuoBar-1.15.0.dmg?build=42) · [Релиз и SHA-256](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.15.0)
+[Скачать DMG 1.15.1](https://github.com/squazaryu/T-DuoBar/releases/download/v1.15.1/T-DuoBar-1.15.1.dmg?build=43) · [Релиз и SHA-256](https://github.com/squazaryu/T-DuoBar/releases/tag/v1.15.1)
 
 ```sh
 brew install --cask squazaryu/tap/t-duobar
@@ -116,6 +116,16 @@ open /Applications/DuoBar.app
 Наш акцент — **громкость в нижних точках** и расширенный pop-up для батареи, сети и звука, видимость VPN, оформление, локализации и обновления через Homebrew. Например, [hummusaki/DuoBar](https://github.com/hummusaki/DuoBar#readme) делает акцент на настраиваемых Bluetooth-точках и классическом/split-ring оформлении. Проценты и батареи аксессуаров есть и в других форках — мы не заявляем их как исключительные возможности T-DuoBar.
 
 [Сравнение документированных возможностей с оригиналом и другим форком](docs/COMPARISON.md), проверенное 21 октября 2026 года.
+
+## Новое в 1.15.1 · сборка 43
+
+У подключённых Bluetooth-аксессуаров видны процент заряда и значок батареи с пропорциональным заполнением. При заряде ниже 20% значок краснеет. Если отчёт Bluetooth пропустил показание, приложение проверяет дополнительные источники macOS. Прочерк означает, что показание недоступно.
+
+| Стандартное меню | Компактное меню |
+| --- | --- |
+| <img src="assets/1.15.1/accessories-standard-light.png" width="304" alt="Заряд наушников и мыши в стандартном меню"> | <img src="assets/1.15.1/accessories-compact-dark.png" width="304" alt="Заряд наушников и мыши в раскрытом разделе компактного меню"> |
+
+[Заметки к выпуску](release/1.15.1/RELEASE_NOTES_1.15.1.md) · [Проверки и ограничения](release/1.15.1/VALIDATION.md)
 
 ## Новое в 1.15.0 · сборка 42
 
@@ -146,7 +156,7 @@ open /Applications/DuoBar.app
 
 VPN показывает только настроенные подключения, о которых сообщает macOS, и не гарантирует защиту всего трафика. Один лишь туннельный интерфейс не считается доказательством VPN. Показания аксессуаров и оценки времени зависят от macOS и оборудования; отсутствие данных обозначается явно. Подключение к Wi-Fi начинается только по явному выбору сети; для защищённых паролем сетей дополнительно нужно нажать Join. Пароль передаётся CoreWLAN в памяти, не сохраняется и не записывается в журнал. Для корпоративных и неподдерживаемых сетей открываются настройки Wi-Fi macOS. Приложение не выполняет сопряжение Bluetooth; лимит заряда недоступен.
 
-Проверки оборудования, приложения и DMG описаны в [VALIDATION.md](release/1.15.0/VALIDATION.md).
+Проверки оборудования, приложения и DMG для текущей версии описаны в [VALIDATION.md](release/1.15.1/VALIDATION.md).
 
 ## Исходники и авторы
 
