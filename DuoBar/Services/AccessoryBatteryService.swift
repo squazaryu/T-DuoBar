@@ -17,7 +17,7 @@ final class AccessoryBatteryService: ObservableObject {
 
     var isPolling: Bool { timer != nil }
 
-    init(reportReader: @escaping @Sendable () -> [AccessoryBattery]? = { AccessoryBatteryService.readReport() },
+    init(reportReader: @escaping @Sendable () -> [AccessoryBattery]? = { AccessoryBatteryService.readConnectedAccessories() },
          now: @escaping () -> TimeInterval = { ProcessInfo.processInfo.systemUptime }) {
         self.reportReader = reportReader
         self.now = now
@@ -73,14 +73,28 @@ final class AccessoryBatteryService: ObservableObject {
         }
     }
 
+    nonisolated static func readConnectedAccessories() -> [AccessoryBattery]? {
+        guard let connected = readReport(), !Task.isCancelled else { return nil }
+        return AccessoryBatteryFallbacks.fillMissingLevels(connected, readHID: AccessoryBatteryFallbacks.readHIDLevels) {
+            guard let report = readSystemOutput(executable: URL(fileURLWithPath: "/usr/bin/pmset"),
+                arguments: ["-g", "accps"], timeout: 2) else { return [:] }
+            return AccessoryBatteryFallbacks.powerLevels(in: report, excluding: AccessoryBatteryFallbacks.systemPowerSourceNames())
+        }
+    }
+
     nonisolated static func readReport(
         executable: URL = URL(fileURLWithPath: "/usr/sbin/system_profiler"),
         arguments: [String] = ["SPBluetoothDataType", "-json", "-detailLevel", "basic"],
         timeout: TimeInterval = 10
     ) -> [AccessoryBattery]? {
+        guard let data = readSystemOutput(executable: executable, arguments: arguments, timeout: timeout) else { return nil }
+        return try? AccessoryBatteryParser.parse(data)
+    }
+
+    private nonisolated static func readSystemOutput(executable: URL, arguments: [String], timeout: TimeInterval) -> Data? {
         guard !Task.isCancelled else { return nil }
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent("duobar-batteries-\(UUID().uuidString).json")
-        guard FileManager.default.createFile(atPath: url.path, contents: nil) else { return nil }
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("duobar-batteries-\(UUID().uuidString)")
+        guard FileManager.default.createFile(atPath: url.path, contents: nil, attributes: [.posixPermissions: 0o600]) else { return nil }
         defer { try? FileManager.default.removeItem(at: url) }
         guard let output = try? FileHandle(forWritingTo: url) else { return nil }
         defer { try? output.close() }
@@ -109,8 +123,7 @@ final class AccessoryBatteryService: ObservableObject {
             try output.synchronize()
             let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
             guard let size = attributes[.size] as? NSNumber, size.intValue <= 2_097_152 else { return nil }
-            let data = try Data(contentsOf: url)
-            return try AccessoryBatteryParser.parse(data)
+            return try Data(contentsOf: url)
         } catch { return nil }
     }
 

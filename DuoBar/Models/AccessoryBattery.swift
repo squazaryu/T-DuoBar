@@ -3,17 +3,36 @@ import Foundation
 struct AccessoryBattery: Identifiable, Equatable, Sendable {
     let id: String
     let name: String
-    let levels: [String: Int]
+    var levels: [String: Int]
+    var bluetoothAddress: String? = nil
+    var deviceMinorType: String? = nil
+
     var percentage: Int? {
         let earbuds = [levels["left"], levels["right"]].compactMap { $0 }
         return earbuds.min() ?? levels["main"] ?? levels["case"]
     }
+
     var symbol: String {
         let name = name.lowercased()
-        if name.contains("airpods") { return "airpodspro" }
+        switch deviceMinorType?.lowercased() {
+        case "headset", "headphones": return headphoneSymbol
+        case "mouse": return "computermouse"
+        case "trackpad": return "trackpad"
+        case "keyboard": return "keyboard"
+        case "loudspeaker", "speaker": return "speaker.wave.2"
+        case "gamepad", "joystick": return "gamecontroller"
+        default: break
+        }
         if name.contains("keyboard") { return "keyboard" }
-        if name.contains("mouse") || name.contains("trackpad") { return "computermouse" }
-        return "headphones"
+        if name.contains("mouse") { return "computermouse" }
+        if name.contains("trackpad") { return "trackpad" }
+        if name.contains("headphone") || name.contains("headset") || name.contains("airpods") { return headphoneSymbol }
+        return "wave.3.right"
+    }
+
+    private var headphoneSymbol: String {
+        let name = name.lowercased()
+        return name.contains("airpods") && !name.contains("airpods max") ? "airpodspro" : "headphones"
     }
 }
 
@@ -25,6 +44,14 @@ enum AccessoryBatteryParser {
             number = Int(value.replacingOccurrences(of: "%", with: "").trimmingCharacters(in: .whitespacesAndNewlines))
         } else { number = value as? Int }
         return number.flatMap { (0...100).contains($0) ? $0 : nil }
+    }
+
+    static func normalizedAddress(_ address: String?) -> String? {
+        guard let address else { return nil }
+        let octets = address.split(omittingEmptySubsequences: false, whereSeparator: { $0 == ":" || $0 == "-" })
+        guard octets.count == 6,
+              octets.allSatisfy({ $0.utf8.count == 2 && $0.allSatisfy(\.isHexDigit) }) else { return nil }
+        return octets.joined().lowercased()
     }
 
     static func parse(_ data: Data) throws -> [AccessoryBattery] {
@@ -43,7 +70,8 @@ enum AccessoryBatteryParser {
                         levels[component] = value
                     }
                     let address = fields["device_address"] as? String
-                    found.append(AccessoryBattery(id: address ?? name, name: name, levels: levels))
+                    found.append(AccessoryBattery(id: address ?? name, name: name, levels: levels,
+                        bluetoothAddress: normalizedAddress(address), deviceMinorType: fields["device_minorType"] as? String))
                 }
             }
         }
@@ -58,7 +86,7 @@ enum AccessoryBatteryParser {
         }
         visit(object)
         var seen = Set<String>()
-        return found.filter { seen.insert($0.id.lowercased()).inserted }
+        return found.filter { seen.insert($0.bluetoothAddress ?? $0.id.lowercased()).inserted }
             .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 }

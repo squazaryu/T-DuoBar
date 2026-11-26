@@ -188,6 +188,69 @@ final class MenuReleaseVisualTests: XCTestCase {
         }
     }
 
+    func testRenderAccessoryBatteryRowsInBothLayouts() async throws {
+        let suite = "MenuAccessoryPreview.\(UUID().uuidString)"
+        let prefs = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { prefs.removePersistentDomain(forName: suite) }
+        let arguments = UserDefaults.standard.volatileDomain(forName: UserDefaults.argumentDomain)
+        let language = AppLanguage.russian.rawValue
+        UserDefaults.standard.setVolatileDomain(arguments.merging([PreferenceKeys.language: language]) { _, new in new },
+            forName: UserDefaults.argumentDomain)
+        defer { UserDefaults.standard.setVolatileDomain(arguments, forName: UserDefaults.argumentDomain) }
+        prefs.set(false, forKey: PreferenceKeys.animationsEnabled)
+        prefs.set(language, forKey: PreferenceKeys.language)
+        configureVisibility(prefs, panel: "accessories")
+
+        let service = AccessoryBatteryService(reportReader: {
+            [
+                AccessoryBattery(id: "headset", name: "Nothing Headphone (1)", levels: ["main": 45],
+                    deviceMinorType: "Headset"),
+                AccessoryBattery(id: "mouse", name: "Magic Mouse", levels: ["main": 89],
+                    deviceMinorType: "Mouse")
+            ]
+        })
+        service.start()
+        for _ in 0..<60 where service.isRefreshing { try await Task.sleep(for: .milliseconds(10)) }
+        service.stop()
+        XCTAssertEqual(service.accessories.compactMap(\.percentage), [45, 89])
+        let store = SystemStatusStore(startServices: false, accessoryBatteryService: service)
+        store.applyMarketingCaptureState("hero")
+        let output = FileManager.default.temporaryDirectory.appendingPathComponent("T-DuoBar-AccessoryPreview")
+        try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
+
+        for layout in PopoverLayout.allCases {
+            for dark in [false, true] {
+                prefs.set(layout.rawValue, forKey: PreferenceKeys.popoverLayout)
+                prefs.set(dark, forKey: PreferenceKeys.readableMenuText)
+                let root = StatusPopoverView(statusStore: store, onClose: {})
+                    .defaultAppStorage(prefs).environment(\.colorScheme, dark ? .dark : .light)
+                    .background(Color(nsColor: .windowBackgroundColor))
+                let host = NSHostingView(rootView: root)
+                host.appearance = NSAppearance(named: dark ? .darkAqua : .aqua)
+                host.frame = NSRect(origin: .zero, size: host.fittingSize)
+                let window = NSWindow(contentRect: host.bounds, styleMask: .borderless, backing: .buffered, defer: false)
+                window.isReleasedWhenClosed = false
+                window.setFrameOrigin(NSPoint(x: -10000, y: -10000))
+                window.contentView = host
+                defer { window.contentView = nil; window.close() }
+                settle(host)
+                if layout == .compact {
+                    let collapsedHeight = host.fittingSize.height
+                    window.makeKeyAndOrderFront(nil)
+                    try click(host, window: window, point: NSPoint(x: 90, y: 54))
+                    settle(host)
+                    XCTAssertGreaterThan(host.fittingSize.height, collapsedHeight + 60)
+                }
+                XCTAssertEqual(host.fittingSize.width, 304, accuracy: 0.5)
+                let bitmap = try XCTUnwrap(host.bitmapImageRepForCachingDisplay(in: host.bounds))
+                host.cacheDisplay(in: host.bounds, to: bitmap)
+                let name = "accessories-\(layout.rawValue)-\(dark ? "dark" : "light").png"
+                try XCTUnwrap(bitmap.representation(using: .png, properties: [:]))
+                    .write(to: output.appendingPathComponent(name))
+            }
+        }
+    }
+
     private func configureVisibility(_ defaults: UserDefaults, panel: String) {
         for (key, name) in [(PreferenceKeys.showNetwork, "network"), (PreferenceKeys.showBattery, "battery"),
                             (PreferenceKeys.showVPN, "vpn"), (PreferenceKeys.showVolume, "volume"),
